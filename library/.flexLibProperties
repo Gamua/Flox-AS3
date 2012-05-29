@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<flexLibProperties includeAllClasses="true" useMultiPlatformConfig="false" version="3">
+  <includeClasses>
+    <classEntry path="com.gamua.flox.Flox"/>
+    <classEntry path="com.gamua.flox.TimeScope"/>
+    <classEntry path="com.gamua.flox.Leaderboard"/>
+    <classEntry path="com.gamua.flox.Player"/>
+    <classEntry path="com.gamua.flox.Achievement"/>
+    <classEntry path="com.gamua.flox.Score"/>
+    <classEntry path="com.gamua.flox.utils.DateUtil"/>
+    <classEntry path="com.gamua.flox.SortOrder"/>
+    <classEntry path="com.gamua.flox.HttpManager"/>
+  </includeClasses>
+  <includeResources/>
+  <namespaceManifests/>
+</flexLibProperties>
