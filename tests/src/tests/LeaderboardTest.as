@@ -25,6 +25,12 @@ package tests
             Flox.shutdown();
         }
         
+        /** TODO:
+         * 
+         *  - Request auf nicht-existentes leaderboard sollte speziellen HTTP status liefern
+         * 
+         */
+        
         public function testConstructor():void
         {
             var id:String = "id";

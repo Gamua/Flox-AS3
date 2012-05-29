@@ -84,7 +84,7 @@ package com.gamua.flox
             var url:String = createUrl(leaderboardID, timeScope + ".xml");
             HttpManager.getXml(url, {count: DEFAULT_COUNT}, onGetComplete, onError);
             
-            function onGetComplete(leaderboardXml:XML, fromCache:Boolean):void
+            function onGetComplete(leaderboardXml:XML):void
             {
                 onComplete(fromXml(leaderboardXml));
             }

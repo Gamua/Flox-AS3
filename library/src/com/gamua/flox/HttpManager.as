@@ -1,5 +1,7 @@
 package com.gamua.flox
 {
+    import com.gamua.flox.utils.execute;
+    
     import flash.events.Event;
     import flash.events.HTTPStatusEvent;
     import flash.events.IOErrorEvent;
@@ -21,6 +23,7 @@ package com.gamua.flox
         }
         
         // onComplete(xml:XML, fromCache:Boolean);
+        // onError(error:String, httpStatus:int);
         public static function getXml(url:String, params:Object,
                                       onComplete:Function, onError:Function):void
         {
@@ -46,17 +49,19 @@ package com.gamua.flox
                     var dataString:String = loader.data as String;
                     var dataXml:XML = XML(dataString);
                     saveToCache(key, dataXml.@eTag.toString(), dataString);
-                    onComplete(dataXml, false);
+                    execute(onComplete, dataXml, false);
                 }
                 else if (httpStatus == 304)
-                    onComplete(cacheEntry.dataAsXml, true);
+                {
+                    execute(onComplete, cacheEntry.dataAsXml, true);
+                }
                 else
-                    onError("Unexpected HTTP Status: " + httpStatus);
+                    execute(onError, "Unexpected HTTP Status: " + httpStatus, httpStatus);
             }
             
             function onLoaderError(event:IOErrorEvent):void
             {
-                onError("IOError: " + event.text);
+                execute(onError, "IOError: " + event.text, httpStatus);
             }
             
             function onLoaderHttpStatus(event:HTTPStatusEvent):void
