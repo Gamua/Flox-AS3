@@ -10,6 +10,7 @@
     <classEntry path="com.gamua.flox.utils.DateUtil"/>
     <classEntry path="com.gamua.flox.SortOrder"/>
     <classEntry path="com.gamua.flox.HttpManager"/>
+    <classEntry path="com.gamua.flox.PersistentStore"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

@@ -38,7 +38,7 @@ package tests
             assertEqual(playerID, score.playerID);
             assertEqual(playerName, score.playerName);
             assertEqual(value, score.value);
-            assertEqual(time.time, score.time.time);
+            assertEquivalent(time.time, score.time.time, "Time differs", 100);
         }
         
         public function testToXml():void

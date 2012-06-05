@@ -1,35 +1,30 @@
 package tests
 {
     import com.gamua.flox.Flox;
+    import com.gamua.flox.HttpManager;
     import com.gamua.flox.Leaderboard;
     import com.gamua.flox.Score;
     import com.gamua.flox.SortOrder;
     import com.gamua.flox.TimeScope;
     
-    import flash.utils.setTimeout;
+    import flash.utils.clearInterval;
+    import flash.utils.setInterval;
     
     import starling.unit.UnitTest;
 
     public class LeaderboardTest extends UnitTest
     {
-        private static const GAME_KEY:String = "7e143737-6af5-4c66-a261-ea0e0fe7e047"; //"b375e3dc-429a-4bdd-8856-1652a405fe20";
-        private static const GAME_ID:String  = "unit-test-app";
-        
         public override function setUp():void
         {
-            Flox.init(GAME_ID, GAME_KEY);
+            Flox.init(Constants.GAME_ID, Constants.GAME_KEY);
+            HttpManager.clearCache();
+            HttpManager.clearQueue();
         }
         
         public override function tearDown():void
         {
             Flox.shutdown();
         }
-        
-        /** TODO:
-         * 
-         *  - Request auf nicht-existentes leaderboard sollte speziellen HTTP status liefern
-         * 
-         */
         
         public function testConstructor():void
         {
@@ -47,9 +42,9 @@ package tests
             var leaderboard:Leaderboard = new Leaderboard("12");
             var scores:Array = [
                 new Score("tonyID", "tony", 100, new Date(), "en"),
-                new Score("carlID", "carl", 50, new Date(), "at"),
+                new Score("carlID", "carl", 50,  new Date(), "at"),
                 new Score("bellID", "bell", 150, new Date(), "us")
-            ]
+            ];
             
             leaderboard.addScores(scores);
             assertEqual(scores.length, leaderboard.length);
@@ -80,5 +75,46 @@ package tests
                 onComplete();
             }
         }
+        
+        public function testSubmitAndRetrieveScores(onComplete:Function):void
+        {
+            // find out current leader
+            var topScore:int;
+            var intervalID:uint;
+            
+            Flox.loadLeaderboard("default", TimeScope.ALL_TIME, onLbLoaded, onLbError);
+            
+            function onLbLoaded(leaderboard:Leaderboard):void
+            {
+                topScore = 0;
+                if (leaderboard.length > 0)
+                    topScore = leaderboard.getScoreAt(0).value;
+                
+                Flox.postScore("default", topScore + 1, "testSubmitAndRetrieveScores");
+                intervalID = setInterval(onScorePosted, 200);
+            }
+            
+            function onLbError(error:String):void
+            {
+                fail("could not load Leaderboard: " + error);
+                onComplete();
+            }
+            
+            function onScorePosted():void
+            {
+                if (HttpManager.queueLength == 0)
+                {   
+                    clearInterval(intervalID);
+                    Flox.loadLeaderboard("default", TimeScope.TODAY, onLbLoaded2, onLbError); 
+                }
+            }
+            
+            function onLbLoaded2(leaderboard:Leaderboard):void
+            {
+                assert(leaderboard.getScoreAt(0).value == topScore + 1);
+                onComplete();
+            }
+        }
+        
     }
 }

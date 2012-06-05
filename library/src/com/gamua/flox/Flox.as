@@ -2,23 +2,13 @@ package com.gamua.flox
 {
     import com.gamua.flox.utils.formatString;
     
-    import flash.events.Event;
-    import flash.events.HTTPStatusEvent;
-    import flash.events.IOErrorEvent;
-    import flash.net.URLLoader;
-    import flash.net.URLLoaderDataFormat;
-    import flash.net.URLRequest;
-    import flash.net.URLRequestHeader;
-    import flash.net.URLRequestMethod;
-    import flash.net.URLVariables;
-    import flash.net.registerClassAlias;
-    import flash.utils.ByteArray;
-
     public class Flox
     {
         public static const VERSION:String = "1.0";
         
-        private static var sBaseUrl:String;
+        private static const PLAYER_STORE:String = "Flox.localPlayer";
+        private static const BASE_URL:String = "http://www.flox.cc/api";
+        
         private static var sGameID:String;
         private static var sGameKey:String;
         
@@ -28,19 +18,16 @@ package com.gamua.flox
         
         public static function init(gameID:String, gameKey:String):void
         {
-            HttpManager.init();
+            HttpManager.init(BASE_URL);
             
             sGameID = gameID;
             sGameKey = gameKey;
-            sBaseUrl = "http://www.flox.cc/api/games/" + gameID + "/";
-                     //"http://192.168.11.132:8000/api/games/" + gameID + "/";
         }
         
         public static function shutdown():void
         {
             sGameID = "";
             sGameKey = "";
-            sBaseUrl = "";
         }
         
         // analytics
@@ -68,15 +55,17 @@ package com.gamua.flox
         // leader board
         
         /** function(board:Leaderboard); */
-        public static function loadLeaderboard(id:String, timescope:String,
+        public static function loadLeaderboard(leaderboardID:String, timescope:String,
                                                onComplete:Function=null, onError:Function=null):void
         {
-            Leaderboard.load(id, timescope, onComplete, onError);
+            Leaderboard.load(sGameID, leaderboardID, timescope, onComplete, onError);
         }
         
-        public static function postScore(leaderboardName:String, value:int, playerName:String=null):void
+        public static function postScore(leaderboardID:String, score:int, playerName:String=null):void
         {
-            
+            Leaderboard.postScore(sGameID, leaderboardID, score, localPlayer.id, 
+                                  (playerName ? playerName : localPlayer.name), 
+                                  sGameKey);
         }
         
         // achievements
@@ -104,13 +93,24 @@ package com.gamua.flox
         }
         
         // not in v1: player management
-        /*
-        // returns a persistant local player.
-        public static function get defaultLocalPlayer():Player;
         
-        public static function playerLogin(playerID:String):void {}
-        public static function playerLogout():void {}
-        */
+        public static function get localPlayer():Player
+        {
+            if (PersistentStore.get(PLAYER_STORE) == null)
+                PersistentStore.set(PLAYER_STORE, new Player());
+            
+            return PersistentStore.get(PLAYER_STORE) as Player;
+        }
+        
+        public static function playerLogin(playerID:String):void 
+        { 
+            // TODO 
+        }
+        
+        public static function playerLogout():void 
+        {
+            // TODO
+        }
         
         // TODO: config, stuff store
         
@@ -118,11 +118,5 @@ package com.gamua.flox
         
         public static function get gameID():String { return sGameID; }
         public static function get gameKey():String { return sGameKey; }
-        
-        internal static function get baseUrl():String { return sBaseUrl; }
-        internal static function createUrl(...rest):String
-        {
-            return sBaseUrl + rest.join("/");
-        }
     }
 }

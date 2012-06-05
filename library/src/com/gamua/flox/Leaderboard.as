@@ -1,7 +1,5 @@
 package com.gamua.flox
 {
-    import flash.net.SharedObject;
-
     public class Leaderboard
     {
         private static const DEFAULT_COUNT:int = 50;
@@ -78,11 +76,11 @@ package com.gamua.flox
             }
         }
         
-        internal static function load(leaderboardID:String, timeScope:String,
+        internal static function load(gameID:String, leaderboardID:String, timeScope:String,
                                       onComplete:Function=null, onError:Function=null):void
         {
-            var url:String = createUrl(leaderboardID, timeScope + ".xml");
-            HttpManager.getXml(url, {count: DEFAULT_COUNT}, onGetComplete, onError);
+            var url:String = createUrl(gameID, leaderboardID, timeScope + ".xml");
+            HttpManager.getXml(url, {"count": DEFAULT_COUNT}, onGetComplete, onError);
             
             function onGetComplete(leaderboardXml:XML):void
             {
@@ -90,9 +88,18 @@ package com.gamua.flox
             }
         }
         
-        internal static function createUrl(leaderboardID:String, ...rest):String
+        internal static function postScore(gameID:String, leaderboardID:String, score:int, 
+                                           playerID:String, playerName:String, gameKey:String):void
         {
-            return Flox.createUrl("leaderboards", leaderboardID, "scores/") + rest.join("/");  
+            var url:String = createUrl(gameID, leaderboardID);
+            var params:Object = { "playerId": playerID, "playerName": playerName, "value": score }; 
+            HttpManager.postQueued(url, params, gameKey); 
+        }
+        
+        internal static function createUrl(gameID:String, leaderboardID:String, ...rest):String
+        {
+            rest.unshift("games", gameID, "leaderboards", leaderboardID, "scores");
+            return rest.join("/");
         }
     }
 }

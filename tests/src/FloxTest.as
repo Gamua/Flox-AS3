@@ -5,9 +5,7 @@ package
     import starling.unit.TestGui;
     import starling.unit.TestRunner;
     
-    import tests.HttpManagerTest;
-    import tests.LeaderboardTest;
-    import tests.ScoreTest;
+    import tests.*;
     
     public class FloxTest extends Sprite
     {
@@ -20,6 +18,7 @@ package
         {
             var testRunner:TestRunner = new TestRunner();
             
+            testRunner.add(UtilsTest);
             testRunner.add(ScoreTest);
             testRunner.add(LeaderboardTest);
             testRunner.add(HttpManagerTest);
