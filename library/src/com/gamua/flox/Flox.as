@@ -11,45 +11,54 @@ package com.gamua.flox
         
         private static var sGameID:String;
         private static var sGameKey:String;
+        private static var sGameVersion:String;
         
         public function Flox() { throw new Error("This class cannot be instantiated."); }
         
         // initialization
         
-        public static function init(gameID:String, gameKey:String):void
+        public static function init(gameID:String, gameKey:String, gameVersion:String="1.0"):void
         {
-            HttpManager.init(BASE_URL);
-            
             sGameID = gameID;
             sGameKey = gameKey;
+            sGameVersion = gameVersion;
+            
+            HttpManager.init(BASE_URL);
+            Analytics.startSession(gameID, gameKey, gameVersion);
         }
         
         public static function shutdown():void
         {
-            sGameID = "";
-            sGameKey = "";
+            sGameID = sGameKey = sGameVersion = "";
         }
         
         // analytics
         
-        public static function logInfo(text:String, ...args):void
+        public static function logInfo(message:String, ...args):void
         {
-            trace("[Info] " + formatString(text, args));
+            message = formatString(message, args);
+            Analytics.logInfo(message);
+            trace("[Info]", message);
         }
         
-        public static function logWarning(text:String, ...args):void
+        public static function logWarning(message:String, ...args):void
         {
-            trace("[Warning] " + formatString(text, args));
+            message = formatString(message, args);
+            Analytics.logWarning(message);
+            trace("[Warning]", message);
         }
         
-        public static function logError(error:Error, text:String, ...args):void
+        public static function logError(message:String, ...args):void
         {
-            trace("[Error] " + formatString(text, args));
+            message = formatString(message, args);
+            Analytics.logError(message);
+            trace("[Error]", message);
         }
         
-        public static function logEvent(type:String):void
+        public static function logEvent(name:String):void
         {
-            trace("[Event] " + type);
+            Analytics.logEvent(name);
+            trace("[Event]", name);
         }
         
         // leader board
@@ -92,7 +101,7 @@ package com.gamua.flox
             return deflt ? deflt : key;
         }
         
-        // not in v1: player management
+        // player management
         
         public static function get localPlayer():Player
         {
@@ -112,11 +121,12 @@ package com.gamua.flox
             // TODO
         }
         
-        // TODO: config, stuff store
+        // TODO: stuff store
         
         // properties
         
         public static function get gameID():String { return sGameID; }
         public static function get gameKey():String { return sGameKey; }
+        public static function get gameVersion():String { return sGameVersion; }
     }
 }

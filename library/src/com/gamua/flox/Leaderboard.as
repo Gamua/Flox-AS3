@@ -1,5 +1,7 @@
 package com.gamua.flox
 {
+    import com.gamua.flox.utils.createURL;
+
     public class Leaderboard
     {
         private static const DEFAULT_COUNT:int = 50;
@@ -99,7 +101,7 @@ package com.gamua.flox
         internal static function createUrl(gameID:String, leaderboardID:String, ...rest):String
         {
             rest.unshift("games", gameID, "leaderboards", leaderboardID, "scores");
-            return rest.join("/");
+            return createURL(rest);
         }
     }
 }

@@ -11,6 +11,7 @@
     <classEntry path="com.gamua.flox.SortOrder"/>
     <classEntry path="com.gamua.flox.HttpManager"/>
     <classEntry path="com.gamua.flox.PersistentStore"/>
+    <classEntry path="com.gamua.flox.Analytics"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

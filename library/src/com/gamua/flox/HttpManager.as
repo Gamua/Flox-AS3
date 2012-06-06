@@ -1,5 +1,6 @@
 package com.gamua.flox
 {
+    import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.createURL;
     import com.gamua.flox.utils.execute;
     import com.hurlant.crypto.hash.SHA256;
@@ -207,7 +208,8 @@ package com.gamua.flox
             
             variables["sdkType"] = "as3";
             variables["sdkVersion"] = Flox.VERSION;
-            variables["requestId"] = uint(Math.random() * uint.MAX_VALUE); 
+            variables["requestId"] = uint(Math.random() * uint.MAX_VALUE);
+            variables["dispatchTime"] = escape(DateUtil.toW3CDTF(new Date(), true));
             
             if (params)
                 for (var name:String in params)

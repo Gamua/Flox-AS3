@@ -3,7 +3,6 @@ package starling.unit
     import flash.utils.describeType;
     import flash.utils.getQualifiedClassName;
     
-    import starling.utils.Color;
     import starling.utils.formatString;
     
     public class TestRunner
@@ -88,6 +87,7 @@ package starling.unit
             catch (e:Error)
             {
                 mAssertFunction(false, "Error: " + e.message);
+                trace("\n", e.getStackTrace(), "\n");
             }
             
             function tearDown():void

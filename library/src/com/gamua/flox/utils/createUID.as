@@ -20,14 +20,14 @@ package com.gamua.flox.utils
         var j:int;
         
         for (i = 0; i < 8; i++)
-            uid[index++] = ALPHA_CHAR_CODES[Math.floor(Math.random() *  16)];
+            uid[index++] = ALPHA_CHAR_CODES[int(Math.random() *  16)];
         
         for (i = 0; i < 3; i++)
         {
             uid[index++] = 45; // charCode for "-"
             
             for (j = 0; j < 4; j++)
-                uid[index++] = ALPHA_CHAR_CODES[Math.floor(Math.random() *  16)];
+                uid[index++] = ALPHA_CHAR_CODES[int(Math.random() *  16)];
         }
         
         uid[index++] = 45; // charCode for "-"
@@ -43,7 +43,7 @@ package com.gamua.flox.utils
             uid[index++] = timeString.charCodeAt(i);
         
         for (i = 0; i < 4; i++)
-            uid[index++] = ALPHA_CHAR_CODES[Math.floor(Math.random() *  16)];
+            uid[index++] = ALPHA_CHAR_CODES[int(Math.random() *  16)];
         
         return String.fromCharCode.apply(null, uid);
     }

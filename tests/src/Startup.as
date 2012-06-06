@@ -17,7 +17,7 @@ package
             stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
             
-            mStarling = new Starling(FloxTest, stage);
+            mStarling = new Starling(TestSuite, stage);
             mStarling.start();
         }
     }

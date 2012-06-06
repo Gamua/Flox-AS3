@@ -7,9 +7,9 @@ package
     
     import tests.*;
     
-    public class FloxTest extends Sprite
+    public class TestSuite extends Sprite
     {
-        public function FloxTest()
+        public function TestSuite()
         {
             addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
         }
@@ -22,6 +22,7 @@ package
             testRunner.add(ScoreTest);
             testRunner.add(LeaderboardTest);
             testRunner.add(HttpManagerTest);
+            testRunner.add(AnalyticsTest);
             
             var padding:int = 10;
             var width:int  = stage.stageWidth  - 2*padding;
