@@ -4,10 +4,9 @@ package com.gamua.flox
     import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.createURL;
     import com.gamua.flox.utils.encodeXml;
+    import com.gamua.flox.utils.registerClass;
     
-    import flash.net.registerClassAlias;
     import flash.system.Capabilities;
-    import flash.utils.getQualifiedClassName;
 
     public class Analytics
     {
@@ -15,7 +14,7 @@ package com.gamua.flox
         
         public static function startSession(gameID:String, gameKey:String, gameVersion:String):void
         {
-            registerClassAlias(getQualifiedClassName(LogEntry), LogEntry);
+            registerClass(LogEntry);
             endSession(gameID, gameKey);
             
             sessionID = createUID();
@@ -43,7 +42,7 @@ package com.gamua.flox
             lastStartTime = startTime;
             
             HttpManager.postQueued(createURL("games", gameID, "analytics", "startSession"),
-                { data: encodeXml(startXml), dataEncoding: "gzip" }, gameKey);
+                { data: encodeXml(startXml), dataEncoding: "zlib" }, gameKey);
         }
         
         public static function endSession(gameID:String, gameKey:String):void
@@ -65,7 +64,7 @@ package com.gamua.flox
                 endXml.log.appendChild(logEntry.toXml());
             
             HttpManager.postQueued(createURL("games", gameID, "analytics", "endSession"),
-                { data: encodeXml(endXml), dataEncoding: "gzip" }, gameKey);
+                { data: encodeXml(endXml), dataEncoding: "zlib" }, gameKey);
             
             sessionID = null;
             logEntries = null;

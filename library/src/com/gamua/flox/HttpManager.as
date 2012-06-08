@@ -3,6 +3,7 @@ package com.gamua.flox
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.createURL;
     import com.gamua.flox.utils.execute;
+    import com.gamua.flox.utils.registerClass;
     import com.hurlant.crypto.hash.SHA256;
     import com.hurlant.util.Base64;
     
@@ -13,9 +14,7 @@ package com.gamua.flox
     import flash.net.URLRequest;
     import flash.net.URLRequestMethod;
     import flash.net.URLVariables;
-    import flash.net.registerClassAlias;
     import flash.utils.ByteArray;
-    import flash.utils.getQualifiedClassName;
 
     public class HttpManager
     {
@@ -31,7 +30,7 @@ package com.gamua.flox
         public static function init(baseUrl:String):void
         {
             sBaseUrl = baseUrl;
-            registerClassAlias(getQualifiedClassName(CacheEntry), CacheEntry);
+            registerClass(CacheEntry);
             processQueue();
         }
         

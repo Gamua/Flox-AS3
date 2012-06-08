@@ -1,6 +1,9 @@
 package com.gamua.flox
 {
     import com.gamua.flox.utils.formatString;
+    import com.gamua.flox.utils.registerClass;
+    
+    import flash.system.Capabilities;
     
     public class Flox
     {
@@ -12,6 +15,7 @@ package com.gamua.flox
         private static var sGameID:String;
         private static var sGameKey:String;
         private static var sGameVersion:String;
+        private static var sLanguage:String;
         
         public function Flox() { throw new Error("This class cannot be instantiated."); }
         
@@ -22,7 +26,9 @@ package com.gamua.flox
             sGameID = gameID;
             sGameKey = gameKey;
             sGameVersion = gameVersion;
+            sLanguage = Capabilities.language;
             
+            registerClass(Player);
             HttpManager.init(BASE_URL);
             Analytics.startSession(gameID, gameKey, gameVersion);
         }
@@ -65,7 +71,7 @@ package com.gamua.flox
         
         /** function(board:Leaderboard); */
         public static function loadLeaderboard(leaderboardID:String, timescope:String,
-                                               onComplete:Function=null, onError:Function=null):void
+                                               onComplete:Function, onError:Function):void
         {
             Leaderboard.load(sGameID, leaderboardID, timescope, onComplete, onError);
         }
@@ -89,12 +95,14 @@ package com.gamua.flox
         */
         
         // i18n
-        /*
-        public static function get language():String; // default set automatically
-        public static function set language(value:String):void;
         
-        public static function loadLocalizations(onComplete:Function, onError:Function):void; // function()
-        */
+        public static function get language():String { return sLanguage; }
+        public static function set language(value:String):void { sLanguage = value; }
+        
+        public static function loadLocalizations(onComplete:Function, onError:Function):void
+        {
+            // TODO
+        }
         
         public static function localize(key:String, deflt:String=null, ...args):String
         {
@@ -121,8 +129,18 @@ package com.gamua.flox
             // TODO
         }
         
-        // TODO: stuff store
+        // stuff store
+        /*
+        public static function loadResource(path:String, onComplete:Function, onError:Function):void
+        {
+        }
         
+        public static function saveResource(path:String, object:*, publicPermissions:String,
+                                            onComplete:Function=null, onError:Function):void
+        {
+            
+        }
+        */
         // properties
         
         public static function get gameID():String { return sGameID; }
