@@ -7,7 +7,7 @@
     <classEntry path="com.gamua.flox.Player"/>
     <classEntry path="com.gamua.flox.Achievement"/>
     <classEntry path="com.gamua.flox.Score"/>
-    <classEntry path="com.gamua.flox.utils.DateUtil"/>
+    <classEntry path="com.gamua.flox.utils.XmlConvert"/>
     <classEntry path="com.gamua.flox.SortOrder"/>
     <classEntry path="com.gamua.flox.HttpManager"/>
     <classEntry path="com.gamua.flox.PersistentStore"/>

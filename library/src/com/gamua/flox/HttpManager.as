@@ -1,6 +1,6 @@
 package com.gamua.flox
 {
-    import com.gamua.flox.utils.DateUtil;
+    import com.gamua.flox.utils.XmlConvert;
     import com.gamua.flox.utils.createURL;
     import com.gamua.flox.utils.execute;
     import com.gamua.flox.utils.registerClass;
@@ -208,7 +208,7 @@ package com.gamua.flox
             variables["sdkType"] = "as3";
             variables["sdkVersion"] = Flox.VERSION;
             variables["requestId"] = uint(Math.random() * uint.MAX_VALUE);
-            variables["dispatchTime"] = escape(DateUtil.toW3CDTF(new Date(), true));
+            variables["dispatchTime"] = XmlConvert.dateToString(new Date());
             
             if (params)
                 for (var name:String in params)

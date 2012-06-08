@@ -1,7 +1,7 @@
 package tests
 {
     import com.gamua.flox.Score;
-    import com.gamua.flox.utils.DateUtil;
+    import com.gamua.flox.utils.XmlConvert;
     
     import starling.unit.UnitTest;
 
@@ -32,7 +32,7 @@ package tests
             var time:Date = new Date();
             
             var xml:XML = <score playerId={playerID} playerName={playerName} value={value}
-                                 time={DateUtil.toW3CDTF(time, true)}/>;
+                                 time={XmlConvert.dateToString(time)}/>;
             
             var score:Score = Score.fromXml(xml);
             assertEqual(playerID, score.playerID);
@@ -55,7 +55,7 @@ package tests
             assertEqual(xml.@playerID.toString(), playerID);
             assertEqual(xml.@playerName.toString(), playerName);
             assertEqual(xml.@value.toString(), value);
-            assertEqual(xml.@time.toString(), DateUtil.toW3CDTF(time));
+            assertEqual(xml.@time.toString(), XmlConvert.dateToString(time));
             assertEqual(xml.@country.toString(), country);
         }
     }

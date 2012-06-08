@@ -23,6 +23,7 @@ package
             testRunner.add(LeaderboardTest);
             testRunner.add(HttpManagerTest);
             testRunner.add(AnalyticsTest);
+            testRunner.add(SerializationTest);
             
             var padding:int = 10;
             var width:int  = stage.stageWidth  - 2*padding;

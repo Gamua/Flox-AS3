@@ -4,7 +4,7 @@ package tests
 
     public class Constants
     {
-        public static var PRODUCTION_SERVER:Boolean = true;
+        public static const PRODUCTION_SERVER:Boolean = true;
         
         public static function get GAME_ID():String
         {

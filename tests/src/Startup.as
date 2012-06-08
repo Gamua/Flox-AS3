@@ -5,7 +5,6 @@ package
     import flash.display.StageScaleMode;
     
     import starling.core.Starling;
-    import starling.unit.TestRunner;
     
     [SWF(width="400", height="600", frameRate="20", backgroundColor="#000000")]
     public class Startup extends Sprite

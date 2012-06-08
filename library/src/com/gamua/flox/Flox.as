@@ -130,17 +130,49 @@ package com.gamua.flox
         }
         
         // stuff store
-        /*
-        public static function loadResource(path:String, onComplete:Function, onError:Function):void
+        
+        // onComplete(resource:Object):void;
+        // onError(error:String):void;
+        public static function loadSharedData(path:String, 
+                                              onComplete:Function, onError:Function):void
         {
         }
         
-        public static function saveResource(path:String, object:*, publicPermissions:String,
-                                            onComplete:Function=null, onError:Function):void
+        // onComplete():void;
+        // onError(error:String):void;
+        public static function saveSharedData(path:String, object:Object, publicPermissions:String,
+                                              onComplete:Function=null, onError:Function=null):void
         {
-            
         }
-        */
+        
+        // onComplete():void
+        // onError(error:String):void
+        public static function deleteSharedData(path:String, 
+                                                onComplete:Function=null, onError:Function=null):void
+        {
+        }
+        
+        // onComplete(resource:Object):void;
+        // onError(error:String):void;
+        public static function loadPlayerData(path:String, 
+                                              onComplete:Function, onError:Function):void
+        {
+        }
+        
+        // onComplete():void;
+        // onError(error:String):void;
+        public static function savePlayerData(path:String, object:Object,
+                                              onComplete:Function=null, onError:Function=null):void
+        {
+        }
+        
+        // onComplete():void
+        // onError(error:String):void
+        public static function deletePlayerData(path:String, 
+                                                onComplete:Function=null, onError:Function=null):void
+        {
+        }
+        
         // properties
         
         public static function get gameID():String { return sGameID; }

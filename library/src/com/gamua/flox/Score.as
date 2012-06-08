@@ -1,6 +1,6 @@
 package com.gamua.flox
 {
-    import com.gamua.flox.utils.DateUtil;
+    import com.gamua.flox.utils.XmlConvert;
 
     public class Score
     {
@@ -23,14 +23,14 @@ package com.gamua.flox
         public function toXml():XML
         {
             return <score playerID={mPlayerID} playerName={mPlayerName} value={mValue} 
-                          time={DateUtil.toW3CDTF(mTime)} country={mCountry} />
+                          time={XmlConvert.dateToString(mTime)} country={mCountry} />
         }
         
         public static function fromXml(xml:XML):Score
         {
             return new Score(xml.@playerId.toString(), xml.@playerName.toString(), 
                              parseInt(xml.@value.toString()), 
-                             DateUtil.parseW3CDTF(xml.@time.toString()), "us");
+                             XmlConvert.dateFromString(xml.@time.toString()), "us");
         }
         
         public function get value():int { return mValue; }

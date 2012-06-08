@@ -1,9 +1,8 @@
 package com.gamua.flox
 {
-    import com.gamua.flox.utils.DateUtil;
+    import com.gamua.flox.utils.XmlConvert;
     import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.createURL;
-    import com.gamua.flox.utils.encodeXml;
     import com.gamua.flox.utils.registerClass;
     
     import flash.system.Capabilities;
@@ -25,7 +24,7 @@ package com.gamua.flox
             var startXml:XML = 
                     <analyticsSessionStart>
                       <sessionId>{sessionID}</sessionId>
-                      <startTime>{DateUtil.toW3CDTF(startTime, true)}</startTime>
+                      <startTime>{XmlConvert.dateToString(startTime)}</startTime>
                       <gameVersion>{gameVersion}</gameVersion>
                       <languageCode>{Capabilities.language}</languageCode>
                       <deviceInfo>
@@ -37,12 +36,12 @@ package com.gamua.flox
                     </analyticsSessionStart>;
             
             if (lastStartTime) 
-                startXml.lastStartTime = DateUtil.toW3CDTF(lastStartTime, true);
+                startXml.lastStartTime = XmlConvert.dateToString(lastStartTime);
             
             lastStartTime = startTime;
             
             HttpManager.postQueued(createURL("games", gameID, "analytics", "startSession"),
-                { data: encodeXml(startXml), dataEncoding: "zlib" }, gameKey);
+                { data: XmlConvert.encode(startXml), dataCompression: "zlib" }, gameKey);
         }
         
         public static function endSession(gameID:String, gameKey:String):void
@@ -55,7 +54,7 @@ package com.gamua.flox
             var endXml:XML = 
                 <analyticsSessionEnd>
                   <sessionId>{sessionID}</sessionId>
-                  <startTime>{DateUtil.toW3CDTF(lastStartTime)}</startTime>
+                  <startTime>{XmlConvert.dateToString(lastStartTime)}</startTime>
                   <duration>{duration}</duration>
                   <log/>
                 </analyticsSessionEnd>;
@@ -64,7 +63,7 @@ package com.gamua.flox
                 endXml.log.appendChild(logEntry.toXml());
             
             HttpManager.postQueued(createURL("games", gameID, "analytics", "endSession"),
-                { data: encodeXml(endXml), dataEncoding: "zlib" }, gameKey);
+                { data: XmlConvert.encode(endXml), dataCompression: "zlib" }, gameKey);
             
             sessionID = null;
             logEntries = null;
@@ -126,15 +125,17 @@ package com.gamua.flox
     }
 }
 
+import com.gamua.flox.utils.XmlConvert;
+
 import flash.utils.getTimer;
 
 class LogEntry
 {
     public var type:String;
-    public var time:Number;
+    public var time:Date;
     public var message:String;
     
-    public function LogEntry(type:String=null, message:String=null, time:Number=0)
+    public function LogEntry(type:String=null, message:String=null, time:Date=null)
     {
         this.type = type;
         this.message = message;
@@ -143,30 +144,30 @@ class LogEntry
     
     public function toXml():XML
     {
-        return <LogEntry>
+        return <logEntry>
                  <type>{type}</type>
-                 <time>{time}</time>
+                 <time>{XmlConvert.dateToString(time)}</time>
                  <message>{message}</message>
-               </LogEntry>;
+               </logEntry>;
     }
     
     public static function info(message:String):LogEntry
     {
-        return new LogEntry("info", message, getTimer() / 1000);
+        return new LogEntry("info", message, new Date());
     }
     
     public static function warning(message:String):LogEntry
     {
-        return new LogEntry("warning", message, getTimer() / 1000);
+        return new LogEntry("warning", message, new Date());
     }
     
     public static function error(message:String):LogEntry
     {
-        return new LogEntry("error", message, getTimer() / 1000);
+        return new LogEntry("error", message, new Date());
     }
     
     public static function event(message:String):LogEntry
     {
-        return new LogEntry("event", message, getTimer() / 1000);
+        return new LogEntry("event", message, new Date());
     }
 }
