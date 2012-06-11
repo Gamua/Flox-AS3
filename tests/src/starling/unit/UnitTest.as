@@ -82,7 +82,7 @@ package starling.unit
                 for (var prop:String in objectA)
                 {
                     if (!objectB.hasOwnProperty(prop)) return false;
-                    else if (!assertEqualObjects(objectA[prop], objectB[prop])) return false;
+                    else if (!compareObjects(objectA[prop], objectB[prop])) return false;
                 }
                 return true;
             }
