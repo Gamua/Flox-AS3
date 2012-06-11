@@ -1,7 +1,6 @@
 package com.gamua.flox
 {
     import com.gamua.flox.utils.formatString;
-    import com.gamua.flox.utils.registerClass;
     
     import flash.system.Capabilities;
     
@@ -28,7 +27,7 @@ package com.gamua.flox
             sGameVersion = gameVersion;
             sLanguage = Capabilities.language;
             
-            registerClass(Player);
+            PersistentStore.registerClass(Player);
             HttpManager.init(BASE_URL);
             Analytics.startSession(gameID, gameKey, gameVersion);
         }

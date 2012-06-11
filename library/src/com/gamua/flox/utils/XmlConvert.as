@@ -3,19 +3,50 @@ package com.gamua.flox.utils
     import com.hurlant.util.Base64;
     
     import flash.utils.ByteArray;
-    
-    import mx.formatters.DateBase;
+    import flash.utils.Dictionary;
+    import flash.utils.describeType;
+    import flash.utils.getQualifiedClassName;
     
     /** Class that contains static utility methods for XML serialization. */
     public class XmlConvert
     {
-        /** Compresses an XML and encodes it as a Base64 String. */
+        private static const CLASS_ID:String = "@class";
+        private static var sRegisteredClasses:Dictionary = new Dictionary();
+        
+        public function XmlConvert() { throw new Error("This class cannot be instantiated."); }
+        
+        /** Register a class so that it can be (de)serialized with the corresponding methods. */
+        public static function registerClass(type:Class, alias:String=null):void
+        {
+            if (alias == null) alias = getQualifiedClassName(type);
+            sRegisteredClasses[alias] = type;
+        }
+        
+        /** Returns the registered alias of a class. */
+        public static function getRegisteredClassAlias(type:Class):String
+        {
+            for (var alias:String in sRegisteredClasses)
+                if (sRegisteredClasses[alias] == type)
+                    return alias;
+            
+            return null;
+        }
+        
+        /** Returns a class registered under a certain alias. */
+        public static function getRegisteredClass(alias:String):Class
+        {
+            return sRegisteredClasses[alias];
+        }
+        
+        /** Serializes an object in the form of XML data. */
         public static function serialize(object:Object, name:String, xml:XML=null):XML
         {
             var serialization:XML;
             var type:String;
+            var accessorName:String;
             
-            if      (object is int)     type = "int";
+            if      (object == null)    type = "null";
+            else if (object is int)     type = "int";
             else if (object is Number)  type = "float";
             else if (object is Boolean) type = "bool";
             else if (object is String)  type = "string";
@@ -25,12 +56,29 @@ package com.gamua.flox.utils
             {
                 serialization = <r name={name} type={type}/>
                 
-                for (var propertyName:String in object)
-                    serialize(object[propertyName], propertyName, serialization);
+                if (object is Array) registerClass(Array, "Array");
+                
+                var alias:String = getRegisteredClassAlias(object.constructor);
+                if (alias) serialize(alias, CLASS_ID, serialization);
+                
+                // we can iterate like this through 'Object', 'Array' and 'Vector' 
+                for (accessorName in object)
+                    serialize(object[accessorName], accessorName, serialization);
+                
+                // other classes need to be iterated through with the type description
+                for each (var accessor:XML in describeType(object).accessor)
+                {
+                    var access:String = accessor.@access.toString();
+                    if (access == "readwrite") 
+                    {
+                        accessorName = accessor.@name.toString();     
+                        serialize(object[accessorName], accessorName, serialization);
+                    }
+                }
             }
             else
             {
-                serialization = <r name={name} type={type}>{object.toString()}</r>;
+                serialization = <r name={name} type={type}>{object ? object.toString() : ""}</r>;
             }
             
             if (xml == null)
@@ -42,19 +90,47 @@ package com.gamua.flox.utils
             }
         }
         
+        /** Deserializes an object that was serialized with the 'serialize' method. */
         public static function deserialize(xml:XML):Object
         {
             var type:String = xml.@type.toString();
             
             if (type == "dict")
             {
-                var object:Object = {};
+                var object:Object;
+                var typeNodes:XMLList = xml.r.(@name == CLASS_ID);
+                
+                if (typeNodes.length() != 0)
+                {
+                    var alias:String = typeNodes[0].toString();
+                    if (alias == "Array") object = [];
+                    else
+                    {
+                        try { object = new (getRegisteredClass(alias))(); }
+                        catch (e:Error) { throw new TypeError("Unable to deserialize " +
+                            alias + ". The class is probably missing an empty constructor."); }
+                    }
+                }
+                else
+                {
+                    object = {};
+                }
                 
                 for each (var xmlNode:XML in xml.children())
-                    object[xmlNode.@name.toString()] = deserialize(xmlNode);
-                    
+                {
+                    var resourceName:String = xmlNode.@name.toString();
+                    if (resourceName != CLASS_ID) 
+                    {
+                        try { object[resourceName] = deserialize(xmlNode); }
+                        catch (e:Error) { throw new TypeError("Unable to update " + 
+                            resourceName + " property. Maybe it's read-only?"); }
+                    }
+                }
+                
                 return object;
             }
+            else if (type == "null")
+                return null;
             else if (type == "int" || type == "uint")
                 return parseInt(xml.toString());
             else if (type == "float")
@@ -72,6 +148,7 @@ package com.gamua.flox.utils
             else return false;
         }
         
+        /** Encodes an XML into a compressed bytearray and return its Base64 representation. */
         public static function encode(xml:XML):String
         {
             var origPrettyPrinting:Boolean = XML.prettyPrinting;
@@ -132,7 +209,6 @@ package com.gamua.flox.utils
                 var minutes:Number = Number(timeArr.shift());
                 var secondsArr:Array = (timeArr.length > 0) ? String(timeArr.shift()).split(".") : null;
                 var seconds:Number = (secondsArr != null && secondsArr.length > 0) ? Number(secondsArr.shift()) : 0;
-                
                 var milliseconds:Number = (secondsArr != null && secondsArr.length > 0) ? 1000*parseFloat("0." + secondsArr.shift()) : 0; 
                 var utc:Number = Date.UTC(year, month-1, date, hour, minutes, seconds, milliseconds);
                 var offset:Number = (((offsetHours * 3600000) + (offsetMinutes * 60000)) * multiplier);

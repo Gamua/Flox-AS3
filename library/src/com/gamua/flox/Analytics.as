@@ -3,7 +3,6 @@ package com.gamua.flox
     import com.gamua.flox.utils.XmlConvert;
     import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.createURL;
-    import com.gamua.flox.utils.registerClass;
     
     import flash.system.Capabilities;
 
@@ -13,7 +12,7 @@ package com.gamua.flox
         
         public static function startSession(gameID:String, gameKey:String, gameVersion:String):void
         {
-            registerClass(LogEntry);
+            PersistentStore.registerClass(LogEntry);
             endSession(gameID, gameKey);
             
             sessionID = createUID();

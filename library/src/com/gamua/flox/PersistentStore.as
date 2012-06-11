@@ -1,12 +1,19 @@
 package com.gamua.flox
 {
     import flash.net.SharedObject;
+    import flash.net.registerClassAlias;
+    import flash.utils.getQualifiedClassName;
 
     internal class PersistentStore
     {
         private static var sData:Object = {};
         
         public function PersistentStore() { throw new Error("This class cannot be instantiated."); }
+        
+        public static function registerClass(type:Class):void
+        {
+            registerClassAlias(getQualifiedClassName(type), type);
+        }
         
         public static function flush():void
         {
