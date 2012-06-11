@@ -1,5 +1,6 @@
 package starling.unit
 {
+    import flash.utils.describeType;
     import flash.utils.getQualifiedClassName;
 
     public class UnitTest
@@ -75,15 +76,33 @@ package starling.unit
             {
                 var nameA:String = getQualifiedClassName(objectA);
                 var nameB:String = getQualifiedClassName(objectB);
+                var prop:String;
                 
-                if (getQualifiedClassName(objectA) != getQualifiedClassName(objectB))
-                    return false;
+                if (nameA != nameB) return false;
                 
-                for (var prop:String in objectA)
+                if (objectA is Array || nameA.indexOf("__AS3__.vec::Vector.") == 0)
+                {
+                    if (objectA.length != objectB.length) return false;
+                    
+                    for (var i:int=0; i<objectA.length; ++i)
+                        if (objectA[i] !== objectB[i]) return false;
+                }
+                
+                // we can iterate like this through 'Object', 'Array' and 'Vector' 
+                for (prop in objectA)
                 {
                     if (!objectB.hasOwnProperty(prop)) return false;
                     else if (!compareObjects(objectA[prop], objectB[prop])) return false;
                 }
+                
+                // other classes need to be iterated through with the type description
+                var typeDescription:XML = describeType(objectA);
+                for each (var accessor:XML in typeDescription.accessor)
+                {
+                    prop = accessor.@name.toString();                
+                    if (!compareObjects(objectA[prop], objectB[prop])) return false;
+                }
+                
                 return true;
             }
         }
