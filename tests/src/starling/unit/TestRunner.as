@@ -27,7 +27,7 @@ package starling.unit
             mAssertFunction = function(success:Boolean, message:String=null):void
             {
                 if (success) trace("Success!");
-                else trace(message ? "Assertion failed: " + message : "Assertion failed.");
+                else trace(message ? message : "Assertion failed.");
             };
         }
         
@@ -61,41 +61,67 @@ package starling.unit
             mCurrentTestIndex = 0;
         }
 
-        private function runTest(testClass:Class, method:String, onComplete:Function):void
+        private function runTest(testClass:Class, methodName:String, onComplete:Function):void
         {
             var className:String = getQualifiedClassName(testClass).split("::").pop();
-            logFunction(formatString("{0}.{1} ...", className, method));
+            logFunction(formatString("{0}.{1} ...", className, methodName));
             
             var test:UnitTest = new testClass() as UnitTest;
-            var async:Boolean = test[method].length != 0; 
             test.assertFunction = mAssertFunction;
             
-            try
+            setUp();
+            
+            function setUp():void
             {
-                test.setUp();
-                
-                if (async) 
+                try 
                 {
-                    test[method](tearDown);
+                    test.setUp();
+                    test.setUpAsync(run); 
                 }
-                else       
+                catch (e:Error) 
                 {
-                    test[method]();
-                    tearDown();
+                    mAssertFunction(false, e.message);
+                    onComplete();
                 }
             }
-            catch (e:Error)
+            
+            function run():void
             {
-                mAssertFunction(false, "Error: " + e.message);
-                trace("\n", e.getStackTrace(), "\n");
+                var method:Function = test[methodName];
+                var async:Boolean = method.length != 0;
+                if (async)
+                {
+                    try { method(tearDown); }
+                    catch (e:Error) 
+                    { 
+                        mAssertFunction(false, e.message);
+                        trace("\n", e.getStackTrace(), "\n");
+                        onComplete();
+                    }
+                }
+                else
+                {
+                    try { method(); tearDown(); }
+                    catch (e:Error) 
+                    { 
+                        mAssertFunction(false, e.message);
+                        onComplete();
+                    }
+                }
             }
             
             function tearDown():void
             {
-                try { test.tearDown(); }
-                catch (e:Error) { mAssertFunction(false, "Error: " + e.message); }
-                
-                onComplete();
+                try 
+                { 
+                    test.tearDown();
+                    test.tearDownAsync(onComplete);
+                }
+                catch (e:Error) 
+                {
+                    mAssertFunction(false, e.message);
+                    onComplete();
+                }
             }
         }
         

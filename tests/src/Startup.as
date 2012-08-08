@@ -6,7 +6,7 @@ package
     
     import starling.core.Starling;
     
-    [SWF(width="400", height="600", frameRate="20", backgroundColor="#000000")]
+    [SWF(width="800", height="600", frameRate="20", backgroundColor="#000000")]
     public class Startup extends Sprite
     {
         private var mStarling:Starling;

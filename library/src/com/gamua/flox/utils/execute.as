@@ -1,3 +1,10 @@
+// =================================================================================================
+//
+//	Flox AS3
+//	Copyright 2012 Gamua OG. All Rights Reserved.
+//
+// =================================================================================================
+
 package com.gamua.flox.utils
 {
     /** Executes a method with the number of accepted parameters. */

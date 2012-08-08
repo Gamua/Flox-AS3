@@ -13,8 +13,18 @@ package starling.unit
         public function setUp():void
         { }
         
+        public function setUpAsync(onComplete:Function):void
+        {
+            onComplete();
+        }
+        
         public function tearDown():void
         { }
+        
+        public function tearDownAsync(onComplete:Function):void
+        {
+            onComplete();
+        }
         
         protected function assert(condition:Boolean, message:String=null):void
         {

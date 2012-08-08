@@ -1,4 +1,4 @@
-package tests
+package 
 {
     import com.gamua.flox.utils.createURL;
 
@@ -13,8 +13,8 @@ package tests
         
         public static function get GAME_KEY():String
         {
-            return PRODUCTION_SERVER ? "7e143737-6af5-4c66-a261-ea0e0fe7e047" :
-                                       "12c866d1-761d-482f-9d9a-1d817c2a292c";
+            return PRODUCTION_SERVER ? "8b18eeff-9722-4674-a7a8-2c8ad074eafd" :
+                                       "92258dbd-8178-4b48-bbe9-bbaf0ea65e17";
         }
         
         public static function get LEADERBOARD_ID():String
@@ -24,10 +24,10 @@ package tests
         
         public static function get BASE_URL():String
         {
-            return PRODUCTION_SERVER ? "http://www.flox.cc/api" :
+            return PRODUCTION_SERVER ? "https://www.flox.cc/api" :
                                        "http://192.168.11.132:8000/api";
         }
-                
+        
         public static function createGameUrl(...args):String
         {
             return createURL("games", GAME_ID, createURL(args)); 

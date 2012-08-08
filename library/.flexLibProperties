@@ -2,16 +2,10 @@
 <flexLibProperties includeAllClasses="true" useMultiPlatformConfig="false" version="3">
   <includeClasses>
     <classEntry path="com.gamua.flox.Flox"/>
-    <classEntry path="com.gamua.flox.TimeScope"/>
-    <classEntry path="com.gamua.flox.Leaderboard"/>
-    <classEntry path="com.gamua.flox.Player"/>
-    <classEntry path="com.gamua.flox.Achievement"/>
-    <classEntry path="com.gamua.flox.Score"/>
-    <classEntry path="com.gamua.flox.utils.XmlConvert"/>
-    <classEntry path="com.gamua.flox.SortOrder"/>
-    <classEntry path="com.gamua.flox.HttpManager"/>
-    <classEntry path="com.gamua.flox.PersistentStore"/>
     <classEntry path="com.gamua.flox.Analytics"/>
+    <classEntry path="com.gamua.flox.utils.DateUtil"/>
+    <classEntry path="com.gamua.flox.utils.HttpMethod"/>
+    <classEntry path="com.gamua.flox.PersistentQueue"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

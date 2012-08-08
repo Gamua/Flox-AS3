@@ -1,172 +1,147 @@
+// =================================================================================================
+//
+//	Flox AS3
+//	Copyright 2012 Gamua OG. All Rights Reserved.
+//
+// =================================================================================================
+
 package com.gamua.flox
 {
-    import com.gamua.flox.utils.XmlConvert;
-    import com.gamua.flox.utils.createUID;
-    import com.gamua.flox.utils.createURL;
+    import com.gamua.flox.utils.DateUtil;
+    import com.gamua.flox.utils.HttpMethod;
     
+    import flash.net.SharedObject;
+    import flash.net.registerClassAlias;
     import flash.system.Capabilities;
 
     public class Analytics
     {
         public function Analytics() { throw new Error("This class cannot be instantiated."); }
         
-        public static function startSession(gameID:String, gameKey:String, gameVersion:String):void
+        public static function startSession(version:String):void
         {
-            PersistentStore.registerClass(LogEntry);
-            endSession(gameID, gameKey);
+            endSession();
             
-            sessionID = createUID();
-            logEntries = new <LogEntry>[];            
+            // TODO: in AIR, listen for ACTIVATE/DEACTIVATE to get duration
             
-            var startTime:Date = new Date();
+            var lastStartTime:Date  = cache.data.startTime;
+            var lastDuration:Number = cache.data.duration;
+            
+            var startTime:Date = cache.data.startTime = new Date();
             var resolution:String = Capabilities.screenResolutionX + "x" + Capabilities.screenResolutionY;
-            var startXml:XML = 
-                    <analyticsSessionStart>
-                      <sessionId>{sessionID}</sessionId>
-                      <startTime>{XmlConvert.dateToString(startTime)}</startTime>
-                      <gameVersion>{gameVersion}</gameVersion>
-                      <languageCode>{Capabilities.language}</languageCode>
-                      <deviceInfo>
-                        <resolution>{resolution}</resolution>
-                        <os>{Capabilities.os}</os>
-                        <flashPlayerType>{Capabilities.playerType}</flashPlayerType>
-                        <flashPlayerVersion>{Capabilities.version}</flashPlayerVersion>
-                      </deviceInfo>
-                    </analyticsSessionStart>;
             
-            if (lastStartTime) 
-                startXml.lastStartTime = XmlConvert.dateToString(lastStartTime);
+            var data:Object = {
+                startTime: DateUtil.toString(startTime),
+                gameVersion: version,
+                languageCode: Capabilities.language,
+                deviceInfo: {
+                    resolution: resolution,
+                    os: Capabilities.os,
+                    flashPlayerType: Capabilities.playerType,
+                    flashPlayerVersion: Capabilities.version
+                }
+            };
             
-            lastStartTime = startTime;
+            if (lastDuration)
+            {
+                data.lastStartTime = DateUtil.toString(lastStartTime);
+                data.lastDuration  = lastDuration;
+                data.lastLog = cache.data.log;
+            }
             
-            HttpManager.postQueued(createURL("games", gameID, "analytics", "startSession"),
-                { data: XmlConvert.encode(startXml), dataCompression: "zlib" }, gameKey);
+            cache.data.log = [];
+            cache.data.errorCount = 0;
+            cache.data.duration = -1;
+            cache.data.sessionStarted = true;
+            
+            Flox.requestQueued(HttpMethod.POST, ".analytics", data);
         }
         
-        public static function endSession(gameID:String, gameKey:String):void
+        public static function endSession():void
         {
-            if (sessionID == null) return;
+            registerClasses();
             
-            var endTime:Date = new Date();
-            var duration:Number = (endTime.time - lastStartTime.time) / 1000;
+            var sessionStarted:Boolean = cache.data.sessionStarted;
+            var startTime:Date = cache.data.startTime;
             
-            var endXml:XML = 
-                <analyticsSessionEnd>
-                  <sessionId>{sessionID}</sessionId>
-                  <startTime>{XmlConvert.dateToString(lastStartTime)}</startTime>
-                  <duration>{duration}</duration>
-                  <log/>
-                </analyticsSessionEnd>;
-            
-            for each (var logEntry:LogEntry in logEntries)
-                endXml.log.appendChild(logEntry.toXml());
-            
-            HttpManager.postQueued(createURL("games", gameID, "analytics", "endSession"),
-                { data: XmlConvert.encode(endXml), dataCompression: "zlib" }, gameKey);
-            
-            sessionID = null;
-            logEntries = null;
+            if (sessionStarted && startTime)
+            {
+                cache.data.sessionStarted = false;
+                cache.data.duration = (new Date().time - startTime.time) / 1000;
+                
+                // the complete loggings are only submitted if there was an error.
+                // otherwise, only the events are sent to the server.
+                
+                if (cache.data.errorCount == 0)
+                {
+                    var eventsOnly:Array = [];
+                    
+                    for each (var logEntry:LogEntry in cache.data.log)
+                        if (logEntry.type == "event")
+                            eventsOnly.push(logEntry);
+                    
+                    cache.data.log = eventsOnly;
+                }
+            }
         }
         
         // logging
         
         public static function logInfo(message:String):void
         {
-            logEntries.push(LogEntry.info(message));
+            addLogEntry("info", message);
         }
         
         public static function logWarning(message:String):void
         {
-            logEntries.push(LogEntry.warning(message));
+            addLogEntry("warning", message);
         }
         
         public static function logError(message:String):void
         {
-            logEntries.push(LogEntry.error(message));
+            addLogEntry("error", message);
+            cache.data.errorCount++;
         }
         
         public static function logEvent(name:String):void
         {
-            logEntries.push(LogEntry.event(name));
+            addLogEntry("event", name);
         }
         
-        // Persistant Store Access
-        
-        private static function get lastStartTime():Date
+        private static function addLogEntry(type:String, message:String):void
         {
-            return PersistentStore.get("Analytics.lastStartTime") as Date;
+            cache.data.log.push(new LogEntry(type, message));
         }
         
-        private static function set lastStartTime(value:Date):void
+        private static function registerClasses():void
         {
-            PersistentStore.set("Analytics.lastStartTime", value);
+            registerClassAlias("LogEntry", LogEntry);
         }
         
-        private static function get sessionID():String
-        {
-            return PersistentStore.get("Analytics.sessionID") as String;
-        }
+        // persistent data
         
-        private static function set sessionID(value:String):void
+        private static function get cache():SharedObject
         {
-            PersistentStore.set("Analytics.sessionID", value);
-        }
-        
-        private static function get logEntries():Vector.<LogEntry>
-        {
-            return PersistentStore.get("Analytics.logEntries") as Vector.<LogEntry>;
-        }
-        
-        private static function set logEntries(value:Vector.<LogEntry>):void
-        {
-            PersistentStore.set("Analytics.logEntries", value);
+            return SharedObject.getLocal("Flox.Analytics.cache");
         }
     }
 }
 
-import com.gamua.flox.utils.XmlConvert;
+import com.gamua.flox.utils.DateUtil;
 
-import flash.utils.getTimer;
-
+// internal class
 class LogEntry
 {
     public var type:String;
-    public var time:Date;
     public var message:String;
+    public var time:String;
     
-    public function LogEntry(type:String=null, message:String=null, time:Date=null)
+    public function LogEntry(type:String="info", message:String="", time:Date=null)
     {
+        if (time == null) time = new Date();
+        
         this.type = type;
         this.message = message;
-        this.time = time;
-    }
-    
-    public function toXml():XML
-    {
-        return <logEntry>
-                 <type>{type}</type>
-                 <time>{XmlConvert.dateToString(time)}</time>
-                 <message>{message}</message>
-               </logEntry>;
-    }
-    
-    public static function info(message:String):LogEntry
-    {
-        return new LogEntry("info", message, new Date());
-    }
-    
-    public static function warning(message:String):LogEntry
-    {
-        return new LogEntry("warning", message, new Date());
-    }
-    
-    public static function error(message:String):LogEntry
-    {
-        return new LogEntry("error", message, new Date());
-    }
-    
-    public static function event(message:String):LogEntry
-    {
-        return new LogEntry("event", message, new Date());
+        this.time = DateUtil.toString(time);
     }
 }

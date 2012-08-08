@@ -11,6 +11,8 @@ package starling.unit
     public class TestGui extends Sprite
     {
         private static const LINE_HEIGHT:int = 10;
+        private static const FONT_NAME:String = "mini";
+        private static const FONT_SIZE:int = -1;
         
         private var mTestRunner:TestRunner;
         private var mWidth:int;
@@ -31,8 +33,7 @@ package starling.unit
             mWidth = width;
             mHeight = height;
             
-            mStatusInfo = new TextField(width, LINE_HEIGHT, "", BitmapFont.MINI, 
-                                        BitmapFont.NATIVE_SIZE, Color.WHITE);
+            mStatusInfo = new TextField(width, LINE_HEIGHT, "", FONT_NAME, FONT_SIZE, Color.WHITE);
             mStatusInfo.hAlign = HAlign.RIGHT;
             addChild(mStatusInfo);
             
@@ -65,8 +66,8 @@ package starling.unit
         {
             trace(message);
             
-            var logLine:TextField = new TextField(mWidth, LINE_HEIGHT, message, BitmapFont.MINI,
-                                                  BitmapFont.NATIVE_SIZE, color);
+            var logLine:TextField = new TextField(mWidth, LINE_HEIGHT, message, 
+                                                  FONT_NAME, FONT_SIZE, color);
             logLine.hAlign = HAlign.LEFT;
             logLine.y = mNumLogLines * LINE_HEIGHT;
             mLogLines.addChild(logLine);
@@ -89,9 +90,8 @@ package starling.unit
             }
             else
             {
-                if (message == null) message = "Assertion failed.";
-                else message = "Assertion failed: " + message;
-                log("  " + message, Color.RED);
+                message = message ? message : "Assertion failed.";
+                log(" " + message, Color.RED);
             }
             
             mStatusInfo.text = formatString("Passed {0} of {1} tests", mSuccessCount, mTestCount);

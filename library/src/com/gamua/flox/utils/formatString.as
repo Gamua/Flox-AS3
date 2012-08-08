@@ -1,3 +1,10 @@
+// =================================================================================================
+//
+//	Flox AS3
+//	Copyright 2012 Gamua OG. All Rights Reserved.
+//
+// =================================================================================================
+
 package com.gamua.flox.utils
 {
     /** Formats a String in .Net-style, with curly braces ("{0}"). Does not support any 
