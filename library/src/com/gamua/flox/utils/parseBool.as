@@ -11,7 +11,7 @@ package com.gamua.flox.utils
     public function parseBool(str:String):Boolean
     {
         var value:String = str.toLowerCase();
-        if (str == "true" || str == "yes" || str != "0") return true;
+        if (str == "true" || str == "yes") return true;
         else return false;
     }
 }
