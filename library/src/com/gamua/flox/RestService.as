@@ -20,7 +20,7 @@ package com.gamua.flox
     import flash.net.URLRequestMethod;
     import flash.utils.ByteArray;
 
-    internal class RestService
+    internal class RestService implements IRestService
     {
         private var mUrl:String;
         private var mGameID:String;
@@ -36,8 +36,8 @@ package com.gamua.flox
             mQueue = new PersistentQueue("Flox.RestService.queue." + gameID);
         }
         
-        // onComplete(body:Object, eTag:String, httpStatus:int)
-        // onError(error:String, eTag:String, httpStatus:int)
+        // onComplete(body:Object, eTag:String, httpStatus:int):void
+        // onError(error:String, eTag:String, httpStatus:int):void
         public function request(method:String, path:String, data:Object, headers:Object,
                                 onComplete:Function, onError:Function):void
         {
@@ -143,11 +143,13 @@ package com.gamua.flox
                 if (httpStatus == 0 || httpStatus == 503)
                 {
                     // server did not answer or is not available! we stop queue processing.
-                    Flox.logWarning("Service Queue request failed. HttpStatus: {0}", httpStatus);
+                    Flox.logWarning("Flox Server not available. HttpStatus: {0}", httpStatus);
                 }
                 else
                 {
                     // server answered, but there was a logic error -> no retry
+                    Flox.logWarning("Service Queue request failed: {0}", error);
+                    
                     mQueue.dequeue();
                     processQueue();
                 }
@@ -159,6 +161,8 @@ package com.gamua.flox
         /** Encodes an object in JSON format, compresses it and returns its Base64 representation. */
         private static function encode(object:Object):String
         {
+            // TODO: save memory by truncating the byte array before returning
+            
             var data:ByteArray = new ByteArray();
             data.writeUTFBytes(JSON.stringify(object, null, 0));
             data.compress();

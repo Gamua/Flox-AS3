@@ -14,10 +14,14 @@ package com.gamua.flox
     internal class PersistentQueue
     {
         private var mName:String;
+        private var mIndex:SharedObject;
         
         public function PersistentQueue(name:String)
         {
             mName = name;
+            mIndex = SharedObject.getLocal(mName);
+            
+            if (!("keys" in mIndex.data)) mIndex.data.keys = [];
         }
         
         public function enqueue(object:Object):void
@@ -27,7 +31,7 @@ package com.gamua.flox
             var sharedObject:SharedObject = SharedObject.getLocal(key);
             sharedObject.data.value = object;
             
-            index.data.keys.unshift(key);
+            mIndex.data.keys.unshift(key);
         }
         
         public function dequeue():Object
@@ -47,12 +51,12 @@ package com.gamua.flox
         
         public function flush():void
         {
-            index.flush();
+            mIndex.flush();
         }
         
         private function getHead(removeHead:Boolean):Object
         {
-            var keys:Array = index.data.keys;
+            var keys:Array = mIndex.data.keys;
             if (keys.length == 0) return null;
             
             var key:String = keys[keys.length-1];
@@ -62,14 +66,14 @@ package com.gamua.flox
             if (head == null)
             {
                 // shared object was deleted! remove object and try again
-                index.data.keys.pop();
+                keys.pop();
                 head = getHead(removeHead);
             }
             else
             {
                 if (removeHead)
                 {
-                    index.data.keys.pop();
+                    keys.pop();
                     sharedObject.clear();
                 }
             }
@@ -77,14 +81,7 @@ package com.gamua.flox
             return head;
         }
         
-        private function get index():SharedObject
-        {
-            var sharedObject:SharedObject = SharedObject.getLocal(mName);
-            if (!("keys" in sharedObject.data)) sharedObject.data.keys = [];
-            return sharedObject;
-        }
-        
-        public function get length():int { return index.data.keys.length; }
+        public function get length():int { return mIndex.data.keys.length; }
         public function get name():String { return mName; }
     }
 }

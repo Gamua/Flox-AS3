@@ -1,6 +1,5 @@
 package com.gamua.flox
 {
-    
     import flash.utils.setTimeout;
     
     import starling.unit.UnitTest;
@@ -13,22 +12,28 @@ package com.gamua.flox
             // data and can't retrieve it from the server. This test is solely an easy way to
             // step through the code.
             
-            Flox.init(Constants.GAME_ID, "abc" /* Constants.GAME_KEY */, "1.0");
+            var restService:RestService = new RestService(Constants.BASE_URL,
+                                                          Constants.GAME_ID,
+                                                          Constants.GAME_KEY);
             
-            Flox.logInfo("This is the first info log");
-            Flox.logWarning("This is a warning log");
-            Flox.logError("This is an error log");
-            Flox.logEvent("AnalyticsTestExecuted");
-            Flox.logInfo("This is the last info log");
+            var gameSession:GameSession = GameSession.start(restService);
             
-            Flox.shutdown();
+            gameSession.logInfo("This is the first info log");
+            gameSession.logWarning("This is a warning log");
+            gameSession.logError("This is an error log");
+            gameSession.logEvent("AnalyticsTestExecuted");
+            gameSession.logInfo("This is the last info log");
             
-            // start another session - only now will the previous session be transmitted!
+            setTimeout(endSession, 1100);
             
-            Flox.init(Constants.GAME_ID, Constants.GAME_KEY, "1.0");
-            Flox.shutdown();
-            
-            setTimeout(onComplete, 2000);
+            function endSession():void
+            {
+                gameSession.end();
+                
+                // start another session - only now will the previous session be transmitted!
+                GameSession.start(restService);
+                setTimeout(onComplete, 200);
+            }
         }
     }
 }

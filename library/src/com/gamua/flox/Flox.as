@@ -9,18 +9,21 @@ package com.gamua.flox
 {
     import com.gamua.flox.utils.formatString;
     
+    import flash.system.ApplicationDomain;
     import flash.system.Capabilities;
+    import flash.system.Security;
     
     public class Flox
     {
         public static const VERSION:String = "0.1";
-        public static const BASE_URL:String = "https://www.flox.cc/api";
+        public static const BASE_URL:String   = "https://www.flox.cc/api";
         
         private static var sGameID:String;
         private static var sGameKey:String;
         private static var sGameVersion:String;
         private static var sLanguage:String;
         private static var sRestService:RestService;
+        private static var sGameSession:GameSession;
         
         public function Flox() { throw new Error("This class cannot be instantiated."); }
         
@@ -33,56 +36,40 @@ package com.gamua.flox
             sGameVersion = gameVersion;
             sLanguage = Capabilities.language;
             sRestService = new RestService(BASE_URL, gameID, gameKey);
-
-            Analytics.startSession(gameVersion);
+            sGameSession = GameSession.start(sRestService, gameVersion);
         }
         
         public static function shutdown():void
         {
-            Analytics.endSession();
+            sGameSession.end();
         }
         
-        // rest service
-        
-        // onComplete(body:Object, eTag:String, httpStatus:int)
-        // onError(error:String, body:Object, eTag:String, httpStatus:int)
-        internal static function request(method:String, path:String, data:Object, headers:Object, 
-                                         onComplete:Function, onError:Function):void
-        {
-            sRestService.request(method, path, data, headers, onComplete, onError);
-        }
-        
-        internal static function requestQueued(method:String, path:String, data:Object):void
-        {
-            sRestService.requestQueued(method, path, data);
-        }
-        
-        // analytics
+        // logging
         
         public static function logInfo(message:String, ...args):void
         {
             message = formatString(message, args);
-            Analytics.logInfo(message);
+            sGameSession.logInfo(message);
             trace("[Info]", message);
         }
         
         public static function logWarning(message:String, ...args):void
         {
             message = formatString(message, args);
-            Analytics.logWarning(message);
+            sGameSession.logWarning(message);
             trace("[Warning]", message);
         }
         
         public static function logError(message:String, ...args):void
         {
             message = formatString(message, args);
-            Analytics.logError(message);
+            sGameSession.logError(message);
             trace("[Error]", message);
         }
         
         public static function logEvent(name:String):void
         {
-            Analytics.logEvent(name);
+            sGameSession.logEvent(name);
             trace("[Event]", name);
         }
         

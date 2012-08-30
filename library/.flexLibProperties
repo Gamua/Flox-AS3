@@ -2,10 +2,10 @@
 <flexLibProperties includeAllClasses="true" useMultiPlatformConfig="false" version="3">
   <includeClasses>
     <classEntry path="com.gamua.flox.Flox"/>
-    <classEntry path="com.gamua.flox.Analytics"/>
     <classEntry path="com.gamua.flox.utils.DateUtil"/>
     <classEntry path="com.gamua.flox.utils.HttpMethod"/>
     <classEntry path="com.gamua.flox.PersistentQueue"/>
+    <classEntry path="com.gamua.flox.IRestService"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

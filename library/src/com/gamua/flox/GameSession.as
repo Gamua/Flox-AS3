@@ -13,117 +13,137 @@ package com.gamua.flox
     import flash.net.SharedObject;
     import flash.net.registerClassAlias;
     import flash.system.Capabilities;
+    import flash.utils.clearInterval;
+    import flash.utils.setInterval;
 
-    public class Analytics
+    internal class GameSession
     {
-        public function Analytics() { throw new Error("This class cannot be instantiated."); }
+        private var mGameVersion:String;
+        private var mStartTime:Date;
+        private var mDuration:int;
+        private var mLog:Array;
+        private var mNumErrors:int;
+        private var mIntervalID:uint;
         
-        public static function startSession(version:String):void
+        private static var sCurrentSession:SharedObject;
+        
+        public function GameSession(gameVersion:String="1.0")
         {
-            endSession();
+            registerClasses();
             
-            // TODO: in AIR, listen for ACTIVATE/DEACTIVATE to get duration
-            
-            var lastStartTime:Date  = cache.data.startTime;
-            var lastDuration:Number = cache.data.duration;
-            
-            var startTime:Date = cache.data.startTime = new Date();
-            var resolution:String = Capabilities.screenResolutionX + "x" + Capabilities.screenResolutionY;
+            mGameVersion = gameVersion;
+            mStartTime = new Date();
+            mDuration = 0;
+            mLog = [];
+            mNumErrors = 0;
+            mIntervalID = 0;
+        }
+        
+        public static function start(restService:IRestService, gameVersion:String="1.0"):GameSession
+        {
+            var newSession:GameSession = new GameSession(gameVersion);
+            var resolution:String = Capabilities.screenResolutionX + "x" + 
+                                    Capabilities.screenResolutionY;
             
             var data:Object = {
-                startTime: DateUtil.toString(startTime),
-                gameVersion: version,
+                startTime: DateUtil.toString(newSession.mStartTime),
+                gameVersion: gameVersion,
                 languageCode: Capabilities.language,
                 deviceInfo: {
                     resolution: resolution,
                     os: Capabilities.os,
-                    flashPlayerType: Capabilities.playerType,
+                    flashPlayerType:    Capabilities.playerType,
                     flashPlayerVersion: Capabilities.version
                 }
             };
             
-            if (lastDuration)
+            sCurrentSession = SharedObject.getLocal("Flox.GameSession.current");
+            
+            if (sCurrentSession)
             {
-                data.lastStartTime = DateUtil.toString(lastStartTime);
-                data.lastDuration  = lastDuration;
-                data.lastLog = cache.data.log;
-            }
-            
-            cache.data.log = [];
-            cache.data.errorCount = 0;
-            cache.data.duration = -1;
-            cache.data.sessionStarted = true;
-            
-            Flox.requestQueued(HttpMethod.POST, ".analytics", data);
-        }
-        
-        public static function endSession():void
-        {
-            registerClasses();
-            
-            var sessionStarted:Boolean = cache.data.sessionStarted;
-            var startTime:Date = cache.data.startTime;
-            
-            if (sessionStarted && startTime)
-            {
-                cache.data.sessionStarted = false;
-                cache.data.duration = (new Date().time - startTime.time) / 1000;
-                
-                // the complete loggings are only submitted if there was an error.
-                // otherwise, only the events are sent to the server.
-                
-                if (cache.data.errorCount == 0)
+                var oldSession:GameSession = sCurrentSession.data.value;
+                if (oldSession)
                 {
-                    var eventsOnly:Array = [];
-                    
-                    for each (var logEntry:LogEntry in cache.data.log)
-                        if (logEntry.type == "event")
-                            eventsOnly.push(logEntry);
-                    
-                    cache.data.log = eventsOnly;
+                    data.lastStartTime = DateUtil.toString(oldSession.startTime);
+                    data.lastDuration  = oldSession.duration;
+                    data.lastLog = oldSession.log;
+                    sCurrentSession.clear();
                 }
             }
+            
+            restService.requestQueued(HttpMethod.POST, ".analytics", data);
+            
+            sCurrentSession.data.value = newSession;
+            newSession.start();
+            
+            return newSession;
+        }
+        
+        public function start():void
+        {
+            if (mIntervalID == 0) 
+                mIntervalID = setInterval(function():void { ++mDuration }, 1000);
+        }
+        
+        public function end():void
+        {
+            clearInterval(mIntervalID);
+            mIntervalID = 0;
         }
         
         // logging
         
-        public static function logInfo(message:String):void
+        public function logInfo(message:String):void
         {
             addLogEntry("info", message);
         }
         
-        public static function logWarning(message:String):void
+        public function logWarning(message:String):void
         {
             addLogEntry("warning", message);
         }
         
-        public static function logError(message:String):void
+        public function logError(message:String):void
         {
             addLogEntry("error", message);
-            cache.data.errorCount++;
+            mNumErrors++;
         }
         
-        public static function logEvent(name:String):void
+        public function logEvent(name:String):void
         {
             addLogEntry("event", name);
         }
         
-        private static function addLogEntry(type:String, message:String):void
+        private function addLogEntry(type:String, message:String):void
         {
-            cache.data.log.push(new LogEntry(type, message));
+            mLog.push(new LogEntry(type, message));
         }
+        
+        // persistence
         
         private static function registerClasses():void
         {
             registerClassAlias("LogEntry", LogEntry);
+            registerClassAlias("GameSession", GameSession);
         }
         
-        // persistent data
+        // properties 
+        // since this class is saved in a SharedObject, everything has to be R/W!
         
-        private static function get cache():SharedObject
-        {
-            return SharedObject.getLocal("Flox.Analytics.cache");
-        }
+        public function get gameVersion():String { return mGameVersion; }
+        public function set gameVersion(value:String):void { mGameVersion = value; }
+        
+        public function get startTime():Date { return mStartTime; }
+        public function set startTime(value:Date):void { mStartTime = value; }
+        
+        public function get duration():int { return mDuration; }
+        public function set duration(value:int):void { mDuration = value; }
+        
+        public function get log():Array { return mLog; }
+        public function set log(value:Array):void { mLog = value; }
+        
+        public function get numErrors():int { return mNumErrors; }
+        public function set numErrors(value:int):void { mNumErrors = value; }
     }
 }
 

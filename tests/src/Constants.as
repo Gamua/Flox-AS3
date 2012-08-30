@@ -13,7 +13,7 @@ package
         
         public static function get GAME_KEY():String
         {
-            return PRODUCTION_SERVER ? "8b18eeff-9722-4674-a7a8-2c8ad074eafd" :
+            return PRODUCTION_SERVER ? "fefe241a-b7d0-4baf-b708-e2946fd99188" :
                                        "92258dbd-8178-4b48-bbe9-bbaf0ea65e17";
         }
         
