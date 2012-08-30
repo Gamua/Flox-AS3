@@ -156,6 +156,11 @@ package com.gamua.flox
             }
         }
         
+        public function save():void
+        {
+            mQueue.flush();
+        }
+        
         // object encoding
         
         /** Encodes an object in JSON format, compresses it and returns its Base64 representation. */

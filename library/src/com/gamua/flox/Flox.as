@@ -9,14 +9,17 @@ package com.gamua.flox
 {
     import com.gamua.flox.utils.formatString;
     
+    import flash.events.Event;
+    import flash.events.EventDispatcher;
     import flash.system.ApplicationDomain;
     import flash.system.Capabilities;
     import flash.system.Security;
+    import flash.utils.getDefinitionByName;
     
     public class Flox
     {
-        public static const VERSION:String = "0.1";
-        public static const BASE_URL:String   = "https://www.flox.cc/api";
+        public static const VERSION:String  = "0.1";
+        public static const BASE_URL:String = "https://www.flox.cc/api";
         
         private static var sGameID:String;
         private static var sGameKey:String;
@@ -37,11 +40,13 @@ package com.gamua.flox
             sLanguage = Capabilities.language;
             sRestService = new RestService(BASE_URL, gameID, gameKey);
             sGameSession = GameSession.start(sRestService, gameVersion);
+            
+            monitorNativeApplicationEvents();
         }
         
         public static function shutdown():void
         {
-            sGameSession.end();
+            pause();
         }
         
         // logging
@@ -71,6 +76,37 @@ package com.gamua.flox
         {
             sGameSession.logEvent(name);
             trace("[Event]", name);
+        }
+        
+        // utils
+        
+        private static function pause():void
+        {
+            sGameSession.pause();
+            sGameSession.save();
+            sRestService.save();
+        }
+        
+        private static function monitorNativeApplicationEvents():void
+        {
+            try
+            {
+                var nativeAppClass:Object = getDefinitionByName("flash.desktop::NativeApplication");
+                var nativeApp:EventDispatcher = nativeAppClass["nativeApplication"] as EventDispatcher;
+                
+                nativeApp.addEventListener(Event.ACTIVATE, function (e:Event):void 
+                {
+                    logInfo("Game activated");
+                    sGameSession.start(); 
+                });
+                
+                nativeApp.addEventListener(Event.DEACTIVATE, function (e:Event):void 
+                {
+                    logInfo("Game deactivated");
+                    pause(); 
+                });
+            }
+            catch (e:Error) {} // we're not running in AIR
         }
         
         // properties

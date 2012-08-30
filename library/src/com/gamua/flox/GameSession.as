@@ -64,6 +64,7 @@ package com.gamua.flox
                 var oldSession:GameSession = sCurrentSession.data.value;
                 if (oldSession)
                 {
+                    oldSession.pause();
                     data.lastStartTime = DateUtil.toString(oldSession.startTime);
                     data.lastDuration  = oldSession.duration;
                     data.lastLog = oldSession.log;
@@ -85,10 +86,15 @@ package com.gamua.flox
                 mIntervalID = setInterval(function():void { ++mDuration }, 1000);
         }
         
-        public function end():void
+        public function pause():void
         {
             clearInterval(mIntervalID);
             mIntervalID = 0;
+        }
+        
+        public function save():void
+        {
+            sCurrentSession.flush();
         }
         
         // logging

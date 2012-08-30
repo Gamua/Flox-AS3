@@ -28,8 +28,6 @@ package com.gamua.flox
             
             function endSession():void
             {
-                gameSession.end();
-                
                 // start another session - only now will the previous session be transmitted!
                 GameSession.start(restService);
                 setTimeout(onComplete, 200);
