@@ -11,29 +11,28 @@ package com.gamua.flox
     
     import flash.events.Event;
     import flash.events.EventDispatcher;
-    import flash.system.ApplicationDomain;
     import flash.system.Capabilities;
-    import flash.system.Security;
     import flash.utils.getDefinitionByName;
     
     /** The main class used to interact with the Flox cloud service.
      * 
-     *  <p>This class handles all interactions with the Flox service. Do not instantiate it, but
-     *  instead use the static methods directly.</p>
+     *  <p>Do not instantiate this class, but instead use the provided static methods.
+     *  Here is a typical sample on how to integrate Flox in our game:</p>
      *  
+     *  <p>Make this call right at the beginning:</p>
      *  <pre>
-     *  // Make this call right at the beginning of your game:
-     *  Flox.init("my-game-id", "my-game-key", "1.0");
+     *  Flox.init("my-game-id", "my-game-key", "1.0");</pre>
      *  
-     *  // Log important information at run-time:
+     *  <p>Log important information at run-time:</p>
+     *  <pre>
      *  Flox.logInfo("Player {0} lost a life.", player);
      *  Flox.logWarning("Something fishy is going on!");
-     *  Flox.logError("Hell just broke lose: {0}", error.message);
-     *
-     *  // Events are displayed independently in the online interface.
-     *  // Use a limited set of strings.
-     *  Flox.logEvent("GameStarted");
-     *  </pre>
+     *  Flox.logError("Hell just broke loose: {0}", error.message);</pre>
+     *  
+     *  <p>Events are displayed separately in the online interface. 
+     *  Use a limited set of strings as event names.</p>
+     *  <pre>
+     *  Flox.logEvent("GameStarted");</pre>
      */
     public class Flox
     {
