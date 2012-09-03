@@ -75,7 +75,7 @@ package com.gamua.flox
             
             function onLoaderComplete(event:Event):void
             {
-                loader.close();
+                closeLoader();
                 
                 if (httpStatus != 200)
                 {
@@ -106,13 +106,21 @@ package com.gamua.flox
             
             function onLoaderError(event:IOErrorEvent):void
             {
-                loader.close();
+                closeLoader();
                 execute(onError, "Flox Service IO Error: " + event.text, null, httpStatus);
             }
             
             function onLoaderHttpStatus(event:HTTPStatusEvent):void
             {
                 httpStatus = event.status;
+            }
+            
+            function closeLoader():void
+            {
+                loader.removeEventListener(Event.COMPLETE, onLoaderComplete);
+                loader.removeEventListener(IOErrorEvent.IO_ERROR, onLoaderError);
+                loader.removeEventListener(HTTPStatusEvent.HTTP_STATUS, onLoaderHttpStatus);
+                loader.close();
             }
         }
         
