@@ -1,5 +1,6 @@
 package com.gamua.flox
 {
+    import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.createURL;
     
     import starling.unit.UnitTest;
@@ -20,6 +21,19 @@ package com.gamua.flox
             
             // slash at start and/or end must remain
             assertEqual("/a/b/c/", createURL("/a/", "/b/", "/c/"));
+        }
+        
+        public function testDateToString():void
+        {
+            var ms:Number = Date.UTC(2012, 8, 3, 14, 36, 2, 9);
+            var date:Date = new Date(ms);
+            assertEqual("2012-09-03T14:36:02.009Z", DateUtil.toString(date));
+            
+            date.milliseconds = 88;
+            assertEqual("2012-09-03T14:36:02.088Z", DateUtil.toString(date));
+            
+            date.milliseconds = 123;
+            assertEqual("2012-09-03T14:36:02.123Z", DateUtil.toString(date));
         }
     }
 }

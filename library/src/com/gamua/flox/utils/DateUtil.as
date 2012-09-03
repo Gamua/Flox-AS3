@@ -105,7 +105,13 @@ package com.gamua.flox.utils
             sb += ":";
             if (seconds < 10) sb += "0";
             sb += seconds;
-            if (milliseconds > 0) sb += "." + milliseconds;
+            if (milliseconds > 0) 
+            {
+                sb += ".";
+                if (milliseconds < 100) sb += "0";
+                if (milliseconds < 10)  sb += "0";
+                sb += milliseconds;
+            }
             sb += "Z"; //instead of: sb += "-00:00";
             
             return sb;
