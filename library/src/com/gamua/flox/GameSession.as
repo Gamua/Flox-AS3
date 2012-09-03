@@ -16,6 +16,7 @@ package com.gamua.flox
     import flash.utils.clearInterval;
     import flash.utils.setInterval;
 
+    /** A Game Session contains the Analytics data of one game. */
     internal class GameSession
     {
         private var mGameVersion:String;
@@ -27,6 +28,8 @@ package com.gamua.flox
         
         private static var sCurrentSession:SharedObject;
         
+        /** Do not call this constructor directly, but create sessions via the static 
+         *  'start' method instead. */
         public function GameSession(gameVersion:String="1.0")
         {
             registerClasses();
@@ -39,6 +42,9 @@ package com.gamua.flox
             mIntervalID = 0;
         }
         
+        /** Starts a new session and closes the previous one. This will send the analytics of 
+         *  both sessions to the server (including log entries of the old session). 
+         *  @returns the new GameSession. */
         public static function start(restService:IRestService, gameVersion:String="1.0"):GameSession
         {
             var newSession:GameSession = new GameSession(gameVersion);
@@ -80,18 +86,22 @@ package com.gamua.flox
             return newSession;
         }
         
+        /** (Re)starts the timer reporting the duration of a session. This is done automatically
+         *  by the static 'start' method as well. */
         public function start():void
         {
             if (mIntervalID == 0) 
                 mIntervalID = setInterval(function():void { ++mDuration }, 1000);
         }
         
+        /** Stops the timer that reports the duration of a session. */
         public function pause():void
         {
             clearInterval(mIntervalID);
             mIntervalID = 0;
         }
         
+        /** Flushes all information about the current session on the disk. */
         public function save():void
         {
             sCurrentSession.flush();
@@ -99,22 +109,26 @@ package com.gamua.flox
         
         // logging
         
+        /** Adds a log of type 'info'. */
         public function logInfo(message:String):void
         {
             addLogEntry("info", message);
         }
         
+        /** Adds a log of type 'warning'. */
         public function logWarning(message:String):void
         {
             addLogEntry("warning", message);
         }
         
+        /** Adds a log of type 'error'. */
         public function logError(message:String):void
         {
             addLogEntry("error", message);
             mNumErrors++;
         }
         
+        /** Adds a log of type 'event'. */
         public function logEvent(name:String):void
         {
             addLogEntry("event", name);
@@ -136,18 +150,23 @@ package com.gamua.flox
         // properties 
         // since this class is saved in a SharedObject, everything has to be R/W!
         
+        /** The version of the game as it was passed to the 'start' method. */
         public function get gameVersion():String { return mGameVersion; }
         public function set gameVersion(value:String):void { mGameVersion = value; }
         
+        /** The exact time the session was started. */
         public function get startTime():Date { return mStartTime; }
         public function set startTime(value:Date):void { mStartTime = value; }
         
+        /** The duration of the session in seconds. */
         public function get duration():int { return mDuration; }
         public function set duration(value:int):void { mDuration = value; }
         
+        /** An array of all log entries in chronological order. */
         public function get log():Array { return mLog; }
         public function set log(value:Array):void { mLog = value; }
         
+        /** The number of reported erros (via the 'logError' method). */
         public function get numErrors():int { return mNumErrors; }
         public function set numErrors(value:int):void { mNumErrors = value; }
     }

@@ -16,6 +16,25 @@ package com.gamua.flox
     import flash.system.Security;
     import flash.utils.getDefinitionByName;
     
+    /** The main class used to interact with the Flox cloud service.
+     * 
+     *  <p>This class handles all interactions with the Flox service. Do not instantiate it, but
+     *  instead use the static methods directly.</p>
+     *  
+     *  <pre>
+     *  // Make this call right at the beginning of your game:
+     *  Flox.init("my-game-id", "my-game-key", "1.0");
+     *  
+     *  // Log important information at run-time:
+     *  Flox.logInfo("Player {0} lost a life.", player);
+     *  Flox.logWarning("Something fishy is going on!");
+     *  Flox.logError("Hell just broke lose: {0}", error.message);
+     *
+     *  // Events are displayed independently in the online interface.
+     *  // Use a limited set of strings.
+     *  Flox.logEvent("GameStarted");
+     *  </pre>
+     */
     public class Flox
     {
         public static const VERSION:String  = "0.1";
@@ -28,10 +47,13 @@ package com.gamua.flox
         private static var sRestService:RestService;
         private static var sGameSession:GameSession;
         
+        /** @private */ 
         public function Flox() { throw new Error("This class cannot be instantiated."); }
         
         // initialization
         
+        /** Initialize Flox with a certain game ID and key. Use the 'gameVersion' parameter
+         *  to link the collected analytics to a certain game version. */  
         public static function init(gameID:String, gameKey:String, gameVersion:String="1.0"):void
         {
             sGameID = gameID;
@@ -44,6 +66,7 @@ package com.gamua.flox
             monitorNativeApplicationEvents();
         }
         
+        /** Stop the Flox session. You don't have to do this manually in most cases. */
         public static function shutdown():void
         {
             pause();
@@ -51,6 +74,7 @@ package com.gamua.flox
         
         // logging
         
+        /** Add a log of type 'info'. Pass paremeters in .Net style ('{0}', '{1}', etc.). */
         public static function logInfo(message:String, ...args):void
         {
             message = formatString(message, args);
@@ -58,6 +82,7 @@ package com.gamua.flox
             trace("[Info]", message);
         }
         
+        /** Add a log of type 'warning'. Pass paremeters in .Net style ('{0}', '{1}', etc.). */
         public static function logWarning(message:String, ...args):void
         {
             message = formatString(message, args);
@@ -65,6 +90,7 @@ package com.gamua.flox
             trace("[Warning]", message);
         }
         
+        /** Add a log of type 'error'. Pass paremeters in .Net style ('{0}', '{1}', etc.). */
         public static function logError(message:String, ...args):void
         {
             message = formatString(message, args);
@@ -72,6 +98,8 @@ package com.gamua.flox
             trace("[Error]", message);
         }
         
+        /** Add a log of type 'event'. Events are displayed separately in the online interface.
+         *  Limit yourself to a predefined set of strings! */ 
         public static function logEvent(name:String):void
         {
             sGameSession.logEvent(name);

@@ -7,6 +7,8 @@
 
 package com.gamua.flox.utils
 {
+    /** A static helper class providing methods to convert a Date to a String or to parse a String
+     *  to get a Date object. */
     public class DateUtil
     {
         public function DateUtil() { throw new Error("This class cannot be instantiated."); }

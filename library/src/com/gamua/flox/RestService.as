@@ -20,6 +20,7 @@ package com.gamua.flox
     import flash.net.URLRequestMethod;
     import flash.utils.ByteArray;
 
+    /** A class that makes it easy to communicate with the Flox server via a REST protocol. */
     internal class RestService implements IRestService
     {
         private var mUrl:String;
@@ -28,6 +29,8 @@ package com.gamua.flox
         private var mQueue:PersistentQueue;
         private var mProcessingQueue:Boolean;
         
+        /** Create an instance with the base URL of the Flox service. The class will allow 
+         *  communication with the entities of a certain game (identified by id and key). */
         public function RestService(url:String, gameID:String, gameKey:String)
         {
             mUrl = url;
@@ -36,8 +39,7 @@ package com.gamua.flox
             mQueue = new PersistentQueue("Flox.RestService.queue." + gameID);
         }
         
-        // onComplete(body:Object, eTag:String, httpStatus:int):void
-        // onError(error:String, eTag:String, httpStatus:int):void
+        /** @inheritDoc */
         public function request(method:String, path:String, data:Object, headers:Object,
                                 onComplete:Function, onError:Function):void
         {
@@ -105,6 +107,7 @@ package com.gamua.flox
             }
         }
         
+        /** @inheritDoc */
         public function requestQueued(method:String, path:String, data:Object=null, 
                                       headers:Object=null):void
         {
@@ -112,7 +115,7 @@ package com.gamua.flox
             processQueue();
         }
         
-        // returns true if queue is currently processing requests
+        /** @inheritDoc */
         public function processQueue():Boolean
         {
             if (!mProcessingQueue)
@@ -143,12 +146,13 @@ package com.gamua.flox
                 if (httpStatus == 0 || httpStatus == 503)
                 {
                     // server did not answer or is not available! we stop queue processing.
-                    Flox.logWarning("Flox Server not available. HttpStatus: {0}", httpStatus);
+                    Flox.logInfo("Flox Server not reachable (device probably offline). " + 
+                                 "HttpStatus: {0}", httpStatus);
                 }
                 else
                 {
                     // server answered, but there was a logic error -> no retry
-                    Flox.logWarning("Service Queue request failed: {0}", error);
+                    Flox.logWarning("Flox service queue request failed: {0}", error);
                     
                     mQueue.dequeue();
                     processQueue();
@@ -156,6 +160,7 @@ package com.gamua.flox
             }
         }
         
+        /** Saves the request queue to the disk. */
         public function save():void
         {
             mQueue.flush();

@@ -11,11 +11,16 @@ package com.gamua.flox
     
     import flash.net.SharedObject;
 
+    /** A queue that uses SharedObjects to save its contents to the disk. Objects are serialized
+     *  using the AMF format, so be sure to use either primitive objects or classes providing an
+     *  empty constructor and r/w properties. */ 
     internal class PersistentQueue
     {
         private var mName:String;
         private var mIndex:SharedObject;
         
+        /** Create a persistent queue with a certain name. If the name was already used in a 
+         *  previous session, the existing queue is loaded. */ 
         public function PersistentQueue(name:String)
         {
             mName = name;
@@ -24,6 +29,7 @@ package com.gamua.flox
             if (!("keys" in mIndex.data)) mIndex.data.keys = [];
         }
         
+        /** Insert an object at the beginning of the queue. */
         public function enqueue(object:Object):void
         {
             var key:String = createUID();
@@ -34,21 +40,27 @@ package com.gamua.flox
             mIndex.data.keys.unshift(key);
         }
         
+        /** Remove the object at the head of the queue. 
+         *  If the queue is empty, this method returns null. */
         public function dequeue():Object
         {
             return getHead(true);
         }
         
+        /** Returns the object at the head of the queue (without removing it).
+         *  If the queue is empty, this method returns null. */
         public function peek():Object
         {
             return getHead(false);
         }
         
+        /** Removes all elements from the queue. */
         public function clear():void
         {
             while (dequeue()) {};
         }
         
+        /** Saves the current state of the queue to the disk. */
         public function flush():void
         {
             mIndex.flush();
@@ -81,7 +93,10 @@ package com.gamua.flox
             return head;
         }
         
+        /** Returns the number of elements in the queue. */
         public function get length():int { return mIndex.data.keys.length; }
+        
+        /** Returns the name of the queue as it was provided in the constructor. */
         public function get name():String { return mName; }
     }
 }
