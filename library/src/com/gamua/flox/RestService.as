@@ -77,17 +77,26 @@ package com.gamua.flox
             {
                 loader.close();
                 
-                var response:Object = JSON.parse(loader.data);
-                var status:int = parseInt(response.status);
-                var headers:Object = response.headers;
-                var body:Object = decode(response.body);
-                
                 if (httpStatus != 200)
                 {
                     execute(onError, "Flox Server unreachable", null, httpStatus);
                 }
                 else
                 {
+                    try
+                    {
+                        var response:Object = JSON.parse(loader.data);
+                        var status:int = parseInt(response.status);
+                        var headers:Object = response.headers;
+                        var body:Object = decode(response.body);
+                    }
+                    catch (e:Error)
+                    {
+                        execute(onError, "Invalid response from Flox server: " + e.message,
+                                null, httpStatus);
+                        return;
+                    }
+                    
                     if (status < 400)    // success =)
                         execute(onComplete, body, headers.ETag, status);
                     else                 // error =(
