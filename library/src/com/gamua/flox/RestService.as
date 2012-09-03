@@ -7,10 +7,10 @@
 
 package com.gamua.flox
 {
+    import com.gamua.flox.utils.Base64;
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.createURL;
     import com.gamua.flox.utils.execute;
-    import com.hurlant.util.Base64;
     
     import flash.events.Event;
     import flash.events.HTTPStatusEvent;
