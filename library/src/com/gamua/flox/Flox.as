@@ -138,8 +138,13 @@ package com.gamua.flox
         
         // properties
         
+        /** The unique id of this game. */
         public static function get gameID():String { return sGameID; }
+        
+        /** The secret key of this game. */
         public static function get gameKey():String { return sGameKey; }
+        
+        /** The version of this game. */
         public static function get gameVersion():String { return sGameVersion; }
     }
 }
