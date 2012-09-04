@@ -73,35 +73,34 @@ package com.gamua.flox
         
         // logging
         
-        /** Add a log of type 'info'. Pass paremeters in .Net style ('{0}', '{1}', etc.). */
+        /** Add a log of type 'info'. Pass parameters in .Net style ('{0}', '{1}', etc). */
         public static function logInfo(message:String, ...args):void
         {
             message = formatString(message, args);
-            sGameSession.logInfo(message);
+            if (sGameSession) sGameSession.logInfo(message);
             trace("[Info]", message);
         }
         
-        /** Add a log of type 'warning'. Pass paremeters in .Net style ('{0}', '{1}', etc.). */
+        /** Add a log of type 'warning'. Pass parameters in .Net style ('{0}', '{1}', etc). */
         public static function logWarning(message:String, ...args):void
         {
             message = formatString(message, args);
-            sGameSession.logWarning(message);
+            if (sGameSession) sGameSession.logWarning(message);
             trace("[Warning]", message);
         }
         
-        /** Add a log of type 'error'. Pass paremeters in .Net style ('{0}', '{1}', etc.). */
-        public static function logError(message:String, ...args):void
+        /** Add a log of type 'error'. Errors are displayed separately in the online interface. */
+        public static function logError(name:String, message:String=null):void
         {
-            message = formatString(message, args);
-            sGameSession.logError(message);
-            trace("[Error]", message);
+            if (sGameSession) sGameSession.logError(name, message);
+            trace("[Error]", name, message);
         }
         
         /** Add a log of type 'event'. Events are displayed separately in the online interface.
          *  Limit yourself to a predefined set of strings! */ 
         public static function logEvent(name:String):void
         {
-            sGameSession.logEvent(name);
+            if (sGameSession) sGameSession.logEvent(name);
             trace("[Event]", name);
         }
         
@@ -109,9 +108,12 @@ package com.gamua.flox
         
         private static function pause():void
         {
-            sGameSession.pause();
-            sGameSession.save();
-            sRestService.save();
+            if (sGameSession)
+            {
+                sGameSession.pause();
+                sGameSession.save();
+                sRestService.save();
+            }
         }
         
         private static function monitorNativeApplicationEvents():void

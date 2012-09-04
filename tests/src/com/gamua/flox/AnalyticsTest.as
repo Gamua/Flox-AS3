@@ -20,7 +20,8 @@ package com.gamua.flox
             
             gameSession.logInfo("This is the first info log");
             gameSession.logWarning("This is a warning log");
-            gameSession.logError("This is an error log");
+            gameSession.logError("Error");
+            gameSession.logError("AnotherError", "Additional Information");
             gameSession.logEvent("AnalyticsTestExecuted");
             gameSession.logInfo("This is the last info log");
             

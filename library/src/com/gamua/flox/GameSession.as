@@ -32,7 +32,7 @@ package com.gamua.flox
          *  'start' method instead. */
         public function GameSession(gameVersion:String="1.0")
         {
-            registerClasses();
+            registerClassAlias("GameSession", GameSession);
             
             mGameVersion = gameVersion;
             mStartTime = new Date();
@@ -112,39 +112,33 @@ package com.gamua.flox
         /** Adds a log of type 'info'. */
         public function logInfo(message:String):void
         {
-            addLogEntry("info", message);
+            addLogEntry("info", { message: message });
         }
         
         /** Adds a log of type 'warning'. */
         public function logWarning(message:String):void
         {
-            addLogEntry("warning", message);
+            addLogEntry("warning", { message: message });
         }
         
         /** Adds a log of type 'error'. */
-        public function logError(message:String):void
+        public function logError(name:String, message:String=null):void
         {
-            addLogEntry("error", message);
+            addLogEntry("error", { name: name, message: message });
             mNumErrors++;
         }
         
         /** Adds a log of type 'event'. */
         public function logEvent(name:String):void
         {
-            addLogEntry("event", name);
+            addLogEntry("event", { name: name });
         }
         
-        private function addLogEntry(type:String, message:String):void
+        private function addLogEntry(type:String, entry:Object):void
         {
-            mLog.push(new LogEntry(type, message));
-        }
-        
-        // persistence
-        
-        private static function registerClasses():void
-        {
-            registerClassAlias("LogEntry", LogEntry);
-            registerClassAlias("GameSession", GameSession);
+            entry.type = type;
+            entry.time = DateUtil.toString(new Date());
+            mLog.push(entry);
         }
         
         // properties 
@@ -169,24 +163,5 @@ package com.gamua.flox
         /** The number of reported erros (via the 'logError' method). */
         public function get numErrors():int { return mNumErrors; }
         public function set numErrors(value:int):void { mNumErrors = value; }
-    }
-}
-
-import com.gamua.flox.utils.DateUtil;
-
-// internal class
-class LogEntry
-{
-    public var type:String;
-    public var message:String;
-    public var time:String;
-    
-    public function LogEntry(type:String="info", message:String="", time:Date=null)
-    {
-        if (time == null) time = new Date();
-        
-        this.type = type;
-        this.message = message;
-        this.time = DateUtil.toString(time);
     }
 }
