@@ -128,10 +128,12 @@ package com.gamua.flox
             mNumErrors++;
         }
         
-        /** Adds a log of type 'event'. */
-        public function logEvent(name:String):void
+        /** Adds a log of type 'event', with an optional dictionary of additional data. */
+        public function logEvent(name:String, properties:Object=null):void
         {
-            addLogEntry("event", { name: name });
+            var entry:Object = { name: name };
+            if (properties) entry.properties = properties;
+            addLogEntry("event", entry);
         }
         
         private function addLogEntry(type:String, entry:Object):void

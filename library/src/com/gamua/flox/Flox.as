@@ -30,9 +30,11 @@ package com.gamua.flox
      *  Flox.logError("Hell just broke loose: {0}", error.message);</pre>
      *  
      *  <p>Events are displayed separately in the online interface. 
-     *  Use a limited set of strings as event names.</p>
+     *  Use a limited set of strings for event names and property values; otherwise, the 
+     *  visualization of the data in the online interface will become useless quickly.</p>
      *  <pre>
-     *  Flox.logEvent("GameStarted");</pre>
+     *  Flox.logEvent("GameStarted");
+     *  Flox.logEvent("MenuChanged", { from: "MainMenu", to: "SettingsMenu" });</pre>
      */
     public class Flox
     {
@@ -89,7 +91,7 @@ package com.gamua.flox
             trace("[Warning]", message);
         }
         
-        /** Add a log of type 'error'. Errors are displayed separately in the online interface. */
+        /** Add a log of type 'error'. Pass parameters in .Net style ('{0}', '{1}', etc). */
         public static function logError(name:String, message:String=null):void
         {
             if (sGameSession) sGameSession.logError(name, message);
@@ -97,11 +99,15 @@ package com.gamua.flox
         }
         
         /** Add a log of type 'event'. Events are displayed separately in the online interface.
-         *  Limit yourself to a predefined set of strings! */ 
-        public static function logEvent(name:String):void
+         *  Limit yourself to a predefined set of strings!
+         *  
+         *  @param properties: An optional dictionary with additional information about the event.
+         *                     Again, use only a small set of different values, otherwise the 
+         *                     visualization of the data will become useless quickly. */
+        public static function logEvent(name:String, properties:Object=null):void
         {
-            if (sGameSession) sGameSession.logEvent(name);
-            trace("[Event]", name);
+            if (sGameSession) sGameSession.logEvent(name, properties);
+            trace("[Event]", properties ? name + ": " + JSON.stringify(properties) : name);
         }
         
         // utils
