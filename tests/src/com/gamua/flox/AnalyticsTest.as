@@ -12,9 +12,8 @@ package com.gamua.flox
             // data and can't retrieve it from the server. This test is solely an easy way to
             // step through the code.
             
-            var restService:RestService = new RestService(Constants.BASE_URL,
-                                                          Constants.GAME_ID,
-                                                          Constants.GAME_KEY);
+            var restService:RestService = 
+                new RestService(Constants.BASE_URL, Constants.GAME_ID, Constants.GAME_KEY);
             
             var gameSession:GameSession = GameSession.start(restService);
             
@@ -33,6 +32,9 @@ package com.gamua.flox
             gameSession.logError("AnotherError", "Additional Information");
             gameSession.logEvent("AnalyticsTestExecuted");
             gameSession.logEvent("EventWithProperties", eventProperties);
+            gameSession.logEvent("EventWithSingleStringProperty", eventProperties.string);
+            gameSession.logEvent("EventWithSingleNumberProperty", eventProperties.number);
+            gameSession.logEvent("EventWithSingleBooleanProperty", eventProperties.boolean);
             gameSession.logInfo("This is the last info log");
             
             setTimeout(endSession, 1100);

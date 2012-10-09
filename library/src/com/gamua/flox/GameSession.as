@@ -132,7 +132,7 @@ package com.gamua.flox
         public function logEvent(name:String, properties:Object=null):void
         {
             var entry:Object = { name: name };
-            if (properties) entry.properties = properties;
+            if (properties !== null) entry.properties = properties;
             addLogEntry("event", entry);
         }
         

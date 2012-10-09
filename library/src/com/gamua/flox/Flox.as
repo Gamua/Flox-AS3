@@ -107,7 +107,7 @@ package com.gamua.flox
         public static function logEvent(name:String, properties:Object=null):void
         {
             if (sGameSession) sGameSession.logEvent(name, properties);
-            trace("[Event]", properties ? name + ": " + JSON.stringify(properties) : name);
+            trace("[Event]", properties === null ? name : name + ": " + JSON.stringify(properties));
         }
         
         // utils
