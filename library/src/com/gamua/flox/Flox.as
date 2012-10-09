@@ -38,7 +38,7 @@ package com.gamua.flox
      */
     public class Flox
     {
-        public static const VERSION:String  = "0.1";
+        public static const VERSION:String  = "0.2";
         public static const BASE_URL:String = "https://www.flox.cc/api";
         
         private static var sGameID:String;
