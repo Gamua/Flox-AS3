@@ -62,7 +62,7 @@ package com.gamua.flox
             sGameVersion = gameVersion;
             sLanguage = Capabilities.language;
             sRestService = new RestService(BASE_URL, gameID, gameKey);
-            sGameSession = GameSession.start(sRestService, gameVersion);
+            sGameSession = GameSession.start(sRestService, gameID, gameVersion);
             
             monitorNativeApplicationEvents();
         }

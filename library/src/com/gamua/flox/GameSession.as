@@ -45,7 +45,8 @@ package com.gamua.flox
         /** Starts a new session and closes the previous one. This will send the analytics of 
          *  both sessions to the server (including log entries of the old session). 
          *  @returns the new GameSession. */
-        public static function start(restService:IRestService, gameVersion:String="1.0"):GameSession
+        public static function start(restService:IRestService, gameID:String, 
+                                     gameVersion:String="1.0"):GameSession
         {
             var newSession:GameSession = new GameSession(gameVersion);
             var resolution:String = Capabilities.screenResolutionX + "x" + 
@@ -63,7 +64,7 @@ package com.gamua.flox
                 }
             };
             
-            sCurrentSession = SharedObject.getLocal("Flox.GameSession.current");
+            sCurrentSession = SharedObject.getLocal("Flox.GameSession.current." + gameID);
             
             if (sCurrentSession)
             {

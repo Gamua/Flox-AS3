@@ -15,7 +15,7 @@ package com.gamua.flox
             var restService:RestService = 
                 new RestService(Constants.BASE_URL, Constants.GAME_ID, Constants.GAME_KEY);
             
-            var gameSession:GameSession = GameSession.start(restService);
+            var gameSession:GameSession = GameSession.start(restService, Constants.GAME_ID);
             
             var numbers:Array = [10, 20, 30];
             var strings:Array = ["hugo", "berti", "sepp"];
@@ -42,7 +42,7 @@ package com.gamua.flox
             function endSession():void
             {
                 // start another session - only now will the previous session be transmitted!
-                GameSession.start(restService);
+                GameSession.start(restService, Constants.GAME_ID);
                 setTimeout(onComplete, 200);
             }
         }
