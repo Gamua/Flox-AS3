@@ -21,13 +21,14 @@ package com.gamua.flox
     import flash.utils.ByteArray;
 
     /** A class that makes it easy to communicate with the Flox server via a REST protocol. */
-    internal class RestService implements IRestService
+    internal class RestService
     {
         private var mUrl:String;
         private var mGameID:String;
         private var mGameKey:String;
         private var mQueue:PersistentQueue;
         private var mProcessingQueue:Boolean;
+        private var mAuthentication:Authentication;
         
         /** Create an instance with the base URL of the Flox service. The class will allow 
          *  communication with the entities of a certain game (identified by id and key). */
@@ -37,16 +38,28 @@ package com.gamua.flox
             mGameID = gameID;
             mGameKey = gameKey;
             mQueue = new PersistentQueue("Flox.RestService.queue." + gameID);
+            mAuthentication = new Authentication("none");
         }
         
-        /** @inheritDoc */
-        public function request(method:String, path:String, data:Object, headers:Object,
-                                onComplete:Function, onError:Function):void
+        /** Makes an asynchronous HTTP request at the server, with custom authentication data. */
+        private function requestWithAuthentication(method:String, path:String, data:Object, 
+                                                   headers:Object, authentication:Authentication,
+                                                   onComplete:Function, onError:Function):void
         {
             if (headers == null) headers = {};
             
             var xFloxHeader:Object = {
-                sdk: { type: "as3", version: Flox.VERSION },
+                sdk: { 
+                    type: "as3", 
+                    version: Flox.VERSION
+                },
+                player: {  // currently ignored -> see below 
+                    id:        authentication.playerID,
+                    authType:  authentication.type,
+                    authId:    authentication.id,
+                    authToken: authentication.token
+                },
+                playerID: authentication.playerID, // TODO: remove this when server updated
                 gameKey: mGameKey,
                 bodyCompression: "zlib",
                 dispatchTime: DateUtil.toString(new Date())
@@ -124,15 +137,39 @@ package com.gamua.flox
             }
         }
         
-        /** @inheritDoc */
+        /** Makes an asynchronous HTTP request at the server. The method will always execute
+         *  exactly one of the provided callback functions.
+         *  
+         *  @param method: one of the methods provided by the 'HttpMethod' class.
+         *  @param path: the path of the resource relative to the root of the game (!).
+         *  @param data: the data that will be sent as JSON-encoded body.
+         *  @param headers: the data that will be sent as HTTP headers.
+         *  @param onComplete: a callback with the form: 
+         *                     <pre>onComplete(body:Object, eTag:String, httpStatus:int):void;</pre>
+         *  @param onError:    a callback with the form:
+         *                     <pre>onError(error:String, eTag:String, httpStatus:int):void;</pre>
+         */
+        public function request(method:String, path:String, data:Object, headers:Object, 
+                                onComplete:Function, onError:Function):void
+        {
+            requestWithAuthentication(method, path, data, headers, mAuthentication,
+                                      onComplete, onError);
+        }
+        
+        /** Adds an asynchronous HTTP request to a queue and immediately starts to process the
+         *  queue. */
         public function requestQueued(method:String, path:String, data:Object=null, 
                                       headers:Object=null):void
         {
-            mQueue.enqueue({ method: method, path: path, data: data, headers: headers });
+            mQueue.enqueue({ method: method, path: path, data: data, headers: headers,
+                             authentication: mAuthentication });
             processQueue();
         }
         
-        /** @inheritDoc */
+        /** Processes the request queue, executing requests in the order they were recorded.
+         *  If the server cannot be reached, processing stops and is retried later; if a request
+         *  produces an error, it is discarded. 
+         *  @returns true if the queue is currently being processed. */
         public function processQueue():Boolean
         {
             if (!mProcessingQueue)
@@ -141,8 +178,8 @@ package com.gamua.flox
                 {
                     mProcessingQueue = true;
                     var element:Object = mQueue.peek();
-                    request(element.method, element.path, element.data, element.headers,
-                            onRequestComplete, onRequestError);
+                    requestWithAuthentication(element.method, element.path, element.data, 
+                        element.headers, element.authentication, onRequestComplete, onRequestError);
                 }
                 else mProcessingQueue = false;
             }
@@ -182,6 +219,9 @@ package com.gamua.flox
         {
             mQueue.flush();
         }
+        
+        public function get authentication():Authentication { return mAuthentication; }
+        public function set authentication(value:Authentication):void { mAuthentication = value; }
         
         // object encoding
         

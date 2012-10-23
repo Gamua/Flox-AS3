@@ -12,10 +12,7 @@ package com.gamua.flox
             // data and can't retrieve it from the server. This test is solely an easy way to
             // step through the code.
             
-            var restService:RestService = 
-                new RestService(Constants.BASE_URL, Constants.GAME_ID, Constants.GAME_KEY);
-            
-            var gameSession:GameSession = GameSession.start(restService, Constants.GAME_ID);
+            TestHelpers.initFlox();
             
             var numbers:Array = [10, 20, 30];
             var strings:Array = ["hugo", "berti", "sepp"];
@@ -26,23 +23,24 @@ package com.gamua.flox
                 "boolean":  booleans[int(Math.random() * booleans.length)]
             };
             
-            gameSession.logInfo("This is the first info log");
-            gameSession.logWarning("This is a warning log");
-            gameSession.logError("Error");
-            gameSession.logError("AnotherError", "Additional Information");
-            gameSession.logEvent("AnalyticsTestExecuted");
-            gameSession.logEvent("EventWithProperties", eventProperties);
-            gameSession.logEvent("EventWithSingleStringProperty", eventProperties.string);
-            gameSession.logEvent("EventWithSingleNumberProperty", eventProperties.number);
-            gameSession.logEvent("EventWithSingleBooleanProperty", eventProperties.boolean);
-            gameSession.logInfo("This is the last info log");
+            Flox.logInfo("This is the first {0} log", "info");
+            Flox.logWarning("This is a {0} log", "warning");
+            Flox.logError("Error");
+            Flox.logError("AnotherError", "Additional Information");
+            Flox.logError("YetAnotherError", "More Info", new Error().getStackTrace());
+            Flox.logEvent("AnalyticsTestExecuted");
+            Flox.logEvent("EventWithProperties", eventProperties);
+            Flox.logEvent("EventWithSingleStringProperty", eventProperties.string);
+            Flox.logEvent("EventWithSingleNumberProperty", eventProperties.number);
+            Flox.logEvent("EventWithSingleBooleanProperty", eventProperties.boolean);
+            Flox.logInfo("This is the last info log");
             
             setTimeout(endSession, 1100);
             
             function endSession():void
             {
                 // start another session - only now will the previous session be transmitted!
-                GameSession.start(restService, Constants.GAME_ID);
+                TestHelpers.initFlox();
                 setTimeout(onComplete, 200);
             }
         }

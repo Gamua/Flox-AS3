@@ -10,8 +10,6 @@ package com.gamua.flox
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpMethod;
     
-    import flash.net.SharedObject;
-    import flash.net.registerClassAlias;
     import flash.system.Capabilities;
     import flash.utils.clearInterval;
     import flash.utils.setInterval;
@@ -26,14 +24,10 @@ package com.gamua.flox
         private var mNumErrors:int;
         private var mIntervalID:uint;
         
-        private static var sCurrentSession:SharedObject;
-        
         /** Do not call this constructor directly, but create sessions via the static 
          *  'start' method instead. */
         public function GameSession(gameVersion:String="1.0")
         {
-            registerClassAlias("GameSession", GameSession);
-            
             mGameVersion = gameVersion;
             mStartTime = new Date();
             mDuration = 0;
@@ -43,10 +37,10 @@ package com.gamua.flox
         }
         
         /** Starts a new session and closes the previous one. This will send the analytics of 
-         *  both sessions to the server (including log entries of the old session). 
+         *  both sessions to the server (including log entries of the last session). 
          *  @returns the new GameSession. */
-        public static function start(restService:IRestService, gameID:String, 
-                                     gameVersion:String="1.0"):GameSession
+        public static function start(gameID:String, gameVersion:String,
+                                     lastSession:GameSession=null):GameSession
         {
             var newSession:GameSession = new GameSession(gameVersion);
             var resolution:String = Capabilities.screenResolutionX + "x" + 
@@ -64,24 +58,15 @@ package com.gamua.flox
                 }
             };
             
-            sCurrentSession = SharedObject.getLocal("Flox.GameSession.current." + gameID);
-            
-            if (sCurrentSession)
+            if (lastSession)
             {
-                var oldSession:GameSession = sCurrentSession.data.value;
-                if (oldSession)
-                {
-                    oldSession.pause();
-                    data.lastStartTime = DateUtil.toString(oldSession.startTime);
-                    data.lastDuration  = oldSession.duration;
-                    data.lastLog = oldSession.log;
-                    sCurrentSession.clear();
-                }
+                lastSession.pause();
+                data.lastStartTime = DateUtil.toString(lastSession.startTime);
+                data.lastDuration  = lastSession.duration;
+                data.lastLog = lastSession.log;
             }
             
-            restService.requestQueued(HttpMethod.POST, ".analytics", data);
-            
-            sCurrentSession.data.value = newSession;
+            Flox.service.requestQueued(HttpMethod.POST, ".analytics", data);
             newSession.start();
             
             return newSession;
@@ -102,12 +87,6 @@ package com.gamua.flox
             mIntervalID = 0;
         }
         
-        /** Flushes all information about the current session on the disk. */
-        public function save():void
-        {
-            sCurrentSession.flush();
-        }
-        
         // logging
         
         /** Adds a log of type 'info'. */
@@ -123,9 +102,9 @@ package com.gamua.flox
         }
         
         /** Adds a log of type 'error'. */
-        public function logError(name:String, message:String=null):void
+        public function logError(name:String, message:String=null, stacktrace:String=null):void
         {
-            addLogEntry("error", { name: name, message: message });
+            addLogEntry("error", { name: name, message: message, stacktrace: stacktrace });
             mNumErrors++;
         }
         
