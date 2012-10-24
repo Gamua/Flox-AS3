@@ -73,16 +73,8 @@ package starling.unit
             
             function setUp():void
             {
-                try 
-                {
-                    test.setUp();
-                    test.setUpAsync(run); 
-                }
-                catch (e:Error) 
-                {
-                    mAssertFunction(false, e.message);
-                    onComplete();
-                }
+                test.setUp();
+                test.setUpAsync(run); 
             }
             
             function run():void
@@ -91,37 +83,19 @@ package starling.unit
                 var async:Boolean = method.length != 0;
                 if (async)
                 {
-                    try { method(tearDown); }
-                    catch (e:Error) 
-                    { 
-                        mAssertFunction(false, e.message);
-                        trace("\n", e.getStackTrace(), "\n");
-                        onComplete();
-                    }
+                    method(tearDown);
                 }
                 else
                 {
-                    try { method(); tearDown(); }
-                    catch (e:Error) 
-                    { 
-                        mAssertFunction(false, e.message);
-                        onComplete();
-                    }
+                    method(); 
+                    tearDown();
                 }
             }
             
             function tearDown():void
             {
-                try 
-                { 
-                    test.tearDown();
-                    test.tearDownAsync(onComplete);
-                }
-                catch (e:Error) 
-                {
-                    mAssertFunction(false, e.message);
-                    onComplete();
-                }
+                test.tearDown();
+                test.tearDownAsync(onComplete);
             }
         }
         
