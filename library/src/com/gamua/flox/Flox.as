@@ -10,6 +10,7 @@ package com.gamua.flox
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpMethod;
     import com.gamua.flox.utils.createUID;
+    import com.gamua.flox.utils.execute;
     import com.gamua.flox.utils.formatString;
     
     import flash.events.Event;
@@ -142,7 +143,7 @@ package com.gamua.flox
                                           parseInt(rawScore.value), 
                                           DateUtil.parse(rawScore.createdAt)));
                 }
-                onComplete(scores);
+                execute(onComplete, scores);
             }
         }
         
