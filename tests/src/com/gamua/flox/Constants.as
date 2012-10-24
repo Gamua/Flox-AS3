@@ -1,4 +1,4 @@
-package 
+package com.gamua.flox 
 {
     import com.gamua.flox.utils.createURL;
 
@@ -6,20 +6,14 @@ package
     {
         public static const PRODUCTION_SERVER:Boolean = true;
         
-        public static function get GAME_ID():String
-        {
-            return PRODUCTION_SERVER ? "unit-test-app" : "unit-test-app";
-        }
+        public static const GAME_ID:String = "gamua-unit-tests";
+        public static const LEADERBOARD_ID:String = "default";
+        
         
         public static function get GAME_KEY():String
         {
-            return PRODUCTION_SERVER ? "fefe241a-b7d0-4baf-b708-e2946fd99188" :
-                                       "6015c424-9c6d-4a9b-95be-9e6097e24b93";
-        }
-        
-        public static function get LEADERBOARD_ID():String
-        {
-            return PRODUCTION_SERVER ? "default" : "default";
+            return PRODUCTION_SERVER ? "150a1bb6-b33d-4eb3-8848-23051f200359" :
+                                       "0d53277c-39ba-4519-8920-07a1a5af9581";
         }
         
         public static function get BASE_URL():String
@@ -36,6 +30,12 @@ package
         public static function createLeaderboardUrl(...args):String
         {
             return createURL("games", GAME_ID, "leaderboards", LEADERBOARD_ID, createURL(args));
+        }
+        
+        public static function initFlox():void
+        {
+            Flox.traceLogs = false;
+            Flox.initWithBaseURL(GAME_ID, GAME_KEY, "1.0", BASE_URL);
         }
     }
 }

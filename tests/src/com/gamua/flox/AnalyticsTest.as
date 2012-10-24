@@ -6,13 +6,21 @@ package com.gamua.flox
 
     public class AnalyticsTest extends UnitTest
     {
+        public override function setUp():void
+        {
+            Constants.initFlox();
+        }
+        
+        public override function tearDown():void
+        {
+            Flox.shutdown();
+        }
+        
         public function testSession(onComplete:Function):void
         {
             // nothing to actually test here, because the analytics class just uploads the 
             // data and can't retrieve it from the server. This test is solely an easy way to
             // step through the code.
-            
-            TestHelpers.initFlox();
             
             var numbers:Array = [10, 20, 30];
             var strings:Array = ["hugo", "berti", "sepp"];
@@ -40,7 +48,8 @@ package com.gamua.flox
             function endSession():void
             {
                 // start another session - only now will the previous session be transmitted!
-                TestHelpers.initFlox();
+                Flox.shutdown();
+                Constants.initFlox();
                 setTimeout(onComplete, 200);
             }
         }

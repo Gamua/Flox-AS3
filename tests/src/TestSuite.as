@@ -18,12 +18,16 @@ package
         {
             var testRunner:TestRunner = new TestRunner();
             
+            if (Constants.BASE_URL.indexOf("/api") != Constants.BASE_URL.length - 4)
+                throw new Error("You entered an invalid BASE_URL, stupid!");
+            
             // --- add tests here ---
             
             testRunner.add(PersistentQueueTest);
             testRunner.add(UtilsTest);
             testRunner.add(RestServiceTest);
             testRunner.add(AnalyticsTest);
+            testRunner.add(ScoreTest);
             
             // ---
             

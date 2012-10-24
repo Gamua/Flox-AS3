@@ -6,10 +6,19 @@ package com.gamua.flox
 
     public class RestServiceTest extends UnitTest
     {
+        public override function setUp():void
+        {
+            Constants.initFlox();
+        }
+        
+        public override function tearDown():void
+        {
+            Flox.shutdown();
+        }
+        
         public function testGetStatus(onComplete:Function):void
         {
-            var restService:RestService = new RestService(Constants.BASE_URL, null, null);
-            restService.request(HttpMethod.GET, "", null, null, onRequestComplete, onRequestError);
+            Flox.service.request(HttpMethod.GET, "", null, null, onRequestComplete, onRequestError);
             
             function onRequestComplete(body:Object, eTag:String, httpStatus:int):void
             {
@@ -26,9 +35,27 @@ package com.gamua.flox
         
         public function testProvokeError(onComplete:Function):void
         {
-            var restService:RestService = new RestService(Constants.BASE_URL, "illegal", null);
-            restService.request(HttpMethod.GET, ".analytics", null, null, onRequestComplete, onRequestError);
+            Flox.service.request(HttpMethod.GET, ".analytics", null, null, onRequestComplete, onRequestError);
 
+            function onRequestComplete(body:Object, eTag:String, httpStatus:int):void
+            {
+                fail("Server should have returned error");
+                onComplete();
+            }
+            
+            function onRequestError(error:String, body:Object, eTag:String, httpStatus:int):void
+            {
+                onComplete();
+            }
+        }
+        
+        public function testNonExistingMethod(onComplete:Function):void
+        {
+            onComplete(); // TODO: this needs to be fixed on the server
+            
+            //Flox.service.request(HttpMethod.GET, ".does-not-exist", null, null, 
+            //                     onRequestComplete, onRequestError);
+            
             function onRequestComplete(body:Object, eTag:String, httpStatus:int):void
             {
                 fail("Server should have returned error");

@@ -9,6 +9,7 @@ package com.gamua.flox
 {
     import com.gamua.flox.utils.Base64;
     import com.gamua.flox.utils.DateUtil;
+    import com.gamua.flox.utils.HttpMethod;
     import com.gamua.flox.utils.createURL;
     import com.gamua.flox.utils.execute;
     
@@ -18,6 +19,7 @@ package com.gamua.flox
     import flash.net.URLLoader;
     import flash.net.URLRequest;
     import flash.net.URLRequestMethod;
+    import flash.net.URLVariables;
     import flash.utils.ByteArray;
 
     /** A class that makes it easy to communicate with the Flox server via a REST protocol. */
@@ -28,7 +30,6 @@ package com.gamua.flox
         private var mGameKey:String;
         private var mQueue:PersistentQueue;
         private var mProcessingQueue:Boolean;
-        private var mAuthentication:Authentication;
         
         /** Create an instance with the base URL of the Flox service. The class will allow 
          *  communication with the entities of a certain game (identified by id and key). */
@@ -38,7 +39,6 @@ package com.gamua.flox
             mGameID = gameID;
             mGameKey = gameKey;
             mQueue = new PersistentQueue("Flox.RestService.queue." + gameID);
-            mAuthentication = new Authentication("none");
         }
         
         /** Makes an asynchronous HTTP request at the server, with custom authentication data. */
@@ -59,7 +59,7 @@ package com.gamua.flox
                     authId:    authentication.id,
                     authToken: authentication.token
                 },
-                playerID: authentication.playerID, // TODO: remove this when server updated
+                playerId: authentication.playerID, // TODO: remove this when server updated
                 gameKey: mGameKey,
                 bodyCompression: "zlib",
                 dispatchTime: DateUtil.toString(new Date())
@@ -72,17 +72,19 @@ package com.gamua.flox
             loader.addEventListener(Event.COMPLETE, onLoaderComplete);
             loader.addEventListener(IOErrorEvent.IO_ERROR, onLoaderError);
             loader.addEventListener(HTTPStatusEvent.HTTP_STATUS, onLoaderHttpStatus);
-
+            
             var httpStatus:int = -1;
             var url:String = createURL("/api", (mGameID ? "games/" + mGameID : ""), path);
             var request:URLRequest = new URLRequest(mUrl);
+            var requestData:Object = { method: method, url: url, headers: headers };
+            
+            if (method == HttpMethod.GET)
+                requestData.url += data ? "?" + encodeForUri(data) : "";
+            else
+                requestData.body = encode(data);
+            
             request.method = URLRequestMethod.POST;
-            request.data = JSON.stringify({
-                method: method,
-                url: url,
-                headers: headers,
-                body: encode(data)
-            }, null, 2);
+            request.data = JSON.stringify(requestData);
             
             loader.load(request);
             
@@ -142,7 +144,8 @@ package com.gamua.flox
          *  
          *  @param method: one of the methods provided by the 'HttpMethod' class.
          *  @param path: the path of the resource relative to the root of the game (!).
-         *  @param data: the data that will be sent as JSON-encoded body.
+         *  @param data: the data that will be sent as JSON-encoded body or as URL parameters
+         *               (depending on the http method).
          *  @param headers: the data that will be sent as HTTP headers.
          *  @param onComplete: a callback with the form: 
          *                     <pre>onComplete(body:Object, eTag:String, httpStatus:int):void;</pre>
@@ -152,7 +155,7 @@ package com.gamua.flox
         public function request(method:String, path:String, data:Object, headers:Object, 
                                 onComplete:Function, onError:Function):void
         {
-            requestWithAuthentication(method, path, data, headers, mAuthentication,
+            requestWithAuthentication(method, path, data, headers, Flox.authentication,
                                       onComplete, onError);
         }
         
@@ -162,7 +165,7 @@ package com.gamua.flox
                                       headers:Object=null):void
         {
             mQueue.enqueue({ method: method, path: path, data: data, headers: headers,
-                             authentication: mAuthentication });
+                             authentication: Flox.authentication });
             processQueue();
         }
         
@@ -220,10 +223,15 @@ package com.gamua.flox
             mQueue.flush();
         }
         
-        public function get authentication():Authentication { return mAuthentication; }
-        public function set authentication(value:Authentication):void { mAuthentication = value; }
-        
         // object encoding
+        
+        /** Encodes an object as parameters for a 'GET' request. */
+        private static function encodeForUri(object:Object):String
+        {
+            var urlVariables:URLVariables = new URLVariables();
+            for (var key:String in object) urlVariables[key] = object[key];
+            return urlVariables.toString();
+        }
         
         /** Encodes an object in JSON format, compresses it and returns its Base64 representation. */
         private static function encode(object:Object):String
