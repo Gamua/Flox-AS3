@@ -252,5 +252,11 @@ package com.gamua.flox
             data.uncompress();
             return JSON.parse(data.readUTFBytes(data.length));
         }
+        
+        // properties
+        
+        public function get url():String { return mUrl; }
+        public function get gameID():String { return mGameID; }
+        public function get gameKey():String { return mGameKey; }
     }
 }

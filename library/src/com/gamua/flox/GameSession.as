@@ -40,7 +40,8 @@ package com.gamua.flox
          *  both sessions to the server (including log entries of the last session). 
          *  @returns the new GameSession. */
         public static function start(gameID:String, gameVersion:String,
-                                     lastSession:GameSession=null):GameSession
+                                     lastSession:GameSession=null, 
+                                     reportAnalytics:Boolean=true):GameSession
         {
             var newSession:GameSession = new GameSession(gameVersion);
             var resolution:String = Capabilities.screenResolutionX + "x" + 
@@ -66,9 +67,10 @@ package com.gamua.flox
                 data.lastLog = lastSession.log;
             }
             
-            Flox.service.requestQueued(HttpMethod.POST, ".analytics", data);
-            newSession.start();
+            if (reportAnalytics)
+                Flox.service.requestQueued(HttpMethod.POST, ".analytics", data);
             
+            newSession.start();
             return newSession;
         }
         

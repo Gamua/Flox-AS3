@@ -8,7 +8,7 @@ package com.gamua.flox
     {
         public override function setUp():void
         {
-            Constants.initFlox();
+            Constants.initFlox(true);
         }
         
         public override function tearDown():void

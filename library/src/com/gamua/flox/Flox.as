@@ -53,7 +53,9 @@ package com.gamua.flox
         private static var sRestService:RestService;
         private static var sPersistentData:SharedObject;
         private static var sInitialized:Boolean = false;
+        
         private static var sTraceLogs:Boolean = true;
+        private static var sReportAnalytics:Boolean = true;
         
         /** @private */ 
         public function Flox() { throw new Error("This class cannot be instantiated."); }
@@ -72,7 +74,7 @@ package com.gamua.flox
         {
             checkInitialized();
             monitorNativeApplicationEvents(false);
-            pause();
+            session.pause();
             
             sGameID = sGameKey = sGameVersion = null;
             sRestService = null;
@@ -101,13 +103,11 @@ package com.gamua.flox
             if (sPersistentData.data.authentication == undefined)
                 sPersistentData.data.authentication = new Authentication(createUID());
             
-            sPersistentData.data.session = GameSession.start(gameID, gameVersion, session);
+            sPersistentData.data.session = 
+                GameSession.start(gameID, gameVersion, session, sReportAnalytics);
         }
         
         // leaderboards
-        
-        // onComplete(scores:Vector.<Score>);
-        // onError(error:String);
         
         /** Loads the scores of a certain leaderboard from the server.
          *  
@@ -233,15 +233,6 @@ package com.gamua.flox
             if (sTraceLogs) trace(args.join(" "));
         }
         
-        private static function pause():void
-        {
-            checkInitialized();
-            
-            session.pause();
-            sPersistentData.flush();
-            sRestService.save();
-        }
-        
         private static function monitorNativeApplicationEvents(enable:Boolean):void
         {
             try
@@ -272,7 +263,9 @@ package com.gamua.flox
         private static function onDeactivate(event:Event):void
         {
             logInfo("Game deactivated");
-            pause();
+            session.pause();
+            sPersistentData.flush();
+            sRestService.save();
         }
         
         /** The current game session / analytics object. */
@@ -310,5 +303,9 @@ package com.gamua.flox
         /** Indicates if log methods should write their output to the console. @default true */
         public static function get traceLogs():Boolean { return sTraceLogs; }
         public static function set traceLogs(value:Boolean):void { sTraceLogs = value; }
+        
+        /** Indicates if analytics reports should be sent to the server. @default true */
+        public static function get reportAnalytics():Boolean { return sReportAnalytics; }
+        public static function set reportAnalytics(value:Boolean):void { sReportAnalytics = value; }
     }
 }

@@ -32,9 +32,10 @@ package com.gamua.flox
             return createURL("games", GAME_ID, "leaderboards", LEADERBOARD_ID, createURL(args));
         }
         
-        public static function initFlox():void
+        public static function initFlox(reportAnalytics:Boolean=false):void
         {
             Flox.traceLogs = false;
+            Flox.reportAnalytics = reportAnalytics;
             Flox.initWithBaseURL(GAME_ID, GAME_KEY, "1.0", BASE_URL);
         }
     }
