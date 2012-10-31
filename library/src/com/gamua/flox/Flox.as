@@ -33,7 +33,7 @@ package com.gamua.flox
      *  <pre>
      *  Flox.logInfo("Player {0} lost a life.", player);
      *  Flox.logWarning("Something fishy is going on!");
-     *  Flox.logError("Hell just broke loose: {0}", error.message);</pre>
+     *  Flox.logError(error);</pre>
      *  
      *  <p>Events are displayed separately in the online interface. 
      *  Use a limited set of strings for event names and property values; otherwise, the 
@@ -82,7 +82,8 @@ package com.gamua.flox
             sInitialized = false;
         }
         
-        /** Initialize Flox with a custom base URL (useful for unit tests). */
+        /** @private
+         *  Initialize Flox with a custom base URL (useful for unit tests). */
         internal static function initWithBaseURL(
             gameID:String, gameKey:String, gameVersion:String, baseURL:String):void
         {
@@ -115,7 +116,7 @@ package com.gamua.flox
          *  @param timescope:  the time range the leaderboard contains. The corresponding string
          *                     constants are defined in the "TimeScope" class. 
          *  @param onComplete: a callback with the form: 
-         *                     <pre>onComplete(scores:Vector.<Score>):void;</pre>
+         *                     <pre>onComplete(scores:Vector.&lt;Score&gt;):void;</pre>
          *  @param onError:    a callback with the form:
          *                     <pre>onError(error:String):void;</pre>
          */
@@ -268,21 +269,24 @@ package com.gamua.flox
             sRestService.save();
         }
         
-        /** The current game session / analytics object. */
+        /** @private 
+         *  The current game session / analytics object. */
         internal static function get session():GameSession
         {
             checkInitialized();
             return sPersistentData.data.session;
         }
         
-        /** The authentication data of the current player. */
+        /** @private 
+         *  The authentication data of the current player. */
         internal static function get authentication():Authentication
         {
             checkInitialized();
             return sPersistentData.data.authentication;
         }
         
-        /** The rest service class used to communicate with the server. */
+        /** @private
+         *  The rest service class used to communicate with the server. */
         internal static function get service():RestService
         {
             checkInitialized();
