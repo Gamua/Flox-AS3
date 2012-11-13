@@ -21,25 +21,50 @@ package com.gamua.flox
     
     /** The main class used to interact with the Flox cloud service.
      * 
-     *  <p>Do not instantiate this class, but instead use the provided static methods.
-     *  Here is a typical sample on how to integrate Flox in our game:</p>
-     *  
-     *  <p>Make this call right at the beginning:</p>
+     *  <p>Do not instantiate this class, but instead use the provided static methods. 
+     *  Right at the beginning, you have to initialize Flox:</p>
      *  <pre>
      *  Flox.init("my-game-id", "my-game-key", "1.0");</pre>
      *  
-     *  <p>Log important information at run-time:</p>
+     *  <p><strong>Logs</strong></p> 
+     * 
+     *  <p>You can use Flox to log important information at run-time. By logging relevant 
+     *  information of a game session, you will be able to understand what has happened in 
+     *  a specific session, which is a great help in case of an error.</p>
      *  <pre>
      *  Flox.logInfo("Player {0} lost a life.", player);
      *  Flox.logWarning("Something fishy is going on!");
      *  Flox.logError(error);</pre>
-     *  
-     *  <p>Events are displayed separately in the online interface. 
-     *  Use a limited set of strings for event names and property values; otherwise, the 
-     *  visualization of the data in the online interface will become useless quickly.</p>
+     *
+     *  <p><strong>Events</strong></p> 
+     *   
+     *  <p>Events are displayed separately in the online interface. They are a great way to get
+     *  feedback about the usage of a game.
+     *  Use a limited set of strings for event names and property values, though. Otherwise, 
+     *  the visualization of the data in the online interface will become useless quickly.</p>
      *  <pre>
      *  Flox.logEvent("GameStarted");
      *  Flox.logEvent("MenuChanged", { from: "MainMenu", to: "SettingsMenu" });</pre>
+     * 
+     *  <p><strong>Leaderboards</strong></p>
+     *  
+     *  <p>It's easy to send and retrieve scores to the Flox server. First, you have to set up 
+     *  a leaderboard in the online interface; the ID of the leaderboard is then used to identify
+     *  it on the client. When retrieving scores, you can choose between different 'TimeScopes'.</p>
+     *  <pre>
+     *  Flox.postScore("default", 999, "Johnny");
+     *  Flox.loadScores("default", TimeScope.ALL_TIME, 
+     *      function onComplete(scores:Vector.&lt;Score&gt;):void
+     *      {
+     *          trace("retrieved " + scores.length + " scores");
+     *      },
+     *      function onError(error:String):void
+     *      {
+     *          trace("error loading scores: " + error);
+     *      });</pre>
+     *  
+     *  @see TimeScope
+     * 
      */
     public class Flox
     {
@@ -109,7 +134,9 @@ package com.gamua.flox
         
         // leaderboards
         
-        /** Loads the scores of a certain leaderboard from the server.
+        /** Loads the scores of a certain leaderboard from the server. At the moment, you get
+         *  a maximum of 50 scores per leaderboard and time scope. Each player (i.e. device
+         *  installation) will be in the list only once.
          *  
          *  @param leaderboardID: the leaderboard ID you have defined in the Flox online interface.
          *  @param timescope:  the time range the leaderboard contains. The corresponding string
