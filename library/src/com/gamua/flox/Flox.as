@@ -17,7 +17,6 @@ package com.gamua.flox
     import flash.events.EventDispatcher;
     import flash.net.SharedObject;
     import flash.net.registerClassAlias;
-    import flash.system.Capabilities;
     import flash.utils.getDefinitionByName;
     
     /** The main class used to interact with the Flox cloud service.

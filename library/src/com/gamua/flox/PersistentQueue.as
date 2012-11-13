@@ -20,7 +20,7 @@ package com.gamua.flox
         private var mIndex:SharedObject;
         
         /** Create a persistent queue with a certain name. If the name was already used in a 
-         *  previous session, the existing queue is loaded. */ 
+         *  previous session, the existing queue is restored. */ 
         public function PersistentQueue(name:String)
         {
             mName = name;

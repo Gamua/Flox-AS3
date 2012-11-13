@@ -4,7 +4,7 @@ package com.gamua.flox
     
     public class PersistentQueueTest extends UnitTest
     {
-        private static const QUEUE_NAME:String = "test";
+        private static const QUEUE_NAME:String = "queue-name";
         
         public override function setUp():void
         {
@@ -22,8 +22,6 @@ package com.gamua.flox
             queue.enqueue(object0);
             queue.enqueue(object1);
             queue.enqueue(object2);
-            
-            assert(true, "test");
             
             assertEqualObjects(queue.peek(), object0);
             assertEqualObjects(queue.peek(), object0);
