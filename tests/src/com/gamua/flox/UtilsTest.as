@@ -1,6 +1,7 @@
 package com.gamua.flox
 {
     import com.gamua.flox.utils.DateUtil;
+    import com.gamua.flox.utils.cloneObject;
     import com.gamua.flox.utils.createURL;
     
     import starling.unit.UnitTest;
@@ -34,6 +35,27 @@ package com.gamua.flox
             
             date.milliseconds = 123;
             assertEqual("2012-09-03T14:36:02.123Z", DateUtil.toString(date));
+        }
+        
+        public function testCloneObject():void
+        {
+            var object:Object = {
+                "integer": 15,
+                "number": 1.5,
+                "boolean": true,
+                "complex": { "one": 1, "two": { value: 2 } },
+                "array": [ "hugo", false, { dunno: [1, 2, 3] } ]
+            };
+            
+            var clone:Object = cloneObject(object);
+            
+            assert(object != clone);
+            assertEqualObjects(object, clone);
+            
+            var integer:int = 15;
+            var integerClone:Object = cloneObject(integer);
+            
+            assertEqual(integer, integerClone);
         }
     }
 }

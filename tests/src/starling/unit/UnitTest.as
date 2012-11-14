@@ -95,7 +95,7 @@ package starling.unit
                     if (objectA.length != objectB.length) return false;
                     
                     for (var i:int=0; i<objectA.length; ++i)
-                        if (objectA[i] !== objectB[i]) return false;
+                        if (!compareObjects(objectA[i], objectB[i])) return false;
                 }
                 
                 // we can iterate like this through 'Object', 'Array' and 'Vector' 
