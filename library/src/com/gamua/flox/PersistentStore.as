@@ -10,7 +10,6 @@ package com.gamua.flox
     import com.gamua.flox.utils.createUID;
     
     import flash.net.SharedObject;
-    import flash.utils.Dictionary;
 
     /** A data store that uses SharedObjects to save its contents to the disk. Objects are
      *  serialized using the AMF format, so be sure to use either primitive objects or classes to 
@@ -26,60 +25,81 @@ package com.gamua.flox
         {
             mName = name;
             mIndex = SharedObject.getLocal(mName);
-            
-            if (!("keys" in mIndex.data)) mIndex.data.keys = new Dictionary();
         }
         
         /** Saves an object with a certain key. If the key is already occupied, the previous
          *  object is overwritten. */
         public function addObject(key:String, value:Object):void
         {
-            var name:String = mIndex.data.keys[key];
-            if (name == null) 
+            var info:Object = mIndex.data[key];
+            if (info == null)
             {
-                name = createUID();
-                mIndex.data.keys[key] = name;
+                info = { name: createUID() };
+                mIndex.data[key] = info;
             }
             
-            var sharedObject:SharedObject = SharedObject.getLocal(name);
+            var sharedObject:SharedObject = SharedObject.getLocal(info.name);
             sharedObject.data.value = value;
         }
         
         /** Removes an object from the store. */
         public function removeObject(key:String):void
         {
-            var name:String = mIndex.data.keys[key];
-            if (name)
+            var info:Object = mIndex.data[key];
+            if (info)
             {
-                delete mIndex.data.keys[key];
-                SharedObject.getLocal(name).clear();
+                SharedObject.getLocal(info.name).clear();
+                delete mIndex.data[key];
             }
         }
         
         /** Retrieves an object with a certain key, or null if it's not part of the store. */
         public function getObject(key:String):Object
         {
-            var name:String = mIndex.data.keys[key];
-            
-            if (name == null) return null;
-            else return SharedObject.getLocal(name).data.value;
+            var info:Object = mIndex.data[key];
+            if (info) return SharedObject.getLocal(info.name).data.value;
+            else      return null;
         }
         
         /** Indicates if an object with a certain key is part of the store. */
         public function containsKey(key:String):Boolean
         {
-            return key in mIndex.data.keys;
+            return key in mIndex.data;
+        }
+        
+        /** Store certain meta data with the object. Meta Data can be accessed without having
+         *  to load the stored object from disk. Keep it small! */
+        public function setMetaData(objectKey:String, metaDataName:String, metaDataValue:Object):void
+        {
+            var info:Object = mIndex.data[objectKey];
+            if (info == null) throw new Error("object key not recognized");
+            if (metaDataName == "name") throw new Error("'name' is reserved for internal use");
+            info[metaDataName] = metaDataValue;
+        }
+        
+        /** Retrieve specific meta data from a certain object. */
+        public function getMetaData(objectKey:String, metaDataName:String):Object
+        {
+            var info:Object = mIndex.data[objectKey];
+            if (info) return info[metaDataName];
+            else      return null;
         }
         
         /** Removes all objects from the store, restoring all occupied disk storage. */
         public function clear():void
         {
-            var keys:Dictionary = mIndex.data.keys;
+            var key:String;
+            var keys:Array = [];
             
-            for each (var name:String in keys)
-                SharedObject.getLocal(name).clear();
+            for (key in mIndex.data)
+                keys.push(key);
             
-            mIndex.data.keys = new Dictionary();
+            for each (key in keys)
+            {
+                var info:Object = mIndex.data[key];
+                SharedObject.getLocal(info.name).clear();
+                delete mIndex.data[key];
+            }
         }
         
         /** Saves the current state of the store to the disk. */

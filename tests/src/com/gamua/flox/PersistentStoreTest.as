@@ -58,5 +58,26 @@ package com.gamua.flox
             assertEqualObjects(store.getObject("nil&"), object0);
             assertEqualObjects(store.getObject("one("), object1);
         }
+        
+        public function testMetaData():void
+        {
+            var store:PersistentStore = new PersistentStore(STORE_NAME);
+            
+            store.addObject("one", "ONE");
+            store.addObject("two", "TWO");
+            
+            store.setMetaData("one", "value", 1);
+            store.setMetaData("two", "value", 2);
+            
+            assertEqual(1, store.getMetaData("one", "value"));
+            assertEqual(2, store.getMetaData("two", "value"));
+            
+            // persistency
+            
+            store = new PersistentStore(STORE_NAME);
+            
+            assertEqual(1, store.getMetaData("one", "value"));
+            assertEqual(2, store.getMetaData("two", "value"));
+        }
     }
 }
