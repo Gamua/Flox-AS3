@@ -19,9 +19,9 @@ package com.gamua.flox
             var object1:Object = { "string": "tina", "number": 1 };
             var object2:Object = { "string": "anna", "number": 2 };
             
-            store.addObject("nil!", object0); // use a few special chars to make sure 
-            store.addObject("one/", object1); // that's allowed
-            store.addObject("two:", object2);
+            store.setObject("nil!", object0); // use a few special chars to make sure 
+            store.setObject("one/", object1); // that's allowed
+            store.setObject("two:", object2);
             
             assert(store.containsKey("nil!"));
             assert(store.containsKey("one/"));
@@ -50,8 +50,8 @@ package com.gamua.flox
             var object0:Object = { "string": "hugo", "number": 0 };
             var object1:Object = { "string": "tina", "number": 1 };
             
-            store.addObject("nil&", object0);
-            store.addObject("one(", object1);
+            store.setObject("nil&", object0);
+            store.setObject("one(", object1);
             
             store = new PersistentStore(STORE_NAME);
             
@@ -63,8 +63,8 @@ package com.gamua.flox
         {
             var store:PersistentStore = new PersistentStore(STORE_NAME);
             
-            store.addObject("one", "ONE");
-            store.addObject("two", "TWO");
+            store.setObject("one", "ONE");
+            store.setObject("two", "TWO");
             
             store.setMetaData("one", "value", 1);
             store.setMetaData("two", "value", 2);

@@ -10,6 +10,7 @@ package com.gamua.flox
     import com.gamua.flox.utils.Base64;
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpMethod;
+    import com.gamua.flox.utils.HttpStatus;
     import com.gamua.flox.utils.createURL;
     import com.gamua.flox.utils.execute;
     
@@ -29,6 +30,7 @@ package com.gamua.flox
         private var mGameID:String;
         private var mGameKey:String;
         private var mQueue:PersistentQueue;
+        private var mCache:PersistentStore;
         private var mProcessingQueue:Boolean;
         
         /** Create an instance with the base URL of the Flox service. The class will allow 
@@ -39,6 +41,7 @@ package com.gamua.flox
             mGameID = gameID;
             mGameKey = gameKey;
             mQueue = new PersistentQueue("Flox.RestService.queue." + gameID);
+            mCache = new PersistentStore("Flox.RestService.cache." + gameID);
         }
         
         /** Makes an asynchronous HTTP request at the server, with custom authentication data. */
@@ -68,6 +71,9 @@ package com.gamua.flox
             headers["Content-Type"] = "application/json";
             headers["X-Flox"] = xFloxHeader;
             
+            if (method == HttpMethod.GET && mCache.containsKey(path))
+                headers["If-None-Match"] = mCache.getMetaData(path, "eTag");
+            
             var loader:URLLoader = new URLLoader();
             loader.addEventListener(Event.COMPLETE, onLoaderComplete);
             loader.addEventListener(IOErrorEvent.IO_ERROR, onLoaderError);
@@ -92,7 +98,7 @@ package com.gamua.flox
             {
                 closeLoader();
                 
-                if (httpStatus != 200)
+                if (httpStatus != HttpStatus.OK)
                 {
                     execute(onError, "Flox Server unreachable", null, httpStatus);
                 }
@@ -112,10 +118,32 @@ package com.gamua.flox
                         return;
                     }
                     
-                    if (status < 400)    // success =)
-                        execute(onComplete, body, headers.ETag, status);
-                    else                 // error =(
-                        execute(onError, body.message, headers.ETag, status);
+                    if (status < 400) // success =)
+                    {
+                        var result:Object = body;
+                        
+                        if (method == HttpMethod.GET)
+                        {
+                            if (status == HttpStatus.NOT_MODIFIED)
+                                result = mCache.getObject(path);
+                            else
+                                mCache.setObject(path, body, { eTag: headers.ETag });
+                        }
+                        else if (method == HttpMethod.PUT)
+                        {
+                            mCache.setObject(path, data, { eTag: headers.ETag });
+                        }
+                        else if (method == HttpMethod.DELETE)
+                        {
+                            mCache.removeObject(path);
+                        }
+                        
+                        execute(onComplete, result, status);
+                    }
+                    else // error =(
+                    {
+                        execute(onError, body.message, status);
+                    }          
                 }
             }
             
@@ -148,9 +176,9 @@ package com.gamua.flox
          *               (depending on the http method).
          *  @param headers: the data that will be sent as HTTP headers.
          *  @param onComplete: a callback with the form: 
-         *                     <pre>onComplete(body:Object, eTag:String, httpStatus:int):void;</pre>
+         *                     <pre>onComplete(body:Object, httpStatus:int):void;</pre>
          *  @param onError:    a callback with the form:
-         *                     <pre>onError(error:String, eTag:String, httpStatus:int):void;</pre>
+         *                     <pre>onError(error:String, httpStatus:int):void;</pre>
          */
         public function request(method:String, path:String, data:Object, headers:Object, 
                                 onComplete:Function, onError:Function):void
@@ -189,14 +217,14 @@ package com.gamua.flox
             
             return mProcessingQueue;
             
-            function onRequestComplete(body:Object, eTag:String, httpStatus:int):void
+            function onRequestComplete(body:Object, httpStatus:int):void
             {
                 mProcessingQueue = false;
                 mQueue.dequeue();
                 processQueue();
             }
             
-            function onRequestError(error:String, eTag:String, httpStatus:int):void
+            function onRequestError(error:String, httpStatus:int):void
             {
                 mProcessingQueue = false;
                 

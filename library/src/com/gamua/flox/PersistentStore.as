@@ -7,6 +7,7 @@
 
 package com.gamua.flox
 {
+    import com.gamua.flox.utils.cloneObject;
     import com.gamua.flox.utils.createUID;
     
     import flash.net.SharedObject;
@@ -29,12 +30,13 @@ package com.gamua.flox
         
         /** Saves an object with a certain key. If the key is already occupied, the previous
          *  object is overwritten. */
-        public function addObject(key:String, value:Object):void
+        public function setObject(key:String, value:Object, metaData:Object=null):void
         {
             var info:Object = mIndex.data[key];
             if (info == null)
             {
-                info = { name: createUID() };
+                info = metaData ? cloneObject(metaData) : {};
+                info.name = createUID();
                 mIndex.data[key] = info;
             }
             

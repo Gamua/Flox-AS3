@@ -7,6 +7,8 @@
 
 package com.gamua.flox.utils
 {
+    import flash.utils.getQualifiedClassName;
+
     /** Creates a deep copy of the object. 
      *  Beware: all complex data types will become mere 'Object' instances. Supported are only
      *  primitive data types, arrays and objects. */
@@ -22,10 +24,27 @@ package com.gamua.flox.utils
             for (var i:int=0; i<length; ++i) arrayClone[i] = cloneObject(array[i]);
             return arrayClone;
         }
-        else
+        else 
         {
             var objectClone:Object = {};
-            for (var key:String in object) objectClone[key] = cloneObject(object[key]);
+            
+            if (getQualifiedClassName(object) == "Object")
+            {
+                for (var key:String in object) 
+                    objectClone[key] = cloneObject(object[key]);
+            }
+            else
+            {
+                for each (var accessor:XML in describeType(object).accessor)
+                {
+                    var access:String = accessor.@access.toString();
+                    var accessorName:String = accessor.@name.toString();
+                    
+                    if (access == "readwrite" || access == "read") 
+                        objectClone[accessorName] = cloneObject(object[accessorName]);
+                }
+            }
+            
             return objectClone;
         }
     }

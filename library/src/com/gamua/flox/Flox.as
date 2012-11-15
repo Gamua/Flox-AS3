@@ -161,7 +161,7 @@ package com.gamua.flox
             service.request(HttpMethod.GET, ".score", { q: JSON.stringify(query) }, null,
                 onRequestComplete, onError);
             
-            function onRequestComplete(body:Object, eTag:String, httpStatus:int):void
+            function onRequestComplete(body:Object, httpStatus:int):void
             {
                 var scores:Vector.<Score> = new <Score>[];
                 for each (var rawScore:Object in body as Array)

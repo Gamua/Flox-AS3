@@ -82,6 +82,8 @@ package starling.unit
         {
             if (objectA is int || objectA is uint || objectA is Number || objectA is Boolean)
                 return objectA === objectB;
+            else if (objectA is Date && objectB is Date)
+                return objectA.time - 500 < objectB.time && objectA.time + 500 > objectB.time;
             else
             {
                 var nameA:String = getQualifiedClassName(objectA);
