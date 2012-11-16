@@ -251,6 +251,13 @@ package com.gamua.flox
             mQueue.flush();
         }
         
+        /** Clears cache and queue from the persistent storage. */
+        public function clearPersistentData():void
+        {
+            mQueue.clear();
+            mCache.clear();
+        }
+        
         // object encoding
         
         /** Encodes an object as parameters for a 'GET' request. */

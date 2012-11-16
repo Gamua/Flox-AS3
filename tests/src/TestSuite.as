@@ -1,6 +1,13 @@
 package
 {
-    import com.gamua.flox.*;
+    import com.gamua.flox.AnalyticsTest;
+    import com.gamua.flox.Constants;
+    import com.gamua.flox.EntityTest;
+    import com.gamua.flox.PersistentQueueTest;
+    import com.gamua.flox.PersistentStoreTest;
+    import com.gamua.flox.RestServiceTest;
+    import com.gamua.flox.ScoreTest;
+    import com.gamua.flox.UtilsTest;
     
     import starling.display.Sprite;
     import starling.events.Event;
@@ -32,6 +39,7 @@ package
             testRunner.add(RestServiceTest);
             testRunner.add(AnalyticsTest);
             testRunner.add(ScoreTest);
+            testRunner.add(EntityTest);
             
             // ---
             

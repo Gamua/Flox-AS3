@@ -76,6 +76,7 @@ package com.gamua.flox
         private static var sGameVersion:String;
         private static var sRestService:RestService;
         private static var sPersistentData:SharedObject;
+        private static var sAuthentication:Authentication;
         private static var sInitialized:Boolean = false;
         
         private static var sTraceLogs:Boolean = true;
@@ -125,11 +126,45 @@ package com.gamua.flox
             sRestService = new RestService(baseURL, gameID, gameKey);
             sPersistentData = SharedObject.getLocal("Flox." + gameID);
             
-            if (sPersistentData.data.authentication == undefined)
-                sPersistentData.data.authentication = new Authentication(createUID());
+            if (localPlayer == null) playerLogin();
             
             sPersistentData.data.session = 
                 GameSession.start(gameID, gameVersion, session, sReportAnalytics);
+        }
+        
+        // player handling
+        
+        /** Log in a new player with the given authentication information. If you pass no
+         *  parameters, a new guest will be logged in; the 'Flox.localPlayer' parameter will
+         *  immediately reference that player.
+         * 
+         *  <p>Flox requires that there's always a player logged in. Thus, there is no 'logout'  
+         *  method. If you want to remove the reference to the current player, just call  
+         *  'playerLogin' again (without arguments). The previous player will then be replaced 
+         *  by a new guest.</p> 
+         *   
+         *  @param onComplete: function onComplete(localPlayer:Player):void;
+         *  @param onError:    function onError(error:String):void;
+         */
+        public static function playerLogin(
+            authType:String="guest", authID:String=null, authToken:String=null,
+            onComplete:Function=null, onError:Function=null):void
+        {
+            checkInitialized();
+            clearCache();
+            
+            if (authType == AuthenticationType.GUEST)
+            {
+                var player:Player = new Player();
+                player.authID = authID ? authID : createUID();
+                sPersistentData.data.authToken = authToken ? authToken : createUID();
+                sPersistentData.data.localPlayer = player;
+                execute(onComplete, player);
+            }
+            else
+            {
+                throw new ArgumentError("Authentication type not supported: " + authType);
+            }
         }
         
         // leaderboards
@@ -182,6 +217,15 @@ package com.gamua.flox
             
             var data:Object = { leaderboardId: leaderboardID, playerName: playerName, value:score };
             service.requestQueued(HttpMethod.POST, ".score", data);
+        }
+        
+        // misc
+        
+        /** Clears all locally cached data (entity cache, http service queue). */
+        public static function clearCache():void
+        {
+            checkInitialized();
+            sRestService.clearPersistentData();
         }
         
         // logging
@@ -308,7 +352,16 @@ package com.gamua.flox
         internal static function get authentication():Authentication
         {
             checkInitialized();
-            return sPersistentData.data.authentication;
+            
+            if (sAuthentication == null) 
+                sAuthentication = new Authentication();
+            
+            sAuthentication.playerID = localPlayer.id;
+            sAuthentication.id = localPlayer.authID;
+            sAuthentication.type = localPlayer.authType;
+            sAuthentication.token = sPersistentData.data.authToken;
+            
+            return sAuthentication;
         }
         
         /** @private
@@ -329,6 +382,13 @@ package com.gamua.flox
         
         /** The version of this game. */
         public static function get gameVersion():String { return sGameVersion; }
+        
+        /** The current local player. */
+        public static function get localPlayer():Player
+        {
+            if (sPersistentData) return sPersistentData.data.localPlayer as Player;
+            else return null;
+        }
         
         /** Indicates if log methods should write their output to the console. @default true */
         public static function get traceLogs():Boolean { return sTraceLogs; }

@@ -8,7 +8,7 @@
 package com.gamua.flox.utils
 {
     /** Provides a list of HTTP methods (verbs). */
-    public class HttpMethod
+    public final class HttpMethod
     {
         public function HttpMethod() { throw new Error("This class cannot be instantiated."); }
         

@@ -37,7 +37,7 @@ package com.gamua.flox
             mID = id ? id : createUID();
             mCreatedAt = new Date();
             mUpdatedAt = new Date();
-            mOwnerID = null; // Flox.localPlayer.id; // TODO
+            mOwnerID = Flox.localPlayer ? Flox.localPlayer.id : null; 
             mPermissions = {};
         }
         
@@ -187,18 +187,25 @@ package com.gamua.flox
             {
                 var access:String = accessor.@access.toString();
                 if (access == "readwrite") 
-                {
-                    var accessorName:String = accessor.@name.toString();     
-                    
-                    if (accessorName == "ownerID")
-                        entity["ownerID"] = data["ownerId"]; // note "ID" vs. "Id" ;-)
-                    else if (accessorName == "authID")
-                        entity["authID"] = data["authId"]; 
-                    else if (accessorName == "createdAt" || accessorName == "updatedAt")
-                        entity[accessorName] == DateUtil.parse(data[accessorName]);
-                    else
-                        entity[accessorName] = data[accessorName];
-                }
+                    updateProperty(entity, data, accessor.@name.toString());
+            }
+        }
+        
+        private static function updateProperty(entity:Entity, serverData:Object, 
+                                               propertyName:String):void
+        {
+            var clientPN:String = propertyName;
+            var serverPN:String = propertyName;
+            
+            if      (propertyName == "ownerID") { clientPN = "ownerID"; serverPN = "ownerId"; }
+            else if (propertyName == "authID")  { clientPN = "authID";  serverPN = "authId";  }
+            
+            if (serverPN in serverData)
+            {
+                if (propertyName == "createdAt" || propertyName == "updatedAt")
+                    entity[clientPN] = DateUtil.parse(serverData[serverPN]);
+                else
+                    entity[clientPN] = serverData[serverPN];
             }
         }
         
@@ -214,13 +221,13 @@ package com.gamua.flox
         public function set ownerID(value:String):void { mOwnerID = value; }
         
         public function get permissions():Object { return mPermissions; }
-        public function set permissions(value:Object):void { mPermissions = value; }
+        public function set permissions(value:Object):void { mPermissions = value ? value : {}; }
         
         public function get createdAt():Date { return mCreatedAt; }
         public function set createdAt(value:Date):void { mCreatedAt = value; }
         
         public function get updatedAt():Date { return mUpdatedAt; }
-        public function set updatedAt(value:Date):void { mUpdatedAt = value }
+        public function set updatedAt(value:Date):void { mUpdatedAt = value; }
         
         // TODO
         // public function get isSaved():Boolean { return ???; }

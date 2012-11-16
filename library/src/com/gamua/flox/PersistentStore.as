@@ -29,18 +29,17 @@ package com.gamua.flox
         }
         
         /** Saves an object with a certain key. If the key is already occupied, the previous
-         *  object is overwritten. */
+         *  object and its metadata are overwritten. */
         public function setObject(key:String, value:Object, metaData:Object=null):void
         {
             var info:Object = mIndex.data[key];
-            if (info == null)
-            {
-                info = metaData ? cloneObject(metaData) : {};
-                info.name = createUID();
-                mIndex.data[key] = info;
-            }
+            var name:String = info ? info.name : createUID();
             
-            var sharedObject:SharedObject = SharedObject.getLocal(info.name);
+            info = metaData ? cloneObject(metaData) : {};
+            info.name = name;
+            mIndex.data[key] = info;
+            
+            var sharedObject:SharedObject = SharedObject.getLocal(name);
             sharedObject.data.value = value;
         }
         
@@ -99,7 +98,11 @@ package com.gamua.flox
             for each (key in keys)
             {
                 var info:Object = mIndex.data[key];
-                SharedObject.getLocal(info.name).clear();
+                if (info && info.name)
+                {
+                    var so:SharedObject = SharedObject.getLocal(info.name);
+                    if (so) so.clear();
+                }
                 delete mIndex.data[key];
             }
         }

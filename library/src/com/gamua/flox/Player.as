@@ -1,5 +1,7 @@
 package com.gamua.flox
 {
+    import com.gamua.flox.utils.createUID;
+
     public class Player extends Entity
     {
         public static const TYPE:String = ".player";
@@ -14,6 +16,7 @@ package com.gamua.flox
             super.ownerID = this.id;
             
             mAuthType = AuthenticationType.GUEST;
+            mAuthID = createUID();
             mDisplayName = "Guest-" + int(Math.random() * 10000);
         }
         
