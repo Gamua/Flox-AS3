@@ -20,13 +20,13 @@ package com.gamua.flox
         {
             Flox.service.request(HttpMethod.GET, "", null, onRequestComplete, onRequestError);
             
-            function onRequestComplete(body:Object, eTag:String, httpStatus:int):void
+            function onRequestComplete(body:Object, httpStatus:int):void
             {
                 assertEqual(body.status, "ok");
                 onComplete();
             }
             
-            function onRequestError(error:String, body:Object, eTag:String, httpStatus:int):void
+            function onRequestError(error:String, httpStatus:int):void
             {
                 fail("Could not get server status: " + error);
                 onComplete();
@@ -37,13 +37,13 @@ package com.gamua.flox
         {
             Flox.service.request(HttpMethod.GET, ".analytics", null, onRequestComplete, onRequestError);
 
-            function onRequestComplete(body:Object, eTag:String, httpStatus:int):void
+            function onRequestComplete(body:Object, httpStatus:int):void
             {
                 fail("Server should have returned error");
                 onComplete();
             }
             
-            function onRequestError(error:String, body:Object, eTag:String, httpStatus:int):void
+            function onRequestError(error:String, httpStatus:int):void
             {
                 onComplete();
             }
@@ -54,13 +54,13 @@ package com.gamua.flox
             Flox.service.request(HttpMethod.GET, ".does-not-exist", null, 
                                  onRequestComplete, onRequestError);
             
-            function onRequestComplete(body:Object, eTag:String, httpStatus:int):void
+            function onRequestComplete(body:Object, httpStatus:int):void
             {
                 fail("Server should have returned error");
                 onComplete();
             }
             
-            function onRequestError(error:String, body:Object, eTag:String, httpStatus:int):void
+            function onRequestError(error:String, httpStatus:int):void
             {
                 onComplete();
             }
