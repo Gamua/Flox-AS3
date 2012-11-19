@@ -51,10 +51,8 @@ package com.gamua.flox
         
         public function testNonExistingMethod(onComplete:Function):void
         {
-            onComplete(); // TODO: this needs to be fixed on the server
-            
-            //Flox.service.request(HttpMethod.GET, ".does-not-exist", null, null, 
-            //                     onRequestComplete, onRequestError);
+            Flox.service.request(HttpMethod.GET, ".does-not-exist", null, 
+                                 onRequestComplete, onRequestError);
             
             function onRequestComplete(body:Object, eTag:String, httpStatus:int):void
             {
