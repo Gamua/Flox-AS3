@@ -31,14 +31,14 @@ package
             // --- add tests here ---
             
             // offline tests
-            testRunner.add(PersistentStoreTest);
-            testRunner.add(PersistentQueueTest);
-            testRunner.add(UtilsTest);
-            
-            // online tests
-            testRunner.add(RestServiceTest);
-            testRunner.add(AnalyticsTest);
-            testRunner.add(ScoreTest);
+//            testRunner.add(PersistentStoreTest);
+//            testRunner.add(PersistentQueueTest);
+//            testRunner.add(UtilsTest);
+//            
+//            // online tests
+//            testRunner.add(RestServiceTest);
+//            testRunner.add(AnalyticsTest);
+//            testRunner.add(ScoreTest);
             testRunner.add(EntityTest);
             
             // ---

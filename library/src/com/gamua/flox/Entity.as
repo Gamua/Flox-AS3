@@ -25,7 +25,7 @@ package com.gamua.flox
         
         private static var sRegisteredTypes:Dictionary = new Dictionary();
         
-        public function Entity(type:String, id:String=null)
+        public function Entity(type:String)
         {
             if (Capabilities.isDebugger && 
                 getQualifiedClassName(this) == "com.gamua.flox::Entity")
@@ -33,8 +33,11 @@ package com.gamua.flox
                 throw new Error("Abstract class -- do not instantiate");
             }
             
+            if (type == null) 
+                throw new ArgumentError("'type' must not be 'null'");
+            
             mType = type;
-            mID = id ? id : createUID();
+            mID = createUID();
             mCreatedAt = new Date();
             mUpdatedAt = new Date();
             mOwnerID = Flox.localPlayer ? Flox.localPlayer.id : null; 
@@ -62,7 +65,7 @@ package com.gamua.flox
             }
         }
         
-        // onComplete(entity:Entity)
+        // onComplete(entity:Entity, fromCache:Boolean)
         // onError(error:String, transient:Boolean)
         public function refresh(onComplete:Function, onError:Function):void
         {
@@ -74,7 +77,7 @@ package com.gamua.flox
             function onRequestComplete(body:Object, httpStatus:int):void
             {
                 refreshEntity(self, body);
-                execute(onComplete, self);
+                execute(onComplete, self, httpStatus == HttpStatus.NOT_MODIFIED);
             }
             
             function onRequestError(error:String, httpStatus:int):void
@@ -104,7 +107,7 @@ package com.gamua.flox
         // static methods
         
         // onComplete(entity:Entity, fromCache:Boolean)
-        // onError(error:String)
+        // onError(error:String, transient:Boolean)
         public static function load(type:String, id:String, onComplete:Function, onError:Function):void
         {
             var entity:Entity;
@@ -124,7 +127,7 @@ package com.gamua.flox
                 //entity = loadFromCache(type, id);
                 //execute(onError, error, entity);
                 
-                execute(onError, error);
+                execute(onError, error, HttpStatus.isTransientError(httpStatus));
             }
         }
         
@@ -172,10 +175,11 @@ package com.gamua.flox
             var entity:Entity;
             
             if (type in sRegisteredTypes)
-                entity = new (sRegisteredTypes[type] as Class)(id);
+                entity = new (sRegisteredTypes[type] as Class)();
             else
                 throw new Error("Entity type not recognized: " + type);
             
+            entity.id = id;
             refreshEntity(entity, data);
             
             return entity;

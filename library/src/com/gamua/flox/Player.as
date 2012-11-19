@@ -10,9 +10,9 @@ package com.gamua.flox
         private var mAuthID:String;
         private var mDisplayName:String;
         
-        public function Player(id:String=null) 
+        public function Player() 
         {
-            super(TYPE, id);
+            super(TYPE);
             super.ownerID = this.id;
             
             mAuthType = AuthenticationType.GUEST;

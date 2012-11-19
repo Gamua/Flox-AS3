@@ -97,7 +97,8 @@ package com.gamua.flox
         /** Stop the Flox session. You don't have to do this manually in most cases. */
         public static function shutdown():void
         {
-            checkInitialized();
+            if (!sInitialized) return;
+            
             monitorNativeApplicationEvents(false);
             session.pause();
             

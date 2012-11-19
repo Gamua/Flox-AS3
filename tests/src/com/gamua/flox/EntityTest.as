@@ -1,5 +1,8 @@
 package com.gamua.flox
 {
+    import com.gamua.flox.utils.CustomEntity;
+    import com.gamua.flox.utils.cloneObject;
+    
     import starling.unit.UnitTest;
     
     public class EntityTest extends UnitTest
@@ -7,6 +10,7 @@ package com.gamua.flox
         override public function setUp():void
         {
             Entity.register(Player.TYPE, Player);
+            Entity.register(CustomEntity.TYPE, CustomEntity);
         }
         
         public function testPlayerOffline():void
@@ -68,11 +72,13 @@ package com.gamua.flox
             Flox.clearCache();
             
             var localPlayer:Player = Flox.localPlayer;
+            var originalData:Object = cloneObject(localPlayer);
+            
             localPlayer.save(onSaveComplete, onSaveError);
 
             function onSaveComplete(player:Player):void
             {
-                assertEqualObjects(player, localPlayer);
+                assertEqualObjects(originalData, cloneObject(player));
                 if (!useCache) Flox.clearCache();
                 Entity.load(Player.TYPE, player.id, onLoadComplete, onLoadError);
             }
@@ -94,12 +100,7 @@ package com.gamua.flox
                 assertNotNull(entity.permissions);
                 assertEqualObjects(entity.permissions, localPlayer.permissions);
                 
-                // the time is replaced with server time - so, to make the following test
-                // pass, we sync that part manually.
-                localPlayer.createdAt = entity.createdAt;
-                localPlayer.updatedAt = entity.updatedAt;
-                
-                assertEqualObjects(entity, localPlayer);
+                assertEqualEntities(entity, localPlayer);
                 
                 Flox.shutdown();
                 onComplete();
@@ -112,6 +113,104 @@ package com.gamua.flox
                 onComplete();
             }
         }
+        
+        public function testCustomEntity(onComplete:Function):void
+        {
+            Constants.initFlox();
+            Flox.clearCache();
+            
+            var testEntity:CustomEntity = new CustomEntity();
+            testEntity.age = 31;
+            testEntity.name = "Daniel";
+            var originalData:Object = cloneObject(testEntity);
+            testEntity.save(onSaveComplete, onSaveError);
+            
+            function onSaveComplete(entity:CustomEntity):void
+            {
+                assertEqualObjects(originalData, cloneObject(entity));
+                Flox.clearCache();
+                Entity.load(CustomEntity.TYPE, testEntity.id, onLoadComplete, onLoadError);
+            }
+            
+            function onSaveError(error:String, transient:Boolean):void
+            {
+                Flox.shutdown();
+                fail("Could not save custom entity: " + error);
+                onComplete();
+            }
+            
+            function onLoadComplete(entity:Entity, fromCache:Boolean):void
+            {
+                assertEqualEntities(entity, testEntity);
+                
+                Flox.shutdown();
+                onComplete();
+            }
+            
+            function onLoadError(error:String, transient:Boolean):void
+            {
+                Flox.shutdown();
+                fail("Could not load custom entity: " + error);
+                onComplete();
+            }
+        }
+        
+        public function testRefresh(onComplete:Function):void
+        {
+            Constants.initFlox();
+            Flox.clearCache();
+            
+            var name:String = "Daniel";
+            var age:int = 31;
+            
+            var testEntity:CustomEntity = new CustomEntity();
+            testEntity.age = age;
+            testEntity.name = name;
+            var originalData:Object = cloneObject(testEntity);
+            testEntity.save(onSaveComplete, onError);
+            
+            function onSaveComplete(entity:CustomEntity):void
+            {
+                assertEqualObjects(originalData, cloneObject(entity));
+                entity.name = "Hugo";
+                entity.age = 5;
+                
+                // should undo those changes
+                entity.refresh(onRefreshComplete, onError);
+            }
+            
+            function onRefreshComplete(entity:Entity, fromCache:Boolean):void
+            {
+                assertEqualObjects(originalData, cloneObject(entity));
+                Flox.shutdown();
+                onComplete();
+            }
+            
+            function onError(error:String, transient:Boolean):void
+            {
+                Flox.shutdown();
+                fail("Error with custom entity: " + error);
+                onComplete();
+            }
+        }
 
+        private function assertEqualEntities(entityA:Entity, entityB:Entity, 
+                                             compareDates:Boolean=false):void
+        {
+            if (compareDates) assertEqualObjects(entityA, entityB);
+            else
+            {
+                var objectA:Object = cloneObject(entityA);
+                var objectB:Object = cloneObject(entityB);
+                
+                delete objectA["createdAt"];
+                delete objectA["updatedAt"];
+                delete objectB["createdAt"];
+                delete objectB["updatedAt"];
+                
+                assertEqualObjects(objectA, objectB);
+            }
+        }
+        
     }
 }
