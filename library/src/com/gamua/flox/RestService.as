@@ -61,7 +61,6 @@ package com.gamua.flox
                     authId:    authentication.id,
                     authToken: authentication.token
                 },
-                playerId: authentication.playerID, // TODO: remove this when server updated
                 gameKey: mGameKey,
                 bodyCompression: "zlib",
                 dispatchTime: DateUtil.toString(new Date())
