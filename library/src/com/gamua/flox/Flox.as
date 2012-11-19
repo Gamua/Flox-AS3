@@ -194,8 +194,8 @@ package com.gamua.flox
                 offset: 0
             };
             
-            service.request(HttpMethod.GET, ".score", { q: JSON.stringify(query) }, null,
-                onRequestComplete, onError);
+            service.request(HttpMethod.GET, ".score", { q: JSON.stringify(query) },
+                            onRequestComplete, onError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {

@@ -51,7 +51,7 @@ package com.gamua.flox
             var self:Entity = this;
             var path:String = createURL(mType, mID);
             
-            Flox.service.request(HttpMethod.PUT, path, this.toObject(), null, 
+            Flox.service.request(HttpMethod.PUT, path, this.toObject(), 
                 onRequestComplete, onRequestError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
@@ -72,7 +72,7 @@ package com.gamua.flox
             var path:String = createURL(mType, mID);
             var self:Entity = this;
             
-            Flox.service.request(HttpMethod.GET, path, null, null, onRequestComplete, onRequestError);
+            Flox.service.request(HttpMethod.GET, path, null, onRequestComplete, onRequestError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
@@ -113,7 +113,7 @@ package com.gamua.flox
             var entity:Entity;
             var path:String = createURL(type, id);
             
-            Flox.service.request(HttpMethod.GET, path, null, null, onRequestComplete, onRequestError);
+            Flox.service.request(HttpMethod.GET, path, null, onRequestComplete, onRequestError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
@@ -137,7 +137,7 @@ package com.gamua.flox
                                        onComplete:Function, onError:Function):void
         {
             var path:String = createURL(type, id);
-            Flox.service.request(HttpMethod.DELETE, path, null, null, onRequestComplete, onRequestError);
+            Flox.service.request(HttpMethod.DELETE, path, null, onRequestComplete, onRequestError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {

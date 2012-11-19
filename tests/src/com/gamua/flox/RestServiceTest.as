@@ -18,7 +18,7 @@ package com.gamua.flox
         
         public function testGetStatus(onComplete:Function):void
         {
-            Flox.service.request(HttpMethod.GET, "", null, null, onRequestComplete, onRequestError);
+            Flox.service.request(HttpMethod.GET, "", null, onRequestComplete, onRequestError);
             
             function onRequestComplete(body:Object, eTag:String, httpStatus:int):void
             {
@@ -35,7 +35,7 @@ package com.gamua.flox
         
         public function testProvokeError(onComplete:Function):void
         {
-            Flox.service.request(HttpMethod.GET, ".analytics", null, null, onRequestComplete, onRequestError);
+            Flox.service.request(HttpMethod.GET, ".analytics", null, onRequestComplete, onRequestError);
 
             function onRequestComplete(body:Object, eTag:String, httpStatus:int):void
             {

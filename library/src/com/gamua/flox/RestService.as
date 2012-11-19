@@ -46,11 +46,10 @@ package com.gamua.flox
         
         /** Makes an asynchronous HTTP request at the server, with custom authentication data. */
         private function requestWithAuthentication(method:String, path:String, data:Object, 
-                                                   headers:Object, authentication:Authentication,
+                                                   authentication:Authentication,
                                                    onComplete:Function, onError:Function):void
         {
-            if (headers == null) headers = {};
-            
+            var headers:Object = {};
             var xFloxHeader:Object = {
                 sdk: { 
                     type: "as3", 
@@ -174,16 +173,15 @@ package com.gamua.flox
          *  @param path: the path of the resource relative to the root of the game (!).
          *  @param data: the data that will be sent as JSON-encoded body or as URL parameters
          *               (depending on the http method).
-         *  @param headers: the data that will be sent as HTTP headers.
          *  @param onComplete: a callback with the form: 
          *                     <pre>onComplete(body:Object, httpStatus:int):void;</pre>
          *  @param onError:    a callback with the form:
          *                     <pre>onError(error:String, httpStatus:int):void;</pre>
          */
-        public function request(method:String, path:String, data:Object, headers:Object, 
+        public function request(method:String, path:String, data:Object, 
                                 onComplete:Function, onError:Function):void
         {
-            requestWithAuthentication(method, path, data, headers, Flox.authentication,
+            requestWithAuthentication(method, path, data, Flox.authentication,
                                       onComplete, onError);
         }
         
@@ -210,7 +208,7 @@ package com.gamua.flox
                     mProcessingQueue = true;
                     var element:Object = mQueue.peek();
                     requestWithAuthentication(element.method, element.path, element.data, 
-                        element.headers, element.authentication, onRequestComplete, onRequestError);
+                        element.authentication, onRequestComplete, onRequestError);
                 }
                 else mProcessingQueue = false;
             }
