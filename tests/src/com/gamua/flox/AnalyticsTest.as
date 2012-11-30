@@ -22,11 +22,11 @@ package com.gamua.flox
             // data and can't retrieve it from the server. This test is solely an easy way to
             // step through the code.
             
-            var numbers:Array = [10, 20, 30];
             var strings:Array = ["hugo", "berti", "sepp"];
             var booleans:Array = [false, true];
             var eventProperties:Object = {
-                "number":   numbers[int(Math.random() * numbers.length)],
+                "int":      int(Math.random() * 20),
+                "number":   Math.random() * 1000,
                 "string":   strings[int(Math.random() * strings.length)],
                 "boolean":  booleans[int(Math.random() * booleans.length)]
             };
@@ -49,7 +49,7 @@ package com.gamua.flox
             {
                 // start another session - only now will the previous session be transmitted!
                 Flox.shutdown();
-                Constants.initFlox();
+                Constants.initFlox(true);
                 setTimeout(onComplete, 200);
             }
         }
