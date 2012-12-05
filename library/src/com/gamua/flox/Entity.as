@@ -8,6 +8,7 @@ package com.gamua.flox
     import com.gamua.flox.utils.createURL;
     import com.gamua.flox.utils.describeType;
     import com.gamua.flox.utils.execute;
+    import com.gamua.flox.utils.formatString;
     
     import flash.net.registerClassAlias;
     import flash.system.Capabilities;
@@ -42,6 +43,14 @@ package com.gamua.flox
             mUpdatedAt = new Date();
             mOwnerID = Flox.localPlayer ? Flox.localPlayer.id : null; 
             mPermissions = {};
+        }
+        
+        /** Returns a description of the entity, containing its basic information. */
+        public function toString():String
+        {
+            return formatString(
+                '[Entity type="{0}" id="{1}" createdAt="{2}" updatedAt="{3}" ownerId="{4}"]',
+                mType, mID, DateUtil.toString(mCreatedAt), DateUtil.toString(mUpdatedAt), mOwnerID);
         }
         
         // onComplete(entity:Entity)

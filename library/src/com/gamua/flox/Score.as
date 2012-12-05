@@ -1,5 +1,8 @@
 package com.gamua.flox
 {
+    import com.gamua.flox.utils.DateUtil;
+    import com.gamua.flox.utils.formatString;
+
     /** Provides information about the value and origin of one posted score entry. */
     public class Score
     {
@@ -28,5 +31,12 @@ package com.gamua.flox
         
         /** The country from which the score originated, in a two-letter country code. */
         public function get country():String { return mCountry; }
+        
+        /** Returns a description of the score. */
+        public function toString():String
+        {
+            return formatString('[Score playerName="{0}" value="{1}" country="{2}" date="{3}"]',
+                mPlayerName, mValue, mCountry, DateUtil.toString(mDate));
+        }
     }
 }
