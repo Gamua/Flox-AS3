@@ -35,7 +35,7 @@ package com.gamua.flox
             Flox.logWarning("This is a {0} log", "warning");
             Flox.logError("Error");
             Flox.logError("AnotherError", "Additional Information");
-            Flox.logError("YetAnotherError", "More Info", new Error().getStackTrace());
+            Flox.logError(new ArgumentError("ErrorMessage"));
             Flox.logEvent("AnalyticsTestExecuted");
             Flox.logEvent("EventWithProperties", eventProperties);
             Flox.logEvent("EventWithSingleStringProperty", eventProperties.string);
