@@ -96,10 +96,11 @@ package com.gamua.flox.utils
             return bytes.readUTFBytes(bytes.length);
         }
         
-        public static function decodeToByteArray(data:String):ByteArray
+        public static function decodeToByteArray(data:String, output:ByteArray=null):ByteArray
         {
             // Initialise output ByteArray for decoded data
-            var output:ByteArray = new ByteArray();
+            if (output != null) output.length = 0;
+            else output = new ByteArray();
             
             // Create data and output buffers
             var dataBuffer:Array = new Array(4);

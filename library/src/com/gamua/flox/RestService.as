@@ -33,6 +33,9 @@ package com.gamua.flox
         private var mCache:PersistentStore;
         private var mProcessingQueue:Boolean;
         
+        /** Helper objects */
+        private static var sBuffer:ByteArray = new ByteArray();
+        
         /** Create an instance with the base URL of the Flox service. The class will allow 
          *  communication with the entities of a certain game (identified by id and key). */
         public function RestService(url:String, gameID:String, gameKey:String)
@@ -268,21 +271,27 @@ package com.gamua.flox
         /** Encodes an object in JSON format, compresses it and returns its Base64 representation. */
         private static function encode(object:Object):String
         {
-            // TODO: save memory by truncating the byte array before returning
+            sBuffer.writeUTFBytes(JSON.stringify(object, null, 0));
+            sBuffer.compress();
             
-            var data:ByteArray = new ByteArray();
-            data.writeUTFBytes(JSON.stringify(object, null, 0));
-            data.compress();
-            return Base64.encodeByteArray(data);
+            var encodedData:String = Base64.encodeByteArray(sBuffer);
+            sBuffer.length = 0;
+            
+            return encodedData;
         }
         
         /** Decodes an object from JSON format, compressed in a Base64-encoded, zlib-compressed String. */ 
         private static function decode(string:String):Object
         {
             if (string == null) return null;
-            var data:ByteArray = Base64.decodeToByteArray(string);
-            data.uncompress();
-            return JSON.parse(data.readUTFBytes(data.length));
+            
+            Base64.decodeToByteArray(string, sBuffer);
+            sBuffer.uncompress();
+            
+            var json:String = sBuffer.readUTFBytes(sBuffer.length);
+            sBuffer.length = 0;
+            
+            return JSON.parse(json);
         }
         
         // properties
