@@ -101,11 +101,14 @@ package com.gamua.flox
             
             monitorNativeApplicationEvents(false);
             session.pause();
+            flushCache();
             
             sGameID = sGameKey = sGameVersion = null;
-            sRestService = null;
-            sPersistentData = null;
             sInitialized = false;
+            
+            // those may be reused (useful mainly for unit tests)
+            // sRestService = null;
+            // sPersistentData = null;
         }
         
         /** @private
@@ -124,8 +127,13 @@ package com.gamua.flox
             sGameID = gameID;
             sGameKey = gameKey;
             sGameVersion = gameVersion;
-            sRestService = new RestService(baseURL, gameID, gameKey);
-            sPersistentData = SharedObject.getLocal("Flox." + gameID);
+            
+            if (sRestService == null || sRestService.url != baseURL ||
+                sRestService.gameID != gameID || sRestService.gameKey != gameKey)
+            {
+                sRestService = new RestService(baseURL, gameID, gameKey);
+                sPersistentData = SharedObject.getLocal("Flox." + gameID);
+            }
             
             if (localPlayer == null) playerLogin();
             
@@ -229,26 +237,34 @@ package com.gamua.flox
             sRestService.clearPersistentData();
         }
         
+        /** Flushes all locally cached data to disk (entity cache, http service queue). */
+        public static function flushCache(minDiskSpace:int=0):void
+        {
+            checkInitialized();
+            sPersistentData.flush(minDiskSpace);
+            sRestService.flush();
+        }
+        
         // logging
         
         /** Add a log of type 'info'. Pass parameters in .Net style ('{0}', '{1}', etc). */
         public static function logInfo(message:String, ...args):void
         {
-            checkInitialized();
-            
             message = formatString(message, args);
-            session.logInfo(message);
             log("[Info]", message);
+            
+            if (sInitialized)
+                session.logInfo(message);
         }
         
         /** Add a log of type 'warning'. Pass parameters in .Net style ('{0}', '{1}', etc). */
         public static function logWarning(message:String, ...args):void
         {
-            checkInitialized();
-            
             message = formatString(message, args);
-            session.logWarning(message);
             log("[Warning]", message);
+            
+            if (sInitialized)
+                session.logWarning(message);
         }
         
         /** Add a log of type 'error'. 
@@ -261,21 +277,23 @@ package com.gamua.flox
          */
         public static function logError(error:Object, message:String=null, ...args):void
         {
-            checkInitialized();
-            
             if (message) message = formatString(message, args);
             var errorObject:Error = error as Error;
             
             if (errorObject)
             {
                 if (message == null) message = errorObject.message;
-                session.logError(errorObject.name, message, errorObject.getStackTrace());
-                log("[Error]", errorObject.name + ":", message); 
+                log("[Error]", errorObject.name + ":", message);
+                
+                if (sInitialized) 
+                    session.logError(errorObject.name, message, errorObject.getStackTrace());
             }
             else
             {
-                session.logError(error.toString(), message);
-                log("[Error]", message ? error + ": " + message : error); 
+                log("[Error]", message ? error + ": " + message : error);
+                
+                if (sInitialized)
+                    session.logError(error.toString(), message);
             }
         }
         
@@ -336,8 +354,7 @@ package com.gamua.flox
         {
             logInfo("Game deactivated");
             session.pause();
-            sPersistentData.flush();
-            sRestService.save();
+            flushCache();
         }
         
         /** @private 

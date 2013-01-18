@@ -246,7 +246,7 @@ package com.gamua.flox
         }
         
         /** Saves the request queue to the disk. */
-        public function save():void
+        public function flush():void
         {
             mQueue.flush();
         }
