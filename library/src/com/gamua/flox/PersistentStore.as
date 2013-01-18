@@ -25,7 +25,7 @@ package com.gamua.flox
         public function PersistentStore(name:String)
         {
             mName = name;
-            mIndex = SharedObject.getLocal(mName);
+            mIndex = SharedObjectPool.getObject(mName);
         }
         
         /** Saves an object with a certain key. If the key is already occupied, the previous
@@ -39,7 +39,7 @@ package com.gamua.flox
             info.name = name;
             mIndex.data[key] = info;
             
-            var sharedObject:SharedObject = SharedObject.getLocal(name);
+            var sharedObject:SharedObject = SharedObjectPool.getObject(name);
             sharedObject.data.value = value;
         }
         
@@ -49,7 +49,7 @@ package com.gamua.flox
             var info:Object = mIndex.data[key];
             if (info)
             {
-                SharedObject.getLocal(info.name).clear();
+                SharedObjectPool.getObject(info.name).clear();
                 delete mIndex.data[key];
             }
         }
@@ -58,7 +58,7 @@ package com.gamua.flox
         public function getObject(key:String):Object
         {
             var info:Object = mIndex.data[key];
-            if (info) return SharedObject.getLocal(info.name).data.value;
+            if (info) return SharedObjectPool.getObject(info.name).data.value;
             else      return null;
         }
         
@@ -100,7 +100,7 @@ package com.gamua.flox
                 var info:Object = mIndex.data[key];
                 if (info && info.name)
                 {
-                    var so:SharedObject = SharedObject.getLocal(info.name);
+                    var so:SharedObject = SharedObjectPool.getObject(info.name);
                     if (so) so.clear();
                 }
                 delete mIndex.data[key];

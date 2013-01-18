@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <flexLibProperties includeAllClasses="true" useMultiPlatformConfig="false" version="3">
-  <includeClasses/>
+  <includeClasses>
+    <classEntry path="com.gamua.flox.Authentication"/>
+    <classEntry path="com.gamua.flox.AuthenticationType"/>
+    <classEntry path="com.gamua.flox.Entity"/>
+    <classEntry path="com.gamua.flox.Flox"/>
+    <classEntry path="com.gamua.flox.GameSession"/>
+    <classEntry path="com.gamua.flox.PersistentQueue"/>
+    <classEntry path="com.gamua.flox.PersistentStore"/>
+    <classEntry path="com.gamua.flox.Player"/>
+    <classEntry path="com.gamua.flox.RestService"/>
+    <classEntry path="com.gamua.flox.Score"/>
+    <classEntry path="com.gamua.flox.SharedObjectPool"/>
+    <classEntry path="com.gamua.flox.TimeScope"/>
+    <classEntry path="com.gamua.flox.flox_internal"/>
+    <classEntry path="com.gamua.flox.utils.Base64"/>
+    <classEntry path="com.gamua.flox.utils.DateUtil"/>
+    <classEntry path="com.gamua.flox.utils.HttpMethod"/>
+    <classEntry path="com.gamua.flox.utils.HttpStatus"/>
+    <classEntry path="com.gamua.flox.utils.cloneObject"/>
+    <classEntry path="com.gamua.flox.utils.createUID"/>
+    <classEntry path="com.gamua.flox.utils.createURL"/>
+    <classEntry path="com.gamua.flox.utils.describeType"/>
+    <classEntry path="com.gamua.flox.utils.execute"/>
+    <classEntry path="com.gamua.flox.utils.formatString"/>
+    <classEntry path="com.gamua.flox.utils.parseBool"/>
+  </includeClasses>
   <includeResources/>
   <namespaceManifests/>
 </flexLibProperties>

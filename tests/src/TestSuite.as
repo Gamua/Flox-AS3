@@ -7,6 +7,7 @@ package
     import com.gamua.flox.PersistentStoreTest;
     import com.gamua.flox.RestServiceTest;
     import com.gamua.flox.ScoreTest;
+    import com.gamua.flox.SharedObjectPoolTest;
     import com.gamua.flox.UtilsTest;
     
     import starling.display.Sprite;
@@ -31,6 +32,7 @@ package
             // --- add tests here ---
             
             // offline tests
+            testRunner.add(SharedObjectPoolTest);
             testRunner.add(PersistentStoreTest);
             testRunner.add(PersistentQueueTest);
             testRunner.add(UtilsTest);

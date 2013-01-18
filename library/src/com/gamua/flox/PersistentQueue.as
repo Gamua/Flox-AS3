@@ -10,6 +10,7 @@ package com.gamua.flox
     import com.gamua.flox.utils.createUID;
     
     import flash.net.SharedObject;
+    import flash.utils.Dictionary;
 
     /** A queue that uses SharedObjects to save its contents to the disk. Objects are serialized
      *  using the AMF format, so be sure to use either primitive objects or classes to provide an
@@ -19,14 +20,25 @@ package com.gamua.flox
         private var mName:String;
         private var mIndex:SharedObject;
         
+        private static var sInstanceNames:Dictionary = new Dictionary();
+        
         /** Create a persistent queue with a certain name. If the name was already used in a 
          *  previous session, the existing queue is restored. */ 
         public function PersistentQueue(name:String)
         {
             mName = name;
-            mIndex = SharedObject.getLocal(mName);
+            mIndex = SharedObjectPool.getObject(mName);
             
+            if (!("isLocked" in mIndex.data)) mIndex.data.isLocked = false;
             if (!("keys" in mIndex.data)) mIndex.data.keys = [];
+            
+            // when the program is started, we force the queue to be unlocked -- just in case.
+            // That way, a clean restart will always help.
+            if (!(name in sInstanceNames))
+            {
+                isLocked = false;
+                sInstanceNames[name] = true;
+            }
         }
         
         /** Insert an object at the beginning of the queue. */
@@ -34,7 +46,7 @@ package com.gamua.flox
         {
             var key:String = createUID();
             
-            var sharedObject:SharedObject = SharedObject.getLocal(key);
+            var sharedObject:SharedObject = SharedObjectPool.getObject(key);
             sharedObject.data.value = object;
             
             mIndex.data.keys.unshift(key);
@@ -72,7 +84,7 @@ package com.gamua.flox
             if (keys.length == 0) return null;
             
             var key:String = keys[keys.length-1];
-            var sharedObject:SharedObject = SharedObject.getLocal(key);
+            var sharedObject:SharedObject = SharedObjectPool.getObject(key);
             var head:Object = sharedObject.data.value;
             
             if (head == null)
@@ -92,6 +104,11 @@ package com.gamua.flox
             
             return head;
         }
+        
+        /** A flag indicating if modifying the queue is currently allowed. This does not actually
+         *  prevent any modification: it's just a persistent flag you can use. */
+        public function get isLocked():Boolean { return mIndex.data.isLocked; }
+        public function set isLocked(value:Boolean):void { mIndex.data.isLocked = value; }
         
         /** Returns the number of elements in the queue. */
         public function get length():int { return mIndex.data.keys.length; }

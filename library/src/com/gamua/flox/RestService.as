@@ -31,7 +31,6 @@ package com.gamua.flox
         private var mGameKey:String;
         private var mQueue:PersistentQueue;
         private var mCache:PersistentStore;
-        private var mProcessingQueue:Boolean;
         
         /** Helper objects */
         private static var sBuffer:ByteArray = new ByteArray();
@@ -203,30 +202,30 @@ package com.gamua.flox
          *  @returns true if the queue is currently being processed. */
         public function processQueue():Boolean
         {
-            if (!mProcessingQueue)
+            if (!mQueue.isLocked)
             {
                 if (mQueue.length > 0)
                 {
-                    mProcessingQueue = true;
+                    mQueue.isLocked = true;
                     var element:Object = mQueue.peek();
                     requestWithAuthentication(element.method, element.path, element.data, 
                         element.authentication, onRequestComplete, onRequestError);
                 }
-                else mProcessingQueue = false;
+                else mQueue.isLocked = false;
             }
             
-            return mProcessingQueue;
+            return mQueue.isLocked;
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
-                mProcessingQueue = false;
+                mQueue.isLocked = false;
                 mQueue.dequeue();
                 processQueue();
             }
             
             function onRequestError(error:String, httpStatus:int):void
             {
-                mProcessingQueue = false;
+                mQueue.isLocked = false;
                 
                 if (httpStatus == 0 || httpStatus == 503)
                 {

@@ -105,10 +105,8 @@ package com.gamua.flox
             
             sGameID = sGameKey = sGameVersion = null;
             sInitialized = false;
-            
-            // those may be reused (useful mainly for unit tests)
-            // sRestService = null;
-            // sPersistentData = null;
+            sRestService = null;
+            sPersistentData = null;
         }
         
         /** @private
@@ -122,18 +120,14 @@ package com.gamua.flox
             registerClassAlias("GameSession", GameSession);
             registerClassAlias("Authentication", Authentication);
             monitorNativeApplicationEvents(true);
+            SharedObjectPool.startAutoCleanup();
             
             sInitialized = true;
             sGameID = gameID;
             sGameKey = gameKey;
             sGameVersion = gameVersion;
-            
-            if (sRestService == null || sRestService.url != baseURL ||
-                sRestService.gameID != gameID || sRestService.gameKey != gameKey)
-            {
-                sRestService = new RestService(baseURL, gameID, gameKey);
-                sPersistentData = SharedObject.getLocal("Flox." + gameID);
-            }
+            sRestService = new RestService(baseURL, gameID, gameKey);
+            sPersistentData = SharedObjectPool.getObject("Flox." + gameID);
             
             if (localPlayer == null) playerLogin();
             
