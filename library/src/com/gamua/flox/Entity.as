@@ -171,7 +171,7 @@ package com.gamua.flox
             object["updatedAt"] = DateUtil.toString(mUpdatedAt);
             
             if ("authID" in object)
-                object["authId"] = object["authID"];
+                object["authId"] = object["authID"]; // note case 'Id' vs. 'ID'!
 
             delete object["ownerID"];
             delete object["authID"];
