@@ -20,7 +20,7 @@ package com.gamua.flox
         private var mName:String;
         private var mIndex:SharedObject;
         
-        private static var sInstanceNames:Dictionary = new Dictionary();
+        private static var sLocks:Dictionary = new Dictionary();
         
         /** Create a persistent queue with a certain name. If the name was already used in a 
          *  previous session, the existing queue is restored. */ 
@@ -29,16 +29,8 @@ package com.gamua.flox
             mName = name;
             mIndex = SharedObjectPool.getObject(mName);
             
-            if (!("isLocked" in mIndex.data)) mIndex.data.isLocked = false;
             if (!("keys" in mIndex.data)) mIndex.data.keys = [];
-            
-            // when the program is started, we force the queue to be unlocked -- just in case.
-            // That way, a clean restart will always help.
-            if (!(name in sInstanceNames))
-            {
-                isLocked = false;
-                sInstanceNames[name] = true;
-            }
+            if (!(name in sLocks)) sLocks[name] = false;
         }
         
         /** Insert an object at the beginning of the queue. */
@@ -106,9 +98,10 @@ package com.gamua.flox
         }
         
         /** A flag indicating if modifying the queue is currently allowed. This does not actually
-         *  prevent any modification: it's just a persistent flag you can use. */
-        public function get isLocked():Boolean { return mIndex.data.isLocked; }
-        public function set isLocked(value:Boolean):void { mIndex.data.isLocked = value; }
+         *  prevent any modification: it's just a flag that is shared over all instances with
+         *  the same name. */
+        public function get isLocked():Boolean { return sLocks[name]; }
+        public function set isLocked(value:Boolean):void { sLocks[name] = value; }
         
         /** Returns the number of elements in the queue. */
         public function get length():int { return mIndex.data.keys.length; }
