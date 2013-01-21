@@ -177,13 +177,17 @@ package com.gamua.flox
          *  a maximum of 50 scores per leaderboard and time scope. Each player (i.e. device
          *  installation) will be in the list only once.
          *  
+         *  <p>Note that when the server cannot be reached (e.g. because the player is offline)
+         *  the 'onError' callback contains the scores that Flox cached from the last request
+         *  (if available, otherwise the parameter is null).</p>
+         *  
          *  @param leaderboardID: the leaderboard ID you have defined in the Flox online interface.
          *  @param timescope:  the time range the leaderboard contains. The corresponding string
          *                     constants are defined in the "TimeScope" class. 
          *  @param onComplete: a callback with the form: 
          *                     <pre>onComplete(scores:Vector.&lt;Score&gt;):void;</pre>
          *  @param onError:    a callback with the form:
-         *                     <pre>onError(error:String):void;</pre>
+         *                     <pre>onError(error:String, cachedScores:Vector.&lt;Score&gt;):void;</pre>
          */
         public static function loadScores(leaderboardID:String, timescope:String,
                                           onComplete:Function, onError:Function):void
@@ -198,18 +202,30 @@ package com.gamua.flox
             };
             
             service.request(HttpMethod.GET, ".score", { q: JSON.stringify(query) },
-                            onRequestComplete, onError);
+                            onRequestComplete, onRequestError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
-                var scores:Vector.<Score> = new <Score>[];
-                for each (var rawScore:Object in body as Array)
+                execute(onComplete, createScoreVector(body as Array));
+            }
+            
+            function onRequestError(error:String, httpStatus:int, cachedBody:Object):void
+            {
+                execute(onError, error, createScoreVector(cachedBody as Array)); 
+            }
+            
+            function createScoreVector(rawScores:Array):Vector.<Score>
+            {
+                if (rawScores == null) return null;
+                else
                 {
-                    scores.push(new Score(rawScore.playerName, rawScore.countryCode, 
-                                          parseInt(rawScore.value), 
-                                          DateUtil.parse(rawScore.createdAt)));
+                    var scores:Vector.<Score> = new <Score>[];
+                    for each (var rawScore:Object in rawScores)
+                        scores.push(new Score(rawScore.playerName, rawScore.countryCode, 
+                            parseInt(rawScore.value), 
+                            DateUtil.parse(rawScore.createdAt)));
+                    return scores;
                 }
-                execute(onComplete, scores);
             }
         }
         

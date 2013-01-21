@@ -38,6 +38,8 @@ package com.gamua.flox
         
         public function testLongLog():void
         {
+            return; // we don't want to spam the server -- activate on demand
+            
             var count:int = 10000;
             
             Constants.initFlox(true);
@@ -54,7 +56,7 @@ package com.gamua.flox
         
         public function testSendMultipleLogs():void
         {
-            return; // takes too long - activate on demand
+            return; // we don't want to spam the server -- activate on demand
             
             var sessionCount:int = 10;
             var logCount:int = 10;

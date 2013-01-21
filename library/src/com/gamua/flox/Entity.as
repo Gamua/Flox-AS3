@@ -130,9 +130,8 @@ package com.gamua.flox
                 execute(onComplete, entity, httpStatus == HttpStatus.NOT_MODIFIED);
             }
             
-            function onRequestError(error:String, httpStatus:int):void
+            function onRequestError(error:String, httpStatus:int, cachedBody:Object):void
             {
-                var cachedBody:Object = Flox.service.getFromCache(path);
                 entity = cachedBody ? Entity.fromObject(type, id, cachedBody) : null; 
                 execute(onError, error, entity);
             }

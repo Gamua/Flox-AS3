@@ -53,6 +53,12 @@ package com.gamua.flox
                                                    authentication:Authentication,
                                                    onComplete:Function, onError:Function):void
         {
+            if (method == HttpMethod.GET && data)
+            {
+                path += "?" + encodeForUri(data);
+                data = null;
+            }
+            
             var headers:Object = {};
             var xFloxHeader:Object = {
                 sdk: { 
@@ -85,12 +91,9 @@ package com.gamua.flox
             var url:String = createURL("/api", (mGameID ? "games/" + mGameID : ""), path);
             var wrapperUrl:String = mAlwaysFail ? "https://www.invalid-flox.com/api" : mUrl;
             var request:URLRequest = new URLRequest(wrapperUrl);
-            var requestData:Object = { method: method, url: url, headers: headers };
-            
-            if (method == HttpMethod.GET)
-                requestData.url += data ? "?" + encodeForUri(data) : "";
-            else
-                requestData.body = encode(data);
+            var requestData:Object = { 
+                method: method, url: url, headers: headers, body: encode(data) 
+            };
             
             request.method = URLRequestMethod.POST;
             request.data = JSON.stringify(requestData);
@@ -145,7 +148,11 @@ package com.gamua.flox
                     }
                     else // error =(
                     {
-                        execute(onError, body ? body.message : "unknown", status);
+                        var error:String = body ? body.message : "unknown";
+                        var cachedBody:Object = (method == HttpMethod.GET) ? 
+                            mCache.getObject(path) : null;
+                        
+                        execute(onError, error, status, cachedBody);
                     }
                 }
             }
@@ -153,7 +160,8 @@ package com.gamua.flox
             function onLoaderError(event:IOErrorEvent):void
             {
                 closeLoader();
-                execute(onError, "Flox Service IO Error: " + event.text, null, httpStatus);
+                execute(onError, event.text, httpStatus,
+                    (method == HttpMethod.GET) ? mCache.getObject(path) : null);
             }
             
             function onLoaderHttpStatus(event:HTTPStatusEvent):void
@@ -258,12 +266,6 @@ package com.gamua.flox
         {
             mQueue.clear();
             mCache.clear();
-        }
-        
-        /** Returns an object from the cache, if it exists (otherwise, returns null). */
-        public function getFromCache(path:String):Object
-        {
-            return mCache.getObject(path);
         }
         
         // object encoding
