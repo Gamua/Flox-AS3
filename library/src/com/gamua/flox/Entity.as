@@ -116,7 +116,7 @@ package com.gamua.flox
         // static methods
         
         // onComplete(entity:Entity, fromCache:Boolean)
-        // onError(error:String, transient:Boolean)
+        // onError(error:String, cachedEntity:Entity)
         public static function load(type:String, id:String, onComplete:Function, onError:Function):void
         {
             var entity:Entity;
@@ -132,11 +132,9 @@ package com.gamua.flox
             
             function onRequestError(error:String, httpStatus:int):void
             {
-                // TODO - return cached entity in additional 'onError' parameter
-                //entity = loadFromCache(type, id);
-                //execute(onError, error, entity);
-                
-                execute(onError, error, HttpStatus.isTransientError(httpStatus));
+                var cachedBody:Object = Flox.service.getFromCache(path);
+                entity = cachedBody ? Entity.fromObject(type, id, cachedBody) : null; 
+                execute(onError, error, entity);
             }
         }
         
@@ -150,7 +148,6 @@ package com.gamua.flox
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
-                // TODO: remove entity from cache
                 execute(onComplete);
             }
             
