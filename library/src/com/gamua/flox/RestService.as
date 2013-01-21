@@ -31,6 +31,7 @@ package com.gamua.flox
         private var mGameKey:String;
         private var mQueue:PersistentQueue;
         private var mCache:PersistentStore;
+        private var mAlwaysFail:Boolean;
         
         /** Helper objects */
         private static var sBuffer:ByteArray = new ByteArray();
@@ -42,6 +43,7 @@ package com.gamua.flox
             mUrl = url;
             mGameID = gameID;
             mGameKey = gameKey;
+            mAlwaysFail = false;
             mQueue = new PersistentQueue("Flox.RestService.queue." + gameID);
             mCache = new PersistentStore("Flox.RestService.cache." + gameID);
         }
@@ -81,7 +83,8 @@ package com.gamua.flox
             
             var httpStatus:int = -1;
             var url:String = createURL("/api", (mGameID ? "games/" + mGameID : ""), path);
-            var request:URLRequest = new URLRequest(mUrl);
+            var wrapperUrl:String = mAlwaysFail ? "https://www.invalid-flox.com/api" : mUrl;
+            var request:URLRequest = new URLRequest(wrapperUrl);
             var requestData:Object = { method: method, url: url, headers: headers };
             
             if (method == HttpMethod.GET)
@@ -257,6 +260,12 @@ package com.gamua.flox
             mCache.clear();
         }
         
+        /** Returns an object from the cache, if it exists (otherwise, returns null). */
+        public function getFromCache(path:String):Object
+        {
+            return mCache.getObject(path);
+        }
+        
         // object encoding
         
         /** Encodes an object as parameters for a 'GET' request. */
@@ -295,8 +304,17 @@ package com.gamua.flox
         
         // properties
         
+        /** If enabled, all requests will fail. Useful only for unit testing. */
+        internal function get alwaysFail():Boolean { return mAlwaysFail; }
+        internal function set alwaysFail(value:Boolean):void { mAlwaysFail = value; }
+        
+        /** The URL pointing to the Flox REST API. */
         public function get url():String { return mUrl; }
+        
+        /** The unique ID of the game. */
         public function get gameID():String { return mGameID; }
+        
+        /** The key that identifies the game. */
         public function get gameKey():String { return mGameKey; }
     }
 }
