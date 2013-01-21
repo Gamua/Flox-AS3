@@ -142,8 +142,8 @@ package com.gamua.flox
                     }
                     else // error =(
                     {
-                        execute(onError, body.message, status);
-                    }          
+                        execute(onError, body ? body.message : "unknown", status);
+                    }
                 }
             }
             
