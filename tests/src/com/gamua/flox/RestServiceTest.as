@@ -65,5 +65,17 @@ package com.gamua.flox
                 onComplete();
             }
         }
+        
+        public function testQueueEvent(onComplete:Function):void
+        {
+            Flox.addEventListener(Flox.QUEUE_PROCESSED, onQueueProcessed);
+            Flox.service.requestQueued(HttpMethod.GET, "");
+            
+            function onQueueProcessed(event:Object):void
+            {
+                Flox.removeEventListener(Flox.QUEUE_PROCESSED, onQueueProcessed);
+                onComplete();
+            }
+        }
     }
 }

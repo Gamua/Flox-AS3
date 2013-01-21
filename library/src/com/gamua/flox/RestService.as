@@ -15,6 +15,7 @@ package com.gamua.flox
     import com.gamua.flox.utils.execute;
     
     import flash.events.Event;
+    import flash.events.EventDispatcher;
     import flash.events.HTTPStatusEvent;
     import flash.events.IOErrorEvent;
     import flash.net.URLLoader;
@@ -24,7 +25,7 @@ package com.gamua.flox
     import flash.utils.ByteArray;
 
     /** A class that makes it easy to communicate with the Flox server via a REST protocol. */
-    internal class RestService
+    internal class RestService extends EventDispatcher
     {
         private var mUrl:String;
         private var mGameID:String;
@@ -222,7 +223,11 @@ package com.gamua.flox
                     requestWithAuthentication(element.method, element.path, element.data, 
                         element.authentication, onRequestComplete, onRequestError);
                 }
-                else mQueue.isLocked = false;
+                else 
+                {
+                    mQueue.isLocked = false;
+                    dispatchEvent(new Event(Flox.QUEUE_PROCESSED));
+                }
             }
             
             return mQueue.isLocked;
@@ -255,16 +260,22 @@ package com.gamua.flox
             }
         }
         
-        /** Saves the request queue to the disk. */
+        /** Saves request queue and cache index to the disk. */
         public function flush():void
         {
             mQueue.flush();
+            mCache.flush();
         }
         
-        /** Clears cache and queue from the persistent storage. */
-        public function clearPersistentData():void
+        /** Clears the persistent queue. */
+        public function clearQueue():void
         {
             mQueue.clear();
+        }
+        
+        /** Clears the persistent cache. */
+        public function clearCache():void
+        {
             mCache.clear();
         }
         

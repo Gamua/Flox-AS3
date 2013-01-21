@@ -68,8 +68,15 @@ package com.gamua.flox
      */
     public class Flox
     {
+        /** The current version of the Flox library. */
         public static const VERSION:String  = "0.3";
+        
+        /** The base URL of the Flox REST API. */
         public static const BASE_URL:String = "https://www.flox.cc/api";
+        
+        /** The type of the event that is dispatched when the service queue finished processing
+         *  the queue. */
+        public static const QUEUE_PROCESSED:String = "queueProcessed";
         
         private static var sGameID:String;
         private static var sGameKey:String;
@@ -101,7 +108,7 @@ package com.gamua.flox
             
             monitorNativeApplicationEvents(false);
             session.pause();
-            flushCache();
+            flushLocalData();
             
             sGameID = sGameKey = sGameVersion = null;
             sInitialized = false;
@@ -241,15 +248,22 @@ package com.gamua.flox
         
         // misc
         
-        /** Clears all locally cached data (entity cache, http service queue). */
+        /** Clears the request queue. */
+        public static function clearQueue():void
+        {
+            checkInitialized();
+            sRestService.clearQueue();
+        }
+        
+        /** Clears the service cache (containing e.g. previously fetched entities or scores). */
         public static function clearCache():void
         {
             checkInitialized();
-            sRestService.clearPersistentData();
+            sRestService.clearCache();
         }
         
         /** Flushes all locally cached data to disk (entity cache, http service queue). */
-        public static function flushCache(minDiskSpace:int=0):void
+        public static function flushLocalData(minDiskSpace:int=0):void
         {
             checkInitialized();
             sPersistentData.flush(minDiskSpace);
@@ -322,6 +336,23 @@ package com.gamua.flox
             log("[Event]", properties === null ? name : name + ": " + JSON.stringify(properties));
         }
         
+        // queue events
+        
+        /** Registers an event listener so that you are notified when one of Flox' events
+         *  is dispatched (currently, there's only one event type: 'QUEUE_PROCESSED'). */ 
+        public static function addEventListener(type:String, listener:Function, priority:int=0, 
+                                                useWeakReference:Boolean=false):void
+        {
+            checkInitialized();
+            sRestService.addEventListener(type, listener, false, priority, useWeakReference);
+        }
+        
+        /** Unregisters an event listener that was added before. */
+        public static function removeEventListener(type:String, listener:Function):void
+        {
+            if (sInitialized) sRestService.removeEventListener(type, listener);
+        }
+        
         // utils
         
         private static function checkInitialized():void
@@ -365,7 +396,7 @@ package com.gamua.flox
         {
             logInfo("Game deactivated");
             session.pause();
-            flushCache();
+            flushLocalData();
         }
         
         /** @private 
