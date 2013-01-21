@@ -53,6 +53,14 @@ package com.gamua.flox
                 mType, mID, DateUtil.toString(mCreatedAt), DateUtil.toString(mUpdatedAt), mOwnerID);
         }
         
+        /** Saves the entity to the server as soon as possible via a queue. If the server can't
+         *  be reached at the moment, the request will stay in the queue until a connection becomes 
+         *  available. */
+        public function saveQueued():void
+        {
+            Flox.service.requestQueued(HttpMethod.PUT, createURL(mType, mID), toObject()); 
+        }
+        
         // onComplete(entity:Entity)
         // onError(error:String, transient:Boolean)
         public function save(onComplete:Function, onError:Function):void
