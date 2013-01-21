@@ -194,6 +194,48 @@ package com.gamua.flox
             }
         }
 
+        public function testDelete(onComplete:Function):void
+        {
+            Constants.initFlox();
+            Flox.clearCache();
+            
+            var testEntity:CustomEntity = new CustomEntity("delete-me", 113);
+            var entityID:String = testEntity.id;
+            testEntity.save(onSaveComplete, onSaveOrDestroyError);
+            
+            function onSaveComplete(entity:CustomEntity):void
+            {
+                testEntity.destroy(onDestroyComplete, onSaveOrDestroyError);
+            }
+            
+            function onDestroyComplete(entity:Entity):void
+            {
+                assertEqual(entityID, entity.id);
+                Entity.load(CustomEntity.TYPE, entityID, onLoadComplete, onLoadError);
+            }
+            
+            function onSaveOrDestroyError(error:String, transient:Boolean):void
+            {
+                Flox.shutdown();
+                fail("Error in save or destroy: " + error);
+                onComplete();
+            }
+            
+            function onLoadComplete(entity:Entity, fromCache:Boolean):void
+            {
+                Flox.shutdown();
+                fail("deleted entity could be loaded");
+                onComplete();
+            }
+            
+            function onLoadError(error:String, transient:Boolean):void
+            {
+                Flox.shutdown();
+                assertFalse(transient);
+                onComplete();
+            }
+        }
+        
         private function assertEqualEntities(entityA:Entity, entityB:Entity, 
                                              compareDates:Boolean=false):void
         {
