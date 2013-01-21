@@ -119,6 +119,7 @@ package com.gamua.flox
             
             registerClassAlias("GameSession", GameSession);
             registerClassAlias("Authentication", Authentication);
+            Entity.register(Player.TYPE, Player);
             monitorNativeApplicationEvents(true);
             SharedObjectPool.startAutoCleanup();
             
