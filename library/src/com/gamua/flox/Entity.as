@@ -31,7 +31,7 @@ package com.gamua.flox
      *  
      *  <p>Here is an example class:</p>
      *  
-     *  <listing>
+     *  <pre>
      *  public class GameState extends Entity
      *  {
      *      public static const TYPE:String = "gameState";
@@ -52,8 +52,14 @@ package com.gamua.flox
      *      
      *      public function get score():int { return mScore; }
      *      public function set score(value:int):void { mScore = value; }
-     *  }</listing>
-     * 
+     *  }</pre>
+     *  
+     *  <p>Before you can use the class, you have to tell Flox about its existance like shown below.
+     *  It is recommended to make this call right when your game has started.</p>
+     *  
+     *  <pre>
+     *  Entity.register(GameState.TYPE, GameState);</pre>
+     *  
      */
     public class Entity
     {
@@ -66,6 +72,8 @@ package com.gamua.flox
         
         private static var sRegisteredTypes:Dictionary = new Dictionary();
         
+        /** Abstract class constructor. Call this via 'super' from your subclass, passing your
+         *  custom type string. */
         public function Entity(type:String)
         {
             if (Capabilities.isDebugger && 
@@ -93,8 +101,18 @@ package com.gamua.flox
                 mType, mID, DateUtil.toString(mCreatedAt), DateUtil.toString(mUpdatedAt), mOwnerID);
         }
         
-        // onComplete(entity:Entity)
-        // onError(error:String, transient:Boolean)
+        /** Save the entity on the server; if the entity already exists, the server version will
+         *  be updated with the local changes. It is guaranteed that one (and only one) of the 
+         *  provided callbacks will be executed; all callback arguments are optional.
+         * 
+         *  <p>The 'transient' argument tells you if the error might go away if you try again 
+         *  (e.g. the server was not reachable).</p> 
+         *  
+         *  @param onComplete: executed when the operation is successful; function signature:
+         *                     <pre>onComplete(entity:Entity):void;</pre>
+         *  @param onError:    executed when the operation was not successful; function signature:
+         *                     <pre>onError(error:String, transient:Boolean):void;</pre>         
+         */
         public function save(onComplete:Function, onError:Function):void
         {
             var self:Entity = this;
@@ -114,8 +132,19 @@ package com.gamua.flox
             }
         }
         
-        // onComplete(entity:Entity, fromCache:Boolean)
-        // onError(error:String, transient:Boolean)
+        /** Refresh the entity with the version that is currently stored on the server.
+         *  It is guaranteed that one (and only one) of the provided callbacks will be executed;
+         *  all callback arguments are optional.
+         * 
+         *  <p>The 'fromCache' argument indicates that the entity hasn't changed since you last
+         *  received it from the server. The 'transient' argument tells you if the error might 
+         *  go away if you try again (e.g. the server was not reachable).</p> 
+         *  
+         *  @param onComplete: executed when the operation is successful; function signature:
+         *                     <pre>onComplete(entity:Entity, fromCache:Boolean):void;</pre>
+         *  @param onError:    executed when the operation was not successful; function signature:
+         *                     <pre>onError(error:String, transient:Boolean):void;</pre>         
+         */
         public function refresh(onComplete:Function, onError:Function):void
         {
             var path:String = createURL(mType, mID);
@@ -135,8 +164,18 @@ package com.gamua.flox
             }
         }
         
-        // onComplete(entity:Entity)
-        // onError(error:String, transient:Boolean)
+        /** Deletes the entity from the server.
+         *  It is guaranteed that one (and only one) of the provided callbacks will be executed;
+         *  all callback arguments are optional.
+         * 
+         *  <p>The 'transient' argument tells you if the error might go away if you try again 
+         *  (e.g. the server was not reachable).</p> 
+         *  
+         *  @param onComplete: executed when the operation is successful; function signature:
+         *                     <pre>onComplete(entity:Entity):void;</pre>
+         *  @param onError:    executed when the operation was not successful; function signature:
+         *                     <pre>onError(error:String, transient:Boolean):void;</pre>         
+         */
         public function destroy(onComplete:Function, onError:Function):void
         {
             var self:Entity = this;
@@ -157,6 +196,24 @@ package com.gamua.flox
         
         // onComplete(entity:Entity, fromCache:Boolean)
         // onError(error:String, cachedEntity:Entity)
+        
+        /** Loads an entity with the given type and ID from the server.
+         *  It is guaranteed that one (and only one) of the provided callbacks will be executed;
+         *  all callback arguments are optional.
+         *  
+         *  <p>The 'fromCache' argument indicates that the entity hasn't changed since you last
+         *  received it from the server.</p>
+         *  
+         *  <p>Note that the 'onError' callback may give you a cached version of the entity. This
+         *  is possible if you have received the Entity already in the past. This might allow you
+         *  to work with the entity even though the player has lost the connection to the Flox
+         *  server.</p>
+         *  
+         *  @param onComplete: executed when the operation is successful; function signature:
+         *                     <pre>onComplete(entity:Entity, fromCache:Boolean):void;</pre>
+         *  @param onError:    executed when the operation was not successful; function signature:
+         *                     <pre>onError(error:String, cachedEntity:Entity):void;</pre>
+         */
         public static function load(type:String, id:String, onComplete:Function, onError:Function):void
         {
             var entity:Entity;
@@ -177,8 +234,18 @@ package com.gamua.flox
             }
         }
         
-        // onComplete()
-        // onError(error:String, transient:Boolean)
+        /** Deletes the entity with the given type and ID from the server.
+         *  It is guaranteed that one (and only one) of the provided callbacks will be executed;
+         *  all callback arguments are optional.
+         * 
+         *  <p>The 'transient' argument tells you if the error might go away if you try again 
+         *  (e.g. the server was not reachable).</p> 
+         *  
+         *  @param onComplete: executed when the operation is successful; function signature:
+         *                     <pre>onComplete():void;</pre>
+         *  @param onError:    executed when the operation was not successful; function signature:
+         *                     <pre>onError(error:String, transient:Boolean):void;</pre>         
+         */
         public static function destroy(type:String, id:String, 
                                        onComplete:Function, onError:Function):void
         {
@@ -216,6 +283,7 @@ package com.gamua.flox
         
         // helpers
 
+        /** @private */
         internal function toObject():Object
         {
             var object:Object = cloneObject(this);
@@ -233,6 +301,7 @@ package com.gamua.flox
             return object;
         }
         
+        /** @private */
         internal static function fromObject(type:String, id:String, data:Object):Entity
         {
             var entity:Entity;
@@ -278,21 +347,28 @@ package com.gamua.flox
         
         // properties
         
+        /** This is the primary identifier of the entity. It must be unique within the objects of
+         *  the same entity type. */
         public function get id():String { return mID; }
         public function set id(value:String):void { mID = value; }
         
+        /** The type of the entity, defined per Entity subclass. Unique per game. */
         public function get type():String { return mType; }
         public function set type(value:String):void { mType = value; }
         
+        /** The player ID of the owner of the entity. (Referencing a Player entitity.) */
         public function get ownerID():String { return mOwnerID; }
         public function set ownerID(value:String):void { mOwnerID = value; }
         
+        /** A set of permissions for the entity. TODO add more info here. */
         public function get permissions():Object { return mPermissions; }
         public function set permissions(value:Object):void { mPermissions = value ? value : {}; }
         
+        /** The date when this entity was created. */
         public function get createdAt():Date { return mCreatedAt; }
         public function set createdAt(value:Date):void { mCreatedAt = value; }
         
+        /** The date when this entity was last updated on the server. */
         public function get updatedAt():Date { return mUpdatedAt; }
         public function set updatedAt(value:Date):void { mUpdatedAt = value; }
         
@@ -301,6 +377,8 @@ package com.gamua.flox
         
         // type registration
         
+        /** Registers an entity type for a certain Entity subclass. Call this method for all
+         *  your custom Entity classes. */ 
         public static function register(entityType:String, entityClass:Class):void
         {
             if (entityType == null || entityClass == null)
