@@ -122,6 +122,7 @@ package com.gamua.flox
             var testEntity:CustomEntity = new CustomEntity();
             testEntity.age = 31;
             testEntity.name = "Daniel";
+            testEntity.data.nickname = "PrimaryFeather";
             var originalData:Object = cloneObject(testEntity);
             testEntity.save(onSaveComplete, onSaveError);
             

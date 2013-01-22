@@ -15,6 +15,46 @@ package com.gamua.flox
     import flash.utils.Dictionary;
     import flash.utils.getQualifiedClassName;
     
+    /** The (abstract) base class of all objects that can be stored persistently on the Flox server.
+     *  
+     *  <p>To create custom entities, extend this class. Each subclass needs a unique TYPE string
+     *  and can add additionaly properties. Subclasses have to follow a few rules:</p>
+     * 
+     *  <ul>
+     *   <li>Each class needs a TYPE that is unique within the game.</li>
+     *   <li>All constructor arguments must have default values.</li>
+     *   <li>Properties always need to be readable and writable.</li>
+     *   <li>Properties may have one of the following types:
+     *       <code>int, Number, Boolean, String, Object, Array.</code>
+     *       Support for nested entities or complex data types may be added at a later time.</li>
+     *  </ul>
+     *  
+     *  <p>Here is an example class:</p>
+     *  
+     *  <listing>
+     *  public class GameState extends Entity
+     *  {
+     *      public static const TYPE:String = "gameState";
+     *      
+     *      private var mLevel:int;
+     *      private var mScore:int;
+     *      
+     *      public function GameState(level:int=0, score:int=0)
+     *      {
+     *          super(TYPE);
+     *          
+     *          mLevel = level;
+     *          mScore = score;
+     *      }
+     *      
+     *      public function get level():int { return mLevel; }
+     *      public function set level(value:int):void { mLevel = value; }
+     *      
+     *      public function get score():int { return mScore; }
+     *      public function set score(value:int):void { mScore = value; }
+     *  }</listing>
+     * 
+     */
     public class Entity
     {
         private var mType:String;

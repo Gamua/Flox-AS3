@@ -8,6 +8,7 @@ package com.gamua.flox.utils
         
         private var mName:String;
         private var mAge:int;
+        private var mData:Object;
         
         public function CustomEntity(name:String="unknown", age:int=0)
         {
@@ -15,6 +16,7 @@ package com.gamua.flox.utils
             
             mName = name;
             mAge = age;
+            mData = { value: int(Math.random() * 1000) };
         }
         
         public function get name():String { return mName; }
@@ -22,5 +24,9 @@ package com.gamua.flox.utils
         
         public function get age():int { return mAge; }
         public function set age(value:int):void { mAge = value; }
+        
+        public function get data():Object { return mData; }
+        public function set data(value:Object):void { mData = value; }
+        
     }
 }
