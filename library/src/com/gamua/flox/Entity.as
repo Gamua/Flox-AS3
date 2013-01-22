@@ -156,6 +156,24 @@ package com.gamua.flox
             }
         }
         
+        // queued requests
+        
+        /** Save the object the next time the player goes online. When the Flox server cannot be
+         *  reached at the moment, the request will be added to a queue and will be repeated
+         *  later. */
+        public function saveQueued():void
+        {
+            Flox.service.requestQueued(HttpMethod.PUT, createURL(mType, mID), toObject());
+        }
+        
+        /** Delete the object the next time the player goes online. When the Flox server cannot be
+         *  reached at the moment, the request will be added to a queue and will be repeated
+         *  later. */
+        public function destroyQueued():void
+        {
+            Flox.service.requestQueued(HttpMethod.DELETE, createURL(mType, mID));
+        }
+        
         // helpers
 
         internal function toObject():Object

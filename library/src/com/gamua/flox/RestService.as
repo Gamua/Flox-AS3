@@ -200,10 +200,9 @@ package com.gamua.flox
         
         /** Adds an asynchronous HTTP request to a queue and immediately starts to process the
          *  queue. */
-        public function requestQueued(method:String, path:String, data:Object=null, 
-                                      headers:Object=null):void
+        public function requestQueued(method:String, path:String, data:Object=null):void
         {
-            mQueue.enqueue({ method: method, path: path, data: data, headers: headers,
+            mQueue.enqueue({ method: method, path: path, data: data,
                              authentication: Flox.authentication });
             processQueue();
         }
@@ -248,6 +247,7 @@ package com.gamua.flox
                     // server did not answer or is not available! we stop queue processing.
                     Flox.logInfo("Flox Server not reachable (device probably offline). " + 
                                  "HttpStatus: {0}", httpStatus);
+                    dispatchEvent(new Event(Flox.QUEUE_PROCESSED));
                 }
                 else
                 {

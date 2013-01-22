@@ -74,8 +74,9 @@ package com.gamua.flox
         /** The base URL of the Flox REST API. */
         public static const BASE_URL:String = "https://www.flox.cc/api";
         
-        /** The type of the event that is dispatched when the service queue finished processing
-         *  the queue. */
+        /** The type of the event that is dispatched when the request queue finished processing. 
+         *  Beware that the event will be dispatched regardless of the success of the operation:
+         *  when the server cannot be reached, queue processing will stop with the same event. */
         public static const QUEUE_PROCESSED:String = "queueProcessed";
         
         private static var sGameID:String;
@@ -336,7 +337,16 @@ package com.gamua.flox
             log("[Event]", properties === null ? name : name + ": " + JSON.stringify(properties));
         }
         
-        // queue events
+        // request queue
+        
+        /** Starts processing the request queue. The request queue is mainly used by the 'queued'
+         *  variants of the Entity access methods. Normally, you don't have to call this method
+         *  manually: whenever you add a new request to the queue, it will be processed anyway. */
+        public static function processQueue():void
+        {
+            checkInitialized();
+            sRestService.processQueue();
+        }
         
         /** Registers an event listener so that you are notified when one of Flox' events
          *  is dispatched (currently, there's only one event type: 'QUEUE_PROCESSED'). */ 
@@ -390,6 +400,7 @@ package com.gamua.flox
         {
             logInfo("Game activated");
             session.start();
+            processQueue();
         }
         
         private static function onDeactivate(event:Event):void

@@ -194,7 +194,7 @@ package com.gamua.flox
             }
         }
 
-        public function testDelete(onComplete:Function):void
+        public function testDestroy(onComplete:Function):void
         {
             Constants.initFlox();
             Flox.clearCache();
@@ -273,6 +273,46 @@ package com.gamua.flox
                 onComplete();
             }
         }
+        
+        public function testSaveQueued(onComplete:Function):void
+        {
+            Constants.initFlox();
+            Flox.clearCache();
+            
+            Flox.addEventListener(Flox.QUEUE_PROCESSED, onQueueProcessed_Fail);
+            Flox.service.alwaysFail = true;
+            
+            var testEntity:CustomEntity = new CustomEntity("save-through-queue", 42);
+            testEntity.saveQueued();
+            
+            function onQueueProcessed_Fail(event:*):void
+            {
+                Flox.removeEventListener(Flox.QUEUE_PROCESSED, onQueueProcessed_Fail);
+                Flox.addEventListener(Flox.QUEUE_PROCESSED, onQueueProcessed_Success);
+                Flox.service.alwaysFail = false;
+                Flox.processQueue();
+            }
+            
+            function onQueueProcessed_Success(event:*):void
+            {
+                Flox.removeEventListener(Flox.QUEUE_PROCESSED, onQueueProcessed_Success);
+                Entity.load(CustomEntity.TYPE, testEntity.id, onLoadComplete, onLoadError);
+            }
+            
+            function onLoadComplete(entity:CustomEntity):void
+            {
+                assertEqualEntities(entity, testEntity);
+                Flox.shutdown();
+                onComplete();
+            }
+            
+            function onLoadError(error:String):void
+            {
+                fail("Could not load entity that was saved through queue");
+                Flox.shutdown();
+                onComplete();
+            }
+        }   
         
         private function assertEqualEntities(entityA:Entity, entityB:Entity, 
                                              compareDates:Boolean=false):void
