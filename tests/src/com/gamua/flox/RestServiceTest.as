@@ -1,5 +1,6 @@
 package com.gamua.flox
 {
+    import com.gamua.flox.events.QueueEvent;
     import com.gamua.flox.utils.HttpMethod;
     
     import starling.unit.UnitTest;
@@ -68,12 +69,12 @@ package com.gamua.flox
         
         public function testQueueEvent(onComplete:Function):void
         {
-            Flox.addEventListener(Flox.QUEUE_PROCESSED, onQueueProcessed);
+            Flox.addEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed);
             Flox.service.requestQueued(HttpMethod.GET, "");
             
             function onQueueProcessed(event:Object):void
             {
-                Flox.removeEventListener(Flox.QUEUE_PROCESSED, onQueueProcessed);
+                Flox.removeEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed);
                 onComplete();
             }
         }

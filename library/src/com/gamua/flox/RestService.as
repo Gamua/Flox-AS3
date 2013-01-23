@@ -7,6 +7,7 @@
 
 package com.gamua.flox
 {
+    import com.gamua.flox.events.QueueEvent;
     import com.gamua.flox.utils.Base64;
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpMethod;
@@ -33,6 +34,7 @@ package com.gamua.flox
         private var mQueue:PersistentQueue;
         private var mCache:PersistentStore;
         private var mAlwaysFail:Boolean;
+        private var mProcessingQueue:Boolean;
         
         /** Helper objects */
         private static var sBuffer:ByteArray = new ByteArray();
@@ -45,6 +47,7 @@ package com.gamua.flox
             mGameID = gameID;
             mGameKey = gameKey;
             mAlwaysFail = false;
+            mProcessingQueue = false;
             mQueue = new PersistentQueue("Flox.RestService.queue." + gameID);
             mCache = new PersistentStore("Flox.RestService.cache." + gameID);
         }
@@ -213,41 +216,41 @@ package com.gamua.flox
          *  @returns true if the queue is currently being processed. */
         public function processQueue():Boolean
         {
-            if (!mQueue.isLocked)
+            if (!mProcessingQueue)
             {
                 if (mQueue.length > 0)
                 {
-                    mQueue.isLocked = true;
+                    mProcessingQueue = true;
                     var element:Object = mQueue.peek();
                     requestWithAuthentication(element.method, element.path, element.data, 
                         element.authentication, onRequestComplete, onRequestError);
                 }
                 else 
                 {
-                    mQueue.isLocked = false;
-                    dispatchEvent(new Event(Flox.QUEUE_PROCESSED));
+                    mProcessingQueue = false;
+                    dispatchEvent(new QueueEvent(QueueEvent.QUEUE_PROCESSED));
                 }
             }
             
-            return mQueue.isLocked;
+            return mProcessingQueue;
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
-                mQueue.isLocked = false;
+                mProcessingQueue = false;
                 mQueue.dequeue();
                 processQueue();
             }
             
             function onRequestError(error:String, httpStatus:int):void
             {
-                mQueue.isLocked = false;
+                mProcessingQueue = false;
                 
-                if (httpStatus == 0 || httpStatus == 503)
+                if (HttpStatus.isTransientError(httpStatus))
                 {
                     // server did not answer or is not available! we stop queue processing.
                     Flox.logInfo("Flox Server not reachable (device probably offline). " + 
                                  "HttpStatus: {0}", httpStatus);
-                    dispatchEvent(new Event(Flox.QUEUE_PROCESSED));
+                    dispatchEvent(new QueueEvent(QueueEvent.QUEUE_PROCESSED, httpStatus, error));
                 }
                 else
                 {

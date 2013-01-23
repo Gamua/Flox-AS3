@@ -1,5 +1,6 @@
 package com.gamua.flox
 {
+    import com.gamua.flox.events.QueueEvent;
     import com.gamua.flox.utils.CustomEntity;
     import com.gamua.flox.utils.cloneObject;
     
@@ -280,23 +281,25 @@ package com.gamua.flox
             Constants.initFlox();
             Flox.clearCache();
             
-            Flox.addEventListener(Flox.QUEUE_PROCESSED, onQueueProcessed_Fail);
+            Flox.addEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed_Fail);
             Flox.service.alwaysFail = true;
             
             var testEntity:CustomEntity = new CustomEntity("save-through-queue", 42);
             testEntity.saveQueued();
             
-            function onQueueProcessed_Fail(event:*):void
+            function onQueueProcessed_Fail(event:QueueEvent):void
             {
-                Flox.removeEventListener(Flox.QUEUE_PROCESSED, onQueueProcessed_Fail);
-                Flox.addEventListener(Flox.QUEUE_PROCESSED, onQueueProcessed_Success);
+                assertFalse(event.success);
+                Flox.removeEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed_Fail);
+                Flox.addEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed_Success);
                 Flox.service.alwaysFail = false;
                 Flox.processQueue();
             }
             
-            function onQueueProcessed_Success(event:*):void
+            function onQueueProcessed_Success(event:QueueEvent):void
             {
-                Flox.removeEventListener(Flox.QUEUE_PROCESSED, onQueueProcessed_Success);
+                assert(event.success);
+                Flox.removeEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed_Success);
                 Entity.load(CustomEntity.TYPE, testEntity.id, onLoadComplete, onLoadError);
             }
             

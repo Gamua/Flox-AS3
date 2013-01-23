@@ -20,8 +20,6 @@ package com.gamua.flox
         private var mName:String;
         private var mIndex:SharedObject;
         
-        private static var sLocks:Dictionary = new Dictionary();
-        
         /** Create a persistent queue with a certain name. If the name was already used in a 
          *  previous session, the existing queue is restored. */ 
         public function PersistentQueue(name:String)
@@ -30,7 +28,6 @@ package com.gamua.flox
             mIndex = SharedObjectPool.getObject(mName);
             
             if (!("keys" in mIndex.data)) mIndex.data.keys = [];
-            if (!(name in sLocks)) sLocks[name] = false;
         }
         
         /** Insert an object at the beginning of the queue. */
@@ -96,12 +93,6 @@ package com.gamua.flox
             
             return head;
         }
-        
-        /** A flag indicating if modifying the queue is currently allowed. This does not actually
-         *  prevent any modification: it's just a flag that is shared over all instances with
-         *  the same name. */
-        public function get isLocked():Boolean { return sLocks[name]; }
-        public function set isLocked(value:Boolean):void { sLocks[name] = value; }
         
         /** Returns the number of elements in the queue. */
         public function get length():int { return mIndex.data.keys.length; }

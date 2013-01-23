@@ -1,7 +1,7 @@
 // =================================================================================================
 //
 //	Flox AS3
-//	Copyright 2012 Gamua OG. All Rights Reserved.
+//	Copyright 2013 Gamua OG. All Rights Reserved.
 //
 // =================================================================================================
 
@@ -74,11 +74,6 @@ package com.gamua.flox
         /** The base URL of the Flox REST API. */
         public static const BASE_URL:String = "https://www.flox.cc/api";
         
-        /** The type of the event that is dispatched when the request queue finished processing. 
-         *  Beware that the event will be dispatched regardless of the success of the operation:
-         *  when the server cannot be reached, queue processing will stop with the same event. */
-        public static const QUEUE_PROCESSED:String = "queueProcessed";
-        
         private static var sGameID:String;
         private static var sGameKey:String;
         private static var sGameVersion:String;
@@ -113,8 +108,10 @@ package com.gamua.flox
             
             sGameID = sGameKey = sGameVersion = null;
             sInitialized = false;
-            sRestService = null;
-            sPersistentData = null;
+            
+            // those may be reused (useful mainly for unit tests)
+            // sRestService = null;
+            // sPersistentData = null;
         }
         
         /** @private
@@ -135,11 +132,17 @@ package com.gamua.flox
             sGameID = gameID;
             sGameKey = gameKey;
             sGameVersion = gameVersion;
-            sRestService = new RestService(baseURL, gameID, gameKey);
-            sPersistentData = SharedObjectPool.getObject("Flox." + gameID);
+            
+            if (sRestService == null || sRestService.url != baseURL ||
+                sRestService.gameID != gameID || sRestService.gameKey != gameKey)
+            {
+                sRestService = new RestService(baseURL, gameID, gameKey);
+                sPersistentData = SharedObject.getLocal("Flox." + gameID);
+            }
             
             if (localPlayer == null) playerLogin();
             
+            sRestService.alwaysFail = false;
             sPersistentData.data.session = 
                 GameSession.start(gameID, gameVersion, session, sReportAnalytics);
         }

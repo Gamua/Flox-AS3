@@ -1,7 +1,15 @@
+// =================================================================================================
+//
+//	Flox AS3
+//	Copyright 2013 Gamua OG. All Rights Reserved.
+//
+// =================================================================================================
+
 package com.gamua.flox
 {
     import com.gamua.flox.utils.createUID;
 
+    /** An Entity that contains information about a Flox Player. */
     public class Player extends Entity
     {
         public static const TYPE:String = ".player";
