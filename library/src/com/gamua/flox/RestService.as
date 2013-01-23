@@ -182,10 +182,12 @@ package com.gamua.flox
             }
         }
         
-        /** Makes an asynchronous HTTP request at the server. The method will always execute
-         *  exactly one of the provided callback functions.
+        /** Makes an asynchronous HTTP request at the server. Before doing that, it will always
+         *  process the request queue. If that fails with a non-transient error, this request
+         *  will fail as well. The method will always execute exactly one of the provided callback
+         *  functions.
          *  
-         *  @param method: one of the methods provided by the 'HttpMethod' class.
+         *  @param method: one of the constants provided by the 'HttpMethod' class.
          *  @param path: the path of the resource relative to the root of the game (!).
          *  @param data: the data that will be sent as JSON-encoded body or as URL parameters
          *               (depending on the http method).
@@ -197,8 +199,28 @@ package com.gamua.flox
         public function request(method:String, path:String, data:Object, 
                                 onComplete:Function, onError:Function):void
         {
-            requestWithAuthentication(method, path, data, Flox.authentication,
-                                      onComplete, onError);
+            if (processQueue())
+            {
+                // might change before we're in the event handler!
+                var auth:Authentication = Flox.authentication.clone();
+                
+                addEventListener(QueueEvent.QUEUE_PROCESSED, 
+                    function onQueueProcessed(event:QueueEvent):void
+                    {
+                        removeEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed);
+                        
+                        if (event.success)
+                            requestWithAuthentication(method, path, data, auth,
+                                                      onComplete, onError);
+                        else
+                            execute(onError, event.error, event.httpStatus);
+                    })
+            }
+            else
+            {
+                requestWithAuthentication(method, path, data, Flox.authentication,
+                                          onComplete, onError);
+            }
         }
         
         /** Adds an asynchronous HTTP request to a queue and immediately starts to process the
@@ -206,7 +228,7 @@ package com.gamua.flox
         public function requestQueued(method:String, path:String, data:Object=null):void
         {
             mQueue.enqueue({ method: method, path: path, data: data,
-                             authentication: Flox.authentication });
+                             authentication: Flox.authentication.clone() });
             processQueue();
         }
         

@@ -25,6 +25,12 @@ package com.gamua.flox
             mToken = token;
         }
         
+        /** Creates a duplicate of the authentication object. */
+        public function clone():Authentication
+        {
+            return new Authentication(mPlayerID, mType, mID, mToken);
+        }
+        
         // properties
         // since this class is saved in a SharedObject, everything has to be R/W!
         
