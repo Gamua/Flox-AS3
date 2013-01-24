@@ -30,12 +30,11 @@ package com.gamua.flox.events
             mHttpStatus = httpStatus;
         }
         
-        /** Indicates if all queue elements were processed (i.e. the queue is now empty). Note
-         *  that even an erroneous http status can count as a success, if it's non-transient
-         *  (because such a request won't be repeated). */
+        /** This property indicates if all queue elements were processed: if it's true, the queue
+         *  is now empty. */
         public function get success():Boolean 
         {
-            return HttpStatus.isSuccess(mHttpStatus) && !HttpStatus.isTransientError(mHttpStatus); 
+            return HttpStatus.isSuccess(mHttpStatus) || !HttpStatus.isTransientError(mHttpStatus);
         }
         
         /** If unsuccessful, contains the error message that caused queue processing to stop. */ 
