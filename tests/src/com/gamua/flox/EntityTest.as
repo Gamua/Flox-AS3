@@ -8,29 +8,24 @@ package com.gamua.flox
     
     public class EntityTest extends UnitTest
     {
-        override public function setUp():void
-        {
-            Entity.register(Player.TYPE, Player);
-            Entity.register(CustomEntity.TYPE, CustomEntity);
-        }
-        
         public function testPlayerOffline():void
         {
-            var player:Player = new Player();
+            var playerType:String = Entity.getType(Player);
+            assertEqual(".player", playerType);
             
+            var player:Player = new Player();
             assertNotNull(player.id);
             assertNotNull(player.createdAt);
             assertNotNull(player.updatedAt);
             assertEqualObjects({}, player.permissions);
             assertEqual(player.id, player.ownerID);
             assertEqual(player.authType, AuthenticationType.GUEST);
-            assertEqual(player.type, Player.TYPE);
+            assertEqual(player.type, playerType);
             assert(player.displayName.search(/^Guest-\d{1,4}$/) == 0);
             assert(player.createdAt is Date);
             assert(player.updatedAt is Date);
             
             var playerObject:Object = player.toObject();
-            
             assert("ownerId" in playerObject);
             assertFalse("ownerID" in playerObject);
             assert("authId" in playerObject);
@@ -39,7 +34,7 @@ package com.gamua.flox
             assert(playerObject.updatedAt is String);
             
             var restoredPlayer:Player = 
-                Entity.fromObject(Player.TYPE, player.id, playerObject) as Player;
+                Entity.fromObject(playerType, player.id, playerObject) as Player;
             
             assertNotNull(restoredPlayer);
             assertEqualObjects(player, restoredPlayer);
@@ -81,7 +76,7 @@ package com.gamua.flox
             {
                 assertEqualObjects(originalData, cloneObject(player));
                 if (!useCache) Flox.clearCache();
-                Entity.load(Player.TYPE, player.id, onLoadComplete, onLoadError);
+                Entity.load(Player, player.id, onLoadComplete, onLoadError);
             }
             
             function onSaveError(error:String, transient:Boolean):void
@@ -121,6 +116,8 @@ package com.gamua.flox
             Flox.clearCache();
             
             var testEntity:CustomEntity = new CustomEntity();
+            assertEqual(testEntity.type, Entity.getType(CustomEntity));
+            
             testEntity.age = 31;
             testEntity.name = "Daniel";
             testEntity.data.nickname = "PrimaryFeather";
@@ -131,7 +128,7 @@ package com.gamua.flox
             {
                 assertEqualObjects(originalData, cloneObject(entity));
                 Flox.clearCache();
-                Entity.load(CustomEntity.TYPE, testEntity.id, onLoadComplete, onLoadError);
+                Entity.load(CustomEntity, testEntity.id, onLoadComplete, onLoadError);
             }
             
             function onSaveError(error:String, transient:Boolean):void
@@ -143,8 +140,8 @@ package com.gamua.flox
             
             function onLoadComplete(entity:Entity, fromCache:Boolean):void
             {
+                assertFalse(fromCache);
                 assertEqualEntities(entity, testEntity);
-                
                 Flox.shutdown();
                 onComplete();
             }
@@ -213,7 +210,7 @@ package com.gamua.flox
             function onDestroyComplete(entity:Entity):void
             {
                 assertEqual(entityID, entity.id);
-                Entity.load(CustomEntity.TYPE, entityID, onLoadComplete, onLoadError);
+                Entity.load(CustomEntity, entityID, onLoadComplete, onLoadError);
             }
             
             function onSaveOrDestroyError(error:String, transient:Boolean):void
@@ -250,7 +247,7 @@ package com.gamua.flox
             {
                 // now, force a problem
                 Flox.service.alwaysFail = true;
-                Entity.load(CustomEntity.TYPE, entity.id, onLoadComplete, onLoadError);
+                Entity.load(CustomEntity, entity.id, onLoadComplete, onLoadError);
             }
             
             function onSaveError(error:String, transient:Boolean):void
@@ -300,7 +297,7 @@ package com.gamua.flox
             {
                 assert(event.success);
                 Flox.removeEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed_Success);
-                Entity.load(CustomEntity.TYPE, testEntity.id, onLoadComplete, onLoadError);
+                Entity.load(CustomEntity, testEntity.id, onLoadComplete, onLoadError);
             }
             
             function onLoadComplete(entity:CustomEntity):void

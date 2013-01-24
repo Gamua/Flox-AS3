@@ -17,39 +17,36 @@ package com.gamua.flox
     import com.gamua.flox.utils.execute;
     import com.gamua.flox.utils.formatString;
     
-    import flash.net.registerClassAlias;
     import flash.system.Capabilities;
     import flash.utils.Dictionary;
+    import flash.utils.getDefinitionByName;
     import flash.utils.getQualifiedClassName;
     
     /** The (abstract) base class of all objects that can be stored persistently on the Flox server.
      *  
-     *  <p>To create custom entities, extend this class. Each subclass needs a unique TYPE string
-     *  and can add additionaly properties. Subclasses have to follow a few rules:</p>
+     *  <p>To create custom entities, extend this class. Subclasses have to follow a few rules:</p>
      * 
      *  <ul>
-     *   <li>Each class needs a TYPE that is unique within the game.</li>
      *   <li>All constructor arguments must have default values.</li>
      *   <li>Properties always need to be readable and writable.</li>
      *   <li>Properties may have one of the following types:
      *       <code>int, Number, Boolean, String, Object, Array.</code>
      *       Support for nested entities or complex data types may be added at a later time.</li>
+     *   <li>The server type of the class is defined by its name. If you want to use a different
+     *       name, you can provide "Type" MetaData (see sample below).</li> 
      *  </ul>
      *  
      *  <p>Here is an example class:</p>
      *  
      *  <pre>
+     *  [Type("gameState")] // optional! Defaults to class name
      *  public class GameState extends Entity
      *  {
-     *      public static const TYPE:String = "gameState";
-     *      
      *      private var mLevel:int;
      *      private var mScore:int;
      *      
      *      public function GameState(level:int=0, score:int=0)
      *      {
-     *          super(TYPE);
-     *          
      *          mLevel = level;
      *          mScore = score;
      *      }
@@ -61,27 +58,20 @@ package com.gamua.flox
      *      public function set score(value:int):void { mScore = value; }
      *  }</pre>
      *  
-     *  <p>Before you can use the class, you have to tell Flox about its existance like shown below.
-     *  It is recommended to make this call right when your game has started.</p>
-     *  
-     *  <pre>
-     *  Entity.register(GameState.TYPE, GameState);</pre>
-     *  
      */
     public class Entity
     {
-        private var mType:String;
         private var mID:String;
         private var mCreatedAt:Date;
         private var mUpdatedAt:Date;
         private var mOwnerID:String;
         private var mPermissions:Object;
         
-        private static var sRegisteredTypes:Dictionary = new Dictionary();
+        private static var sTypeCache:Dictionary = new Dictionary();
         
         /** Abstract class constructor. Call this via 'super' from your subclass, passing your
          *  custom type string. */
-        public function Entity(type:String)
+        public function Entity()
         {
             if (Capabilities.isDebugger && 
                 getQualifiedClassName(this) == "com.gamua.flox::Entity")
@@ -89,10 +79,6 @@ package com.gamua.flox
                 throw new Error("Abstract class -- do not instantiate");
             }
             
-            if (type == null) 
-                throw new ArgumentError("'type' must not be 'null'");
-            
-            mType = type;
             mID = createUID();
             mCreatedAt = new Date();
             mUpdatedAt = new Date();
@@ -105,7 +91,7 @@ package com.gamua.flox
         {
             return formatString(
                 '[Entity type="{0}" id="{1}" createdAt="{2}" updatedAt="{3}" ownerId="{4}"]',
-                mType, mID, DateUtil.toString(mCreatedAt), DateUtil.toString(mUpdatedAt), mOwnerID);
+                type, mID, DateUtil.toString(mCreatedAt), DateUtil.toString(mUpdatedAt), mOwnerID);
         }
         
         /** Save the entity on the server; if the entity already exists, the server version will
@@ -123,7 +109,7 @@ package com.gamua.flox
         public function save(onComplete:Function, onError:Function):void
         {
             var self:Entity = this;
-            var path:String = createURL(mType, mID);
+            var path:String = createURL(type, mID);
             
             Flox.service.request(HttpMethod.PUT, path, this.toObject(), 
                 onRequestComplete, onRequestError);
@@ -154,7 +140,7 @@ package com.gamua.flox
          */
         public function refresh(onComplete:Function, onError:Function):void
         {
-            var path:String = createURL(mType, mID);
+            var path:String = createURL(type, mID);
             var self:Entity = this;
             
             Flox.service.request(HttpMethod.GET, path, null, onRequestComplete, onRequestError);
@@ -186,7 +172,7 @@ package com.gamua.flox
         public function destroy(onComplete:Function, onError:Function):void
         {
             var self:Entity = this;
-            Entity.destroy(mType, mID, onDestroyComplete, onDestroyError);
+            Entity.destroy(getClass(this), mID, onDestroyComplete, onDestroyError);
             
             function onDestroyComplete():void
             {
@@ -221,9 +207,11 @@ package com.gamua.flox
          *  @param onError:    executed when the operation was not successful; function signature:
          *                     <pre>onError(error:String, cachedEntity:Entity):void;</pre>
          */
-        public static function load(type:String, id:String, onComplete:Function, onError:Function):void
+        public static function load(entityClass:Class, id:String, 
+                                    onComplete:Function, onError:Function):void
         {
             var entity:Entity;
+            var type:String = getType(entityClass);
             var path:String = createURL(type, id);
             
             Flox.service.request(HttpMethod.GET, path, null, onRequestComplete, onRequestError);
@@ -253,10 +241,10 @@ package com.gamua.flox
          *  @param onError:    executed when the operation was not successful; function signature:
          *                     <pre>onError(error:String, transient:Boolean):void;</pre>         
          */
-        public static function destroy(type:String, id:String, 
+        public static function destroy(entityClass:Class, id:String, 
                                        onComplete:Function, onError:Function):void
         {
-            var path:String = createURL(type, id);
+            var path:String = createURL(getType(entityClass), id);
             Flox.service.request(HttpMethod.DELETE, path, null, onRequestComplete, onRequestError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
@@ -277,7 +265,7 @@ package com.gamua.flox
          *  later. */
         public function saveQueued():void
         {
-            Flox.service.requestQueued(HttpMethod.PUT, createURL(mType, mID), toObject());
+            Flox.service.requestQueued(HttpMethod.PUT, createURL(type, mID), toObject());
         }
         
         /** Delete the object the next time the player goes online. When the Flox server cannot be
@@ -285,7 +273,7 @@ package com.gamua.flox
          *  later. */
         public function destroyQueued():void
         {
-            Flox.service.requestQueued(HttpMethod.DELETE, createURL(mType, mID));
+            Flox.service.requestQueued(HttpMethod.DELETE, createURL(type, mID));
         }
         
         // helpers
@@ -298,9 +286,9 @@ package com.gamua.flox
             object["ownerId"] = mOwnerID;
             object["createdAt"] = DateUtil.toString(mCreatedAt);
             object["updatedAt"] = DateUtil.toString(mUpdatedAt);
-            
+
             if ("authID" in object)
-                object["authId"] = object["authID"]; // note case 'Id' vs. 'ID'!
+                object["authId"] = object["authID"]; // note case 'Id' vs. 'ID'! 
 
             delete object["ownerID"];
             delete object["authID"];
@@ -313,8 +301,8 @@ package com.gamua.flox
         {
             var entity:Entity;
             
-            if (type in sRegisteredTypes)
-                entity = new (sRegisteredTypes[type] as Class)();
+            if (type in sTypeCache)
+                entity = new (sTypeCache[type] as Class)();
             else
                 throw new Error("Entity type not recognized: " + type);
             
@@ -354,14 +342,14 @@ package com.gamua.flox
         
         // properties
         
+        /** The type of the entity, which is per default the name of class. This is what
+         *  groups Entities together on the server. */
+        public function get type():String { return getType(getClass(this)); }
+        
         /** This is the primary identifier of the entity. It must be unique within the objects of
          *  the same entity type. */
         public function get id():String { return mID; }
         public function set id(value:String):void { mID = value; }
-        
-        /** The type of the entity, defined per Entity subclass. Unique per game. */
-        public function get type():String { return mType; }
-        public function set type(value:String):void { mType = value; }
         
         /** The player ID of the owner of the entity. (Referencing a Player entitity.) */
         public function get ownerID():String { return mOwnerID; }
@@ -384,15 +372,31 @@ package com.gamua.flox
         
         // type registration
         
-        /** Registers an entity type for a certain Entity subclass. Call this method for all
-         *  your custom Entity classes. */ 
-        public static function register(entityType:String, entityClass:Class):void
+        /** @private
+         *  Figures out the type of an entity class as it is used on the server. Per default, this 
+         *  is just the class name. You can override this by adding "Type()" metadata to the class
+         *  definition. */
+        internal static function getType(entityClass:Class):String
         {
-            if (entityType == null || entityClass == null)
-                throw new ArgumentError("argument must not be null");
+            for (var type:String in sTypeCache)
+                if (sTypeCache[type] == entityClass) return type;
             
-            sRegisteredTypes[entityType] = entityClass;
-            registerClassAlias(entityType, entityClass);
+            var typeXml:XML = describeType(entityClass);
+            var typeMetaData:XMLList = typeXml.metadata.(@name == "Type");
+            
+            if (typeMetaData.length()) 
+                type = typeMetaData.arg.(@key=="").@value.toString();
+            else
+                type = typeXml.@type.toString().split("::").pop();
+            
+            sTypeCache[type] = entityClass;
+            return type;
+        }
+        
+        /** @private */
+        internal static function getClass(instance:Object):Class
+        {
+            return Object(instance).constructor;
         }
     }
 }

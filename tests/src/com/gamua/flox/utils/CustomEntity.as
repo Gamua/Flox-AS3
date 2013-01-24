@@ -4,21 +4,18 @@ package com.gamua.flox.utils
     
     public class CustomEntity extends Entity
     {
-        public static const TYPE:String = "custom";
-        
         private var mName:String;
         private var mAge:int;
         private var mData:Object;
         
         public function CustomEntity(name:String="unknown", age:int=0)
         {
-            super(TYPE);
-            
             mName = name;
             mAge = age;
             mData = { value: int(Math.random() * 1000) };
         }
         
+        [Indexed]
         public function get name():String { return mName; }
         public function set name(value:String):void { mName = value; }
         

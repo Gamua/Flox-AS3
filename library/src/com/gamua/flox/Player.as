@@ -10,27 +10,20 @@ package com.gamua.flox
     import com.gamua.flox.utils.createUID;
 
     /** An Entity that contains information about a Flox Player. */
+    [Type(".player")]
     public class Player extends Entity
     {
-        public static const TYPE:String = ".player";
-        
         private var mAuthType:String;
         private var mAuthID:String;
         private var mDisplayName:String;
         
-        public function Player() 
+        public function Player()
         {
-            super(TYPE);
             super.ownerID = this.id;
             
             mAuthType = AuthenticationType.GUEST;
             mAuthID = createUID();
             mDisplayName = "Guest-" + int(Math.random() * 10000);
-        }
-        
-        public static function load(id:String, onComplete:Function, onError:Function):void
-        {
-            Entity.load(TYPE, id, onComplete, onError);
         }
         
         public function get authType():String { return mAuthType; }
