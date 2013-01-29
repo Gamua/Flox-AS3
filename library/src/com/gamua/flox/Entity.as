@@ -383,9 +383,12 @@ package com.gamua.flox
             
             var typeXml:XML = describeType(entityClass);
             var typeMetaData:XMLList = typeXml.metadata.(@name == "Type");
+            var extendsPlayer:XMLList = typeXml.extendsClass.(@type == "com.gamua.flox::Player");
             
             if (typeMetaData.length()) 
                 type = typeMetaData.arg.(@key=="").@value.toString();
+            else if (extendsPlayer.length())
+                type = ".player"; // that simplifies subclassing 'Player'
             else
                 type = typeXml.@type.toString().split("::").pop();
             
