@@ -69,7 +69,7 @@ package com.gamua.flox
                     type: "as3", 
                     version: Flox.VERSION
                 },
-                player: {  // currently ignored -> see below 
+                player: { 
                     id:        authentication.playerID,
                     authType:  authentication.type,
                     authId:    authentication.id,
@@ -202,7 +202,7 @@ package com.gamua.flox
             if (processQueue())
             {
                 // might change before we're in the event handler!
-                var auth:Authentication = Flox.authentication.clone();
+                var auth:Authentication = Flox.authentication;
                 
                 addEventListener(QueueEvent.QUEUE_PROCESSED, 
                     function onQueueProcessed(event:QueueEvent):void

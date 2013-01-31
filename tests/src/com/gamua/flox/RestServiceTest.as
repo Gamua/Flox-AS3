@@ -34,26 +34,19 @@ package com.gamua.flox
             }
         }
         
-        public function testProvokeError(onComplete:Function):void
-        {
-            Flox.service.request(HttpMethod.GET, ".analytics", null, onRequestComplete, onRequestError);
-
-            function onRequestComplete(body:Object, httpStatus:int):void
-            {
-                fail("Server should have returned error");
-                onComplete();
-            }
-            
-            function onRequestError(error:String, httpStatus:int):void
-            {
-                onComplete();
-            }
-        }
-        
         public function testNonExistingMethod(onComplete:Function):void
         {
-            Flox.service.request(HttpMethod.GET, ".does-not-exist", null, 
-                                 onRequestComplete, onRequestError);
+            requestNonExistingPath(".does-no-exist", onComplete);
+        }
+        
+        public function testGetNonExistingEntity(onComplete:Function):void
+        {
+            requestNonExistingPath("entities/.player/.does-not-exist", onComplete);
+        }
+        
+        private function requestNonExistingPath(path:String, onComplete:Function):void
+        {
+            Flox.service.request(HttpMethod.GET, path, null, onRequestComplete, onRequestError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {

@@ -4,7 +4,7 @@ package com.gamua.flox
     
     public class PlayerTest extends UnitTest
     {
-        public function testExtendedPlayer(onComplete:Function):void
+        public function testExtendedPlayer():void
         {
             var player:CustomPlayer = new CustomPlayer("Baggins");
             assertEqual(player.type, ".player");

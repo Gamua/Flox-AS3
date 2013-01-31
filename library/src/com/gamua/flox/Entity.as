@@ -19,7 +19,6 @@ package com.gamua.flox
     
     import flash.system.Capabilities;
     import flash.utils.Dictionary;
-    import flash.utils.getDefinitionByName;
     import flash.utils.getQualifiedClassName;
     
     /** The (abstract) base class of all objects that can be stored persistently on the Flox server.
@@ -109,7 +108,7 @@ package com.gamua.flox
         public function save(onComplete:Function, onError:Function):void
         {
             var self:Entity = this;
-            var path:String = createURL(type, mID);
+            var path:String = createEntityURL(type, mID);
             
             Flox.service.request(HttpMethod.PUT, path, this.toObject(), 
                 onRequestComplete, onRequestError);
@@ -140,7 +139,7 @@ package com.gamua.flox
          */
         public function refresh(onComplete:Function, onError:Function):void
         {
-            var path:String = createURL(type, mID);
+            var path:String = createEntityURL(type, mID);
             var self:Entity = this;
             
             Flox.service.request(HttpMethod.GET, path, null, onRequestComplete, onRequestError);
@@ -212,7 +211,7 @@ package com.gamua.flox
         {
             var entity:Entity;
             var type:String = getType(entityClass);
-            var path:String = createURL(type, id);
+            var path:String = createEntityURL(type, id);
             
             Flox.service.request(HttpMethod.GET, path, null, onRequestComplete, onRequestError);
             
@@ -244,7 +243,7 @@ package com.gamua.flox
         public static function destroy(entityClass:Class, id:String, 
                                        onComplete:Function, onError:Function):void
         {
-            var path:String = createURL(getType(entityClass), id);
+            var path:String = createEntityURL(getType(entityClass), id);
             Flox.service.request(HttpMethod.DELETE, path, null, onRequestComplete, onRequestError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
@@ -265,7 +264,7 @@ package com.gamua.flox
          *  later. */
         public function saveQueued():void
         {
-            Flox.service.requestQueued(HttpMethod.PUT, createURL(type, mID), toObject());
+            Flox.service.requestQueued(HttpMethod.PUT, createEntityURL(type, mID), toObject());
         }
         
         /** Delete the object the next time the player goes online. When the Flox server cannot be
@@ -273,7 +272,7 @@ package com.gamua.flox
          *  later. */
         public function destroyQueued():void
         {
-            Flox.service.requestQueued(HttpMethod.DELETE, createURL(type, mID));
+            Flox.service.requestQueued(HttpMethod.DELETE, createEntityURL(type, mID));
         }
         
         // helpers
@@ -338,6 +337,11 @@ package com.gamua.flox
                 else
                     entity[clientPN] = serverData[serverPN];
             }
+        }
+        
+        private static function createEntityURL(type:String, id:String):String
+        {
+            return createURL("entities", type, id);
         }
         
         // properties

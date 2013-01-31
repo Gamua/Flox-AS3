@@ -9,7 +9,6 @@ package com.gamua.flox
 {
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpMethod;
-    import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.execute;
     import com.gamua.flox.utils.formatString;
     
@@ -97,23 +96,6 @@ package com.gamua.flox
             initWithBaseURL(gameID, gameKey, gameVersion, BASE_URL);
         }
         
-        /** Stop the Flox session. You don't have to do this manually in most cases. */
-        public static function shutdown():void
-        {
-            if (!sInitialized) return;
-            
-            monitorNativeApplicationEvents(false);
-            session.pause();
-            flushLocalData();
-            
-            sGameID = sGameKey = sGameVersion = null;
-            sInitialized = false;
-            
-            // those may be reused (useful mainly for unit tests)
-            // sRestService = null;
-            // sPersistentData = null;
-        }
-        
         /** @private
          *  Initialize Flox with a custom base URL (useful for unit tests). */
         internal static function initWithBaseURL(
@@ -125,6 +107,7 @@ package com.gamua.flox
             registerClassAlias("GameSession", GameSession);
             registerClassAlias("Authentication", Authentication);
             registerClassAlias("Player", Player);
+
             monitorNativeApplicationEvents(true);
             SharedObjectPool.startAutoCleanup();
             
@@ -140,46 +123,28 @@ package com.gamua.flox
                 sPersistentData = SharedObject.getLocal("Flox." + gameID);
             }
             
-            if (localPlayer == null) playerLogin();
+            if (Player.local == null) Player.login();
             
             sRestService.alwaysFail = false;
             sPersistentData.data.session = 
                 GameSession.start(gameID, gameVersion, session, sReportAnalytics);
         }
         
-        // player handling
-        
-        /** Log in a new player with the given authentication information. If you pass no
-         *  parameters, a new guest will be logged in; the 'Flox.localPlayer' parameter will
-         *  immediately reference that player.
-         * 
-         *  <p>Flox requires that there's always a player logged in. Thus, there is no 'logout'  
-         *  method. If you want to remove the reference to the current player, just call  
-         *  'playerLogin' again (without arguments). The previous player will then be replaced 
-         *  by a new guest.</p> 
-         *   
-         *  @param onComplete: function onComplete(localPlayer:Player):void;
-         *  @param onError:    function onError(error:String):void;
-         */
-        public static function playerLogin(
-            authType:String="guest", authID:String=null, authToken:String=null,
-            onComplete:Function=null, onError:Function=null):void
+        /** Stop the Flox session. You don't have to do this manually in most cases. */
+        public static function shutdown():void
         {
-            checkInitialized();
-            clearCache();
+            if (!sInitialized) return;
             
-            if (authType == AuthenticationType.GUEST)
-            {
-                var player:Player = new Player();
-                player.authID = authID ? authID : createUID();
-                sPersistentData.data.authToken = authToken ? authToken : createUID();
-                sPersistentData.data.localPlayer = player;
-                execute(onComplete, player);
-            }
-            else
-            {
-                throw new ArgumentError("Authentication type not supported: " + authType);
-            }
+            monitorNativeApplicationEvents(false);
+            session.pause();
+            flushLocalData();
+            
+            sGameID = sGameKey = sGameVersion = null;
+            sInitialized = false;
+            
+            // those may be reused (useful mainly for unit tests)
+            // sRestService = null;
+            // sPersistentData = null;
         }
         
         // leaderboards
@@ -368,11 +333,6 @@ package com.gamua.flox
         
         // utils
         
-        private static function checkInitialized():void
-        {
-            if (!sInitialized) throw new Error("Call 'Flox.init()' before using any other method.");
-        }
-        
         private static function log(...args):void
         {
             if (sTraceLogs) trace(args.join(" "));
@@ -413,6 +373,12 @@ package com.gamua.flox
             flushLocalData();
         }
         
+        /** @private Checks if Flox was already initialized, and throws an Error if it wasn't. */
+        internal static function checkInitialized():void
+        {
+            if (!sInitialized) throw new Error("Call 'Flox.init()' before using any other method.");
+        }
+        
         /** @private 
          *  The current game session / analytics object. */
         internal static function get session():GameSession
@@ -421,29 +387,32 @@ package com.gamua.flox
             return sPersistentData.data.session;
         }
         
-        /** @private 
-         *  The authentication data of the current player. */
-        internal static function get authentication():Authentication
-        {
-            checkInitialized();
-            
-            if (sAuthentication == null) 
-                sAuthentication = new Authentication();
-            
-            sAuthentication.playerID = localPlayer.id;
-            sAuthentication.id = localPlayer.authID;
-            sAuthentication.type = localPlayer.authType;
-            sAuthentication.token = sPersistentData.data.authToken;
-            
-            return sAuthentication;
-        }
-        
         /** @private
          *  The rest service class used to communicate with the server. */
         internal static function get service():RestService
         {
             checkInitialized();
             return sRestService;
+        }
+        
+        internal static function get localPlayer():Player
+        {
+            return sPersistentData ? sPersistentData.data.localPlayer : null;
+        }
+        
+        internal static function set localPlayer(value:Player):void
+        {
+            sPersistentData.data.localPlayer = value;
+        }
+        
+        internal static function get authentication():Authentication
+        {
+            return sPersistentData ? sPersistentData.data.authentication : null;
+        }
+        
+        internal static function set authentication(value:Authentication):void
+        {
+            sPersistentData.data.authentication = value;
         }
         
         // properties
@@ -456,13 +425,6 @@ package com.gamua.flox
         
         /** The version of this game. */
         public static function get gameVersion():String { return sGameVersion; }
-        
-        /** The current local player. */
-        public static function get localPlayer():Player
-        {
-            if (sPersistentData) return sPersistentData.data.localPlayer as Player;
-            else return null;
-        }
         
         /** Indicates if log methods should write their output to the console. @default true */
         public static function get traceLogs():Boolean { return sTraceLogs; }
