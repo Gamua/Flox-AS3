@@ -66,7 +66,9 @@ package com.gamua.flox
         private var mOwnerID:String;
         private var mPermissions:Object;
         
-        private static var sTypeCache:Dictionary = new Dictionary();
+        private static const sTypeCache:Dictionary = new Dictionary();
+        private static const sIndices:Dictionary = new Dictionary();
+        private static const sQueryRE:RegExp = /(\w+)\s*([><]?=?)\s*/;
         
         /** Abstract class constructor. Call this via 'super' from your subclass, passing your
          *  custom type string. */
@@ -110,7 +112,7 @@ package com.gamua.flox
             var self:Entity = this;
             var path:String = createEntityURL(type, mID);
             
-            Flox.service.request(HttpMethod.PUT, path, this.toObject(), 
+            Flox.service.request(HttpMethod.PUT, path, toObject(), 
                 onRequestComplete, onRequestError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
@@ -275,6 +277,146 @@ package com.gamua.flox
             Flox.service.requestQueued(HttpMethod.DELETE, createEntityURL(type, mID));
         }
         
+        // queries
+        
+        /** Activates or deactivates an index on a certain property of an Entity class. Only
+         *  indexed properties can be queried with the 'find' method. */ 
+        public static function setIndex(entityClass:Class, propertyName:String, 
+                                        enableIndex:Boolean=true):void
+        {
+            prepareIndices(entityClass);
+            var indices:Array = getIndices(entityClass);
+            var currentPos:int = indices.indexOf(propertyName);
+            
+            if (enableIndex && currentPos == -1)
+                indices.push(propertyName);
+            else if (!enableIndex && currentPos > -1)
+                indices.splice(currentPos, 1);
+        }
+        
+        /** Indicates if a certain property of an Entity class is indexed. */
+        public static function getIndex(entityClass:Class, propertyName:String):Boolean
+        {
+            return getIndices(entityClass).indexOf(propertyName) != -1;
+        }
+        
+        private static function getIndices(entityClass:Class):Array
+        {
+            prepareIndices(entityClass);
+            return sIndices[entityClass];
+        }
+        
+        private static function prepareIndices(entityClass:Class):void
+        {
+            var indices:Array = sIndices[entityClass];
+            
+            if (indices == null)
+            {
+                indices = [];
+                
+                for each (var accessor:XML in describeType(entityClass).accessor)
+                    if (accessor.metadata.(@name == "Indexed").length())
+                        indices.push(accessor.@name.toXMLString());
+                
+                sIndices[entityClass] = indices;
+            }
+        }
+        
+        /** Get a list of entities from the server. The 'options' array is used to construct a
+         *  query. E.g.: <code>{ where: { name: "Donald" }, limit: 20, offset: 10 }</code>
+         * 
+         *  <p>TODO: add more documentation and samples.</p>
+         * 
+         *  @param onComplete: executed when the operation is successful; function signature:
+         *                     <pre>onComplete(entities:Array):void;</pre>
+         *  @param onError:    executed when the operation was not successful; function signature:
+         *                     <pre>onError(error:String, transient:Boolean):void;</pre>         
+         */
+        public static function find(entityClass:Class, options:Object,
+                                    onComplete:Function=null, onError:Function=null):void
+        {
+            if (onComplete == null) onComplete = options.onComplete;
+            if (onError    == null) onError    = options.onError;
+            
+            use namespace flox_internal;
+            
+            var type:String = getType(entityClass);
+            var path:String = createEntityURL(type);
+            var query:Object = constructQueryObject(options);
+            
+            Flox.service.request(HttpMethod.GET, path, { q: JSON.stringify(query) },
+                onRequestComplete, onRequestError);
+            
+            function onRequestComplete(body:Object, httpStatus:int):void
+            {
+                var entities:Array = [];
+                
+                for each (var result:Object in body as Array)
+                {
+                    var id:String = result.id;
+                    var eTag:String = result.eTag;
+                    entities.push(Entity.fromObject(type, id, result.entity));
+                    
+                    // TODO: add to cache
+                }
+                
+                execute(onComplete, entities);
+            }
+            
+            function onRequestError(error:String, httpStatus:int):void
+            {
+                execute(onError, error, HttpStatus.isTransientError(httpStatus));
+            }
+        }
+        
+        flox_internal static function constructQueryObject(options:Object):Object
+        {
+            var query:Object = {};
+            
+            try
+            {
+                for (var option:String in options)
+                {
+                    var value:Object = options[option];
+                    var optionLC:String = option.toLowerCase();
+                    
+                    if (optionLC == "where")
+                    {
+                        if (query.where == null) query.where = {};
+                        
+                        for (var conditionKey:String in value)
+                        {
+                            var parts:Array = conditionKey.match(sQueryRE);
+                            var lhs:String = parts[1];
+                            var operator:String = parts[2] ? parts[2] : "=";
+                            var rhs:Object = value[conditionKey];
+                            
+                            if (query.where[lhs] == null) query.where[lhs] = {};
+                            query.where[lhs][operator] = rhs;
+                        }
+                    }
+                    else if (optionLC == "orderby")
+                    {
+                        if (query.orderBy == null) query.orderBy = {};
+                        
+                        for (var orderProperty:String in value)
+                            query.orderBy[orderProperty] = value[orderProperty].toLowerCase();
+                    }
+                    else
+                    {
+                        if (!(value is Function))
+                            query[option] = value;
+                    }
+                }
+            } 
+            catch (e:Error)
+            {
+                throw new ArgumentError("Could not process query options. Reason: " + e.message);
+            }
+            
+            return query;
+        }
+        
         // helpers
 
         /** @private */
@@ -291,6 +433,9 @@ package com.gamua.flox
 
             delete object["ownerID"];
             delete object["authID"];
+            
+            var indices:Array = Entity.getIndices(getClass(this)); 
+            if (indices && indices.length) object.indices = indices; 
             
             return object;
         }
@@ -339,7 +484,7 @@ package com.gamua.flox
             }
         }
         
-        private static function createEntityURL(type:String, id:String):String
+        private static function createEntityURL(type:String, id:String=null):String
         {
             return createURL("entities", type, id);
         }

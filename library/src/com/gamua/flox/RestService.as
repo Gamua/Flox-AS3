@@ -152,7 +152,7 @@ package com.gamua.flox
                     }
                     else // error =(
                     {
-                        var error:String = body ? body.message : "unknown";
+                        var error:String = (body && body.message) ? body.message : "unknown";
                         var cachedBody:Object = (method == HttpMethod.GET) ? 
                             mCache.getObject(path) : null;
                         
