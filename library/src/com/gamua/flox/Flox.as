@@ -11,11 +11,11 @@ package com.gamua.flox
     import com.gamua.flox.utils.HttpMethod;
     import com.gamua.flox.utils.execute;
     import com.gamua.flox.utils.formatString;
+    import com.gamua.flox.utils.registerClassAlias;
     
     import flash.events.Event;
     import flash.events.EventDispatcher;
     import flash.net.SharedObject;
-    import flash.net.registerClassAlias;
     import flash.utils.getDefinitionByName;
     
     /** The main class used to interact with the Flox cloud service.
@@ -83,6 +83,7 @@ package com.gamua.flox
         
         private static var sTraceLogs:Boolean = true;
         private static var sReportAnalytics:Boolean = true;
+        private static var sPlayerClass:Class = Player;
         
         /** @private */ 
         public function Flox() { throw new Error("This class cannot be instantiated."); }
@@ -104,9 +105,9 @@ package com.gamua.flox
             if (sInitialized)
                 throw new Error("Flox is already initialized!");
             
-            registerClassAlias("GameSession", GameSession);
-            registerClassAlias("Authentication", Authentication);
-            registerClassAlias("Player", Player);
+            registerClassAlias(GameSession);
+            registerClassAlias(Authentication);
+            registerClassAlias(Player);
 
             monitorNativeApplicationEvents(true);
             SharedObjectPool.startAutoCleanup();
@@ -395,7 +396,7 @@ package com.gamua.flox
         
         internal static function get localPlayer():Player
         {
-            return sPersistentData ? sPersistentData.data.localPlayer as Player: null;
+            return sPersistentData ? sPersistentData.data.localPlayer as sPlayerClass : null;
         }
         
         internal static function set localPlayer(value:Player):void
@@ -431,5 +432,23 @@ package com.gamua.flox
         /** Indicates if analytics reports should be sent to the server. @default true */
         public static function get reportAnalytics():Boolean { return sReportAnalytics; }
         public static function set reportAnalytics(value:Boolean):void { sReportAnalytics = value; }
+        
+        /** The class that is used for Flox player entities; needs to be a subclass of 'Player'.
+         *  If you want to store additional information with your player entity, create a subclass
+         *  of 'Player' and add the properties you need; then inform Flox about it by assigning
+         *  the class here. Beware: this method has to be called BEFORE initializing Flox. */
+        public static function get playerClass():Class { return sPlayerClass; }
+        public static function set playerClass(value:Class):void
+        {
+            if (sInitialized) 
+                throw new Error("The Player class needs to be set BEFORE calling 'Flox.init'.");
+            else if (value == null)
+                throw new Error("The Player class must not be 'null'");
+            else
+            {
+                sPlayerClass = value;
+                registerClassAlias(value);
+            }
+        }
     }
 }

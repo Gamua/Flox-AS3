@@ -4,7 +4,7 @@ package com.gamua.flox
     
     public class PlayerTest extends UnitTest
     {
-        public function testExtendedPlayer():void
+        public function testCustomPlayer():void
         {
             var player:CustomPlayer = new CustomPlayer("Baggins");
             assertEqual(player.type, ".player");
@@ -24,6 +24,29 @@ package com.gamua.flox
             var newGuest:Player = Player.local;
             assert(defaultGuest != newGuest);
             assert(defaultGuest.id != newGuest.id);
+            
+            Flox.shutdown();
+        }
+        
+        public function testLoginCustomPlayer():void
+        {
+            Flox.playerClass = CustomPlayer;
+            Constants.initFlox();
+            
+            var player:CustomPlayer = Player.local as CustomPlayer;
+            var playerID:String = player.id;
+            var lastName:String = "Baggins";
+            player.lastName = lastName;
+            
+            assertNotNull(player);
+            
+            Flox.shutdown();
+            
+            Constants.initFlox();
+            assertEqual(playerID, Player.local.id);
+            assertEqual(lastName, (Player.local as CustomPlayer).lastName);
+            
+            Flox.shutdown();
         }
     }
 }

@@ -53,7 +53,7 @@ package com.gamua.flox
                 if (authID == null) authID = createUID();
                 if (authToken == null) authToken = createUID();
 
-                var player:Player = new Player();
+                var player:Player = new Flox.playerClass();
                 player.authID = authID;
                 player.authType = authType;
                 
