@@ -9,6 +9,22 @@ package com.gamua.flox
             var player:CustomPlayer = new CustomPlayer("Baggins");
             assertEqual(player.type, ".player");
         }
+        
+        public function testGuestLogin():void
+        {
+            Constants.initFlox();
+            
+            var defaultGuest:Player = Player.local;
+            assertNotNull(defaultGuest);
+            assertNotNull(defaultGuest.id);
+            assertEqual(".player", defaultGuest.type);
+            assertEqual(AuthenticationType.GUEST, defaultGuest.authType);
+            
+            Player.login();
+            var newGuest:Player = Player.local;
+            assert(defaultGuest != newGuest);
+            assert(defaultGuest.id != newGuest.id);
+        }
     }
 }
 
