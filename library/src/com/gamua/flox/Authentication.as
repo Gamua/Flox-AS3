@@ -1,3 +1,10 @@
+// =================================================================================================
+//
+//	Flox AS3
+//	Copyright 2013 Gamua OG. All Rights Reserved.
+//
+// =================================================================================================
+
 package com.gamua.flox
 {
     /** This class stores information about how the current player was authenticated. */
@@ -16,6 +23,12 @@ package com.gamua.flox
             mType = type;
             mID = id;
             mToken = token;
+        }
+        
+        /** Creates a duplicate of the authentication object. */
+        public function clone():Authentication
+        {
+            return new Authentication(mPlayerID, mType, mID, mToken);
         }
         
         // properties

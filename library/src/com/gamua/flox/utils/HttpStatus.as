@@ -12,6 +12,9 @@ package com.gamua.flox.utils
     {
         public function HttpStatus() { throw new Error("This class cannot be instantiated."); }
         
+        /** We don't know the actual HTTP status. */
+        public static const UNKNOWN:int = 0;
+        
         /** Everything is OK. */
         public static const OK:int = 200;
         
@@ -49,7 +52,7 @@ package com.gamua.flox.utils
         
         public static function isTransientError(status:int):Boolean
         {
-            return status == 0 || status == SERVICE_UNAVAILABLE;
+            return status == UNKNOWN || status == SERVICE_UNAVAILABLE;
         }
     }
 }

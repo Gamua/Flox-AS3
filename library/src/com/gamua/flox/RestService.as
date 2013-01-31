@@ -7,6 +7,7 @@
 
 package com.gamua.flox
 {
+    import com.gamua.flox.events.QueueEvent;
     import com.gamua.flox.utils.Base64;
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpMethod;
@@ -33,6 +34,7 @@ package com.gamua.flox
         private var mQueue:PersistentQueue;
         private var mCache:PersistentStore;
         private var mAlwaysFail:Boolean;
+        private var mProcessingQueue:Boolean;
         
         /** Helper objects */
         private static var sBuffer:ByteArray = new ByteArray();
@@ -45,6 +47,7 @@ package com.gamua.flox
             mGameID = gameID;
             mGameKey = gameKey;
             mAlwaysFail = false;
+            mProcessingQueue = false;
             mQueue = new PersistentQueue("Flox.RestService.queue." + gameID);
             mCache = new PersistentStore("Flox.RestService.cache." + gameID);
         }
@@ -66,7 +69,7 @@ package com.gamua.flox
                     type: "as3", 
                     version: Flox.VERSION
                 },
-                player: {  // currently ignored -> see below 
+                player: { 
                     id:        authentication.playerID,
                     authType:  authentication.type,
                     authId:    authentication.id,
@@ -179,10 +182,12 @@ package com.gamua.flox
             }
         }
         
-        /** Makes an asynchronous HTTP request at the server. The method will always execute
-         *  exactly one of the provided callback functions.
+        /** Makes an asynchronous HTTP request at the server. Before doing that, it will always
+         *  process the request queue. If that fails with a non-transient error, this request
+         *  will fail as well. The method will always execute exactly one of the provided callback
+         *  functions.
          *  
-         *  @param method: one of the methods provided by the 'HttpMethod' class.
+         *  @param method: one of the constants provided by the 'HttpMethod' class.
          *  @param path: the path of the resource relative to the root of the game (!).
          *  @param data: the data that will be sent as JSON-encoded body or as URL parameters
          *               (depending on the http method).
@@ -194,8 +199,28 @@ package com.gamua.flox
         public function request(method:String, path:String, data:Object, 
                                 onComplete:Function, onError:Function):void
         {
-            requestWithAuthentication(method, path, data, Flox.authentication,
-                                      onComplete, onError);
+            if (processQueue())
+            {
+                // might change before we're in the event handler!
+                var auth:Authentication = Flox.authentication;
+                
+                addEventListener(QueueEvent.QUEUE_PROCESSED, 
+                    function onQueueProcessed(event:QueueEvent):void
+                    {
+                        removeEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed);
+                        
+                        if (event.success)
+                            requestWithAuthentication(method, path, data, auth,
+                                                      onComplete, onError);
+                        else
+                            execute(onError, event.error, event.httpStatus);
+                    })
+            }
+            else
+            {
+                requestWithAuthentication(method, path, data, Flox.authentication,
+                                          onComplete, onError);
+            }
         }
         
         /** Adds an asynchronous HTTP request to a queue and immediately starts to process the
@@ -213,40 +238,41 @@ package com.gamua.flox
          *  @returns true if the queue is currently being processed. */
         public function processQueue():Boolean
         {
-            if (!mQueue.isLocked)
+            if (!mProcessingQueue)
             {
                 if (mQueue.length > 0)
                 {
-                    mQueue.isLocked = true;
+                    mProcessingQueue = true;
                     var element:Object = mQueue.peek();
                     requestWithAuthentication(element.method, element.path, element.data, 
                         element.authentication, onRequestComplete, onRequestError);
                 }
                 else 
                 {
-                    mQueue.isLocked = false;
-                    dispatchEvent(new Event(Flox.QUEUE_PROCESSED));
+                    mProcessingQueue = false;
+                    dispatchEvent(new QueueEvent(QueueEvent.QUEUE_PROCESSED));
                 }
             }
             
-            return mQueue.isLocked;
+            return mProcessingQueue;
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
-                mQueue.isLocked = false;
+                mProcessingQueue = false;
                 mQueue.dequeue();
                 processQueue();
             }
             
             function onRequestError(error:String, httpStatus:int):void
             {
-                mQueue.isLocked = false;
+                mProcessingQueue = false;
                 
-                if (httpStatus == 0 || httpStatus == HttpStatus.SERVICE_UNAVAILABLE)
+                if (HttpStatus.isTransientError(httpStatus))
                 {
                     // server did not answer or is not available! we stop queue processing.
                     Flox.logInfo("Flox Server not reachable (device probably offline). " + 
                                  "HttpStatus: {0}", httpStatus);
+                    dispatchEvent(new QueueEvent(QueueEvent.QUEUE_PROCESSED, httpStatus, error));
                 }
                 else
                 {

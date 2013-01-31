@@ -5,6 +5,7 @@ package
     import com.gamua.flox.EntityTest;
     import com.gamua.flox.PersistentQueueTest;
     import com.gamua.flox.PersistentStoreTest;
+    import com.gamua.flox.PlayerTest;
     import com.gamua.flox.RestServiceTest;
     import com.gamua.flox.ScoreTest;
     import com.gamua.flox.SharedObjectPoolTest;
@@ -42,6 +43,7 @@ package
             testRunner.add(AnalyticsTest);
             testRunner.add(ScoreTest);
             testRunner.add(EntityTest);
+            testRunner.add(PlayerTest);
             
             // ---
             

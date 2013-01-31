@@ -1,3 +1,10 @@
+// =================================================================================================
+//
+//	Flox AS3
+//	Copyright 2013 Gamua OG. All Rights Reserved.
+//
+// =================================================================================================
+
 package com.gamua.flox
 {
     /** A utility class providing string constants for leaderboard time ranges. */
