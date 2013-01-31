@@ -299,8 +299,6 @@ package com.gamua.flox
          *                     visualization of the data will become useless quickly. */
         public static function logEvent(name:String, properties:Object=null):void
         {
-            checkInitialized();
-            
             if (session) session.logEvent(name, properties);
             log("[Event]", properties === null ? name : name + ": " + JSON.stringify(properties));
         }
@@ -309,7 +307,8 @@ package com.gamua.flox
         
         /** Starts processing the request queue. The request queue is mainly used by the 'queued'
          *  variants of the Entity access methods. Normally, you don't have to call this method
-         *  manually: whenever you add a new request to the queue, it will be processed anyway. */
+         *  manually: it will be processed whenever you make a request on the server or add
+         *  something to the queue. */
         public static function processQueue():void
         {
             checkInitialized();
@@ -383,8 +382,7 @@ package com.gamua.flox
          *  The current game session / analytics object. */
         internal static function get session():GameSession
         {
-            checkInitialized();
-            return sPersistentData.data.session;
+            return sPersistentData ? sPersistentData.data.session as GameSession : null;
         }
         
         /** @private
@@ -397,7 +395,7 @@ package com.gamua.flox
         
         internal static function get localPlayer():Player
         {
-            return sPersistentData ? sPersistentData.data.localPlayer : null;
+            return sPersistentData ? sPersistentData.data.localPlayer as Player: null;
         }
         
         internal static function set localPlayer(value:Player):void
@@ -407,7 +405,7 @@ package com.gamua.flox
         
         internal static function get authentication():Authentication
         {
-            return sPersistentData ? sPersistentData.data.authentication : null;
+            return sPersistentData ? sPersistentData.data.authentication as Authentication : null;
         }
         
         internal static function set authentication(value:Authentication):void
