@@ -21,7 +21,6 @@ package com.gamua.flox
             assertEqual(player.id, player.ownerID);
             assertEqual(player.authType, AuthenticationType.GUEST);
             assertEqual(player.type, playerType);
-            assert(player.displayName.search(/^Guest-\d{1,4}$/) == 0);
             assert(player.createdAt is Date);
             assert(player.updatedAt is Date);
             

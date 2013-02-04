@@ -15,7 +15,6 @@ package com.gamua.flox
     {
         private var mAuthType:String;
         private var mAuthID:String;
-        private var mDisplayName:String;
         
         public function Player()
         {
@@ -23,7 +22,6 @@ package com.gamua.flox
             
             mAuthType = AuthenticationType.GUEST;
             mAuthID = createUID();
-            mDisplayName = "Guest-" + int(Math.random() * 10000);
         }
         
         /** Log in a new player with the given authentication information. If you pass no
@@ -77,8 +75,5 @@ package com.gamua.flox
         
         public function get authID():String { return mAuthID; }
         public function set authID(value:String):void { mAuthID = value; }
-        
-        public function get displayName():String { return mDisplayName; }
-        public function set displayName(value:String):void { mDisplayName = value; }
     }
 }

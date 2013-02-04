@@ -18,6 +18,9 @@ package com.gamua.flox.utils
         /** Everything is OK. */
         public static const OK:int = 200;
         
+        /** The request has been accepted for processing, but processing has not been completed. */
+        public static const ACCEPTED:int = 202;
+        
         /** Everything is OK, but there's nothing to return. */
         public static const NO_CONTENT:int = 204; 
         
