@@ -395,6 +395,8 @@ package com.gamua.flox
             return sRestService;
         }
         
+        /** @private
+         *  The current local player, persistent through a shared object. */
         internal static function get localPlayer():Player
         {
             return sPersistentData ? sPersistentData.data.localPlayer as sPlayerClass : null;
@@ -405,6 +407,8 @@ package com.gamua.flox
             sPersistentData.data.localPlayer = value;
         }
         
+        /** @private
+         *  The current authentication, persistent through a shared object. */
         internal static function get authentication():Authentication
         {
             return sPersistentData ? sPersistentData.data.authentication as Authentication : null;

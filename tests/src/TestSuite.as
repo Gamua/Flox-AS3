@@ -44,8 +44,9 @@ package
             testRunner.add(AnalyticsTest);
             testRunner.add(ScoreTest);
             testRunner.add(EntityTest);
-            testRunner.add(PlayerTest);
             testRunner.add(QueryTest);
+            testRunner.add(PlayerTest);
+            
             
             // ---
             

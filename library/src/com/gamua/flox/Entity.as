@@ -38,7 +38,7 @@ package com.gamua.flox
      *  <p>Here is an example class:</p>
      *  
      *  <pre>
-     *  [Type("gameState")] // optional! Defaults to class name
+     *  [Type("gameState")] // optional server type; defaults to class name.
      *  public class GameState extends Entity
      *  {
      *      private var mLevel:int;
@@ -49,7 +49,8 @@ package com.gamua.flox
      *          mLevel = level;
      *          mScore = score;
      *      }
-     *      
+     *
+     *      [Indexed] // optional: make this property available via 'Entity.find'-'where'-query      
      *      public function get level():int { return mLevel; }
      *      public function set level(value:int):void { mLevel = value; }
      *      
@@ -323,9 +324,18 @@ package com.gamua.flox
         }
         
         /** Get a list of entities from the server. The 'options' array is used to construct a
-         *  query. E.g.: <code>{ where: { name: "Donald" }, limit: 20, offset: 10 }</code>
-         * 
-         *  <p>TODO: add more documentation and samples.</p>
+         *  query. Here is a sample query with all available query options. All of them are
+         *  optional. Note that you can pass "onComplete" and "onError" either in the 
+         *  options-object, or as parameters of the function.
+         *  
+         *  <p><code>Entity.find(GameSession, {
+         *      where: { player: "Barak" },
+         *      orderBy: "score", // defaults to "score asc", you can also use "score desc"
+         *      offset: 20,
+         *      limit: 50,
+         *      onComplete: function(entities:Array):void { ... },
+         *      onError:    function(error:String):void { ... }
+         *  }</code></p>
          * 
          *  @param onComplete: executed when the operation is successful; function signature:
          *                     <pre>onComplete(entities:Array):void;</pre>

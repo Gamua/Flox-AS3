@@ -2,6 +2,9 @@ package com.gamua.flox
 {
     import com.gamua.flox.utils.HttpStatus;
     import com.gamua.flox.utils.createUID;
+    import com.gamua.flox.utils.downloadTextResource;
+    
+    import flash.utils.setTimeout;
     
     import starling.unit.UnitTest;
     
@@ -11,6 +14,7 @@ package com.gamua.flox
         {
             Flox.playerClass = CustomPlayer;
             Constants.initFlox();
+            Player.logout();
         }
         
         public override function tearDown():void
@@ -70,7 +74,10 @@ package com.gamua.flox
             {
                 assertEqual(player.id, guestID); // guest has been upgraded
                 assertEqual(Player.local.id, player.id);
-                onComplete();
+                
+                // now log out again, and retry!
+                Player.logout();
+                Player.loginWithEmail(email, onSecondLoginComplete, onSecondLoginError);
             }
             
             function onError(error:String, httpStatus:int):void
@@ -82,13 +89,66 @@ package com.gamua.flox
                 }
                 else
                 {
-                    var mailUrl:String = "http://" + emailUser + ".mailinator.com";
-                    trace("please check the following mailbox: ", mailUrl);
-                    trace("breakpoint");
-                    
-                    // try again
-                    Player.loginWithEmail(email, onLoginComplete, onError);
+                    activatePlayerThroughEmail(email, onPlayerActivated, onMailError);
                 }
+            }
+            
+            function onPlayerActivated():void
+            {
+                // authentication url visited! Now we can log in.
+                Player.loginWithEmail(email, onLoginComplete, onError);
+            }
+            
+            function onMailError(error:String, httpStatus:int):void
+            {
+                fail("Could not access Mailinator mails");
+                onComplete();
+            }
+            
+            function onSecondLoginComplete(player:Player):void
+            {
+                assertEqual(guestID, player.id);
+                onComplete();
+            }
+            
+            function onSecondLoginError(error:String):void
+            {
+                fail("Second login did not work!");
+                onComplete();
+            }
+        }
+        
+        private function activatePlayerThroughEmail(email:String, 
+                                                    onComplete:Function, onError:Function):void
+        {
+            var emailUser:String = email.split("@").shift();
+            var mailBoxUrl:String = "http://" + emailUser + ".mailinator.com";
+            setTimeout(downloadTextResource, 1000, mailBoxUrl, onMailBoxComplete, onError);
+            
+            function onMailBoxComplete(htmlContents:String):void
+            {
+                // open up mailinator mailbox, find link to email
+                var matches:Array = htmlContents.match(/<tr>.*?<a href=(.+?)>/);
+                if (matches.length == 2)
+                    downloadTextResource("http://www.mailinator.com" + matches[1], onMailComplete, onError);
+                else
+                {
+                    fail("Error parsing Mailinator mailbox");
+                    onComplete();
+                }
+            }
+            
+            function onMailComplete(htmlContents:String):void
+            {
+                // find link to flox email, visit it.
+                var matches:Array = htmlContents.match(/(https:\/\/www\.flox\.cc.+?)"/);
+                if (matches.length == 2)
+                    downloadTextResource(matches[1], onAuthorizeComplete, onError);
+            }
+            
+            function onAuthorizeComplete(htmlContents:String):void
+            {
+                onComplete();
             }
         }
     }
