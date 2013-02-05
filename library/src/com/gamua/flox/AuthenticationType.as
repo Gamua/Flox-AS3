@@ -12,6 +12,7 @@ package com.gamua.flox
      *  twitter and the likes. */
     internal final class AuthenticationType
     {
+        /** @private */
         public function AuthenticationType() 
         { 
             throw new Error("This class cannot be instantiated."); 
@@ -19,7 +20,10 @@ package com.gamua.flox
      
         /** A guest account, i.e. the user is not authenticated at all. */
         public static const GUEST:String    = "guest";
-        // public static const EMAIL:String    = "email";
+        
+        /** The user proves to have access to a certain e-mail address. */
+        public static const EMAIL:String    = "email";
+        
         // public static const FACEBOOK:String = "facebook";
         // public static const TWITTER:String  = "twitter";
         // public static const GAMUA:String    = "gamua";

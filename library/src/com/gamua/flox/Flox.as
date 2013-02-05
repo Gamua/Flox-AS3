@@ -9,6 +9,7 @@ package com.gamua.flox
 {
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpMethod;
+    import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.execute;
     import com.gamua.flox.utils.formatString;
     import com.gamua.flox.utils.registerClassAlias;
@@ -432,6 +433,22 @@ package com.gamua.flox
         /** Indicates if analytics reports should be sent to the server. @default true */
         public static function get reportAnalytics():Boolean { return sReportAnalytics; }
         public static function set reportAnalytics(value:Boolean):void { sReportAnalytics = value; }
+        
+        /** Returns a unique identifier for the installation, i.e. when the
+         *  app is deleted or the Flash cookies are lost, the id will change. */
+        public static function get installationID():String
+        {
+            checkInitialized();
+            
+            var id:String = sPersistentData.data.installationID;
+            if (id == null)
+            {
+                id = createUID();
+                sPersistentData.data.installationID = id;
+            }
+            
+            return id;
+        }
         
         /** The class that is used for Flox player entities; needs to be a subclass of 'Player'.
          *  If you want to store additional information with your player entity, create a subclass

@@ -113,7 +113,7 @@ package com.gamua.flox
             var path:String = createEntityURL(type, mID);
             
             Flox.service.request(HttpMethod.PUT, path, toObject(), 
-                onRequestComplete, onRequestError);
+                                 onRequestComplete, onRequestError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
