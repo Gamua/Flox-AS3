@@ -342,9 +342,20 @@ package com.gamua.flox
             
             var type:String = getType(entityClass);
             var path:String = createEntityURL(type);
-            var query:Object = constructQueryObject(options);
             
-            Flox.service.request(HttpMethod.GET, path, { q: JSON.stringify(query) },
+            if (options.onComplete != null)
+            {
+                onComplete = options.onComplete;
+                delete options["onComplete"];
+            }
+            
+            if (options.onError != null)
+            {
+                onError = options.onError;
+                delete options["onError"];
+            }
+            
+            Flox.service.request(HttpMethod.GET, path, { q: JSON.stringify(options) },
                 onRequestComplete, onRequestError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
@@ -368,55 +379,7 @@ package com.gamua.flox
                 execute(onError, error, HttpStatus.isTransientError(httpStatus));
             }
         }
-        
-        flox_internal static function constructQueryObject(options:Object):Object
-        {
-            var query:Object = {};
-            
-            try
-            {
-                for (var option:String in options)
-                {
-                    var value:Object = options[option];
-                    var optionLC:String = option.toLowerCase();
-                    
-                    if (optionLC == "where")
-                    {
-                        if (query.where == null) query.where = {};
-                        
-                        for (var conditionKey:String in value)
-                        {
-                            var parts:Array = conditionKey.match(sQueryRE);
-                            var lhs:String = parts[1];
-                            var operator:String = parts[2] ? parts[2] : "=";
-                            var rhs:Object = value[conditionKey];
-                            
-                            if (query.where[lhs] == null) query.where[lhs] = {};
-                            query.where[lhs][operator] = rhs;
-                        }
-                    }
-                    else if (optionLC == "orderby")
-                    {
-                        if (query.orderBy == null) query.orderBy = {};
-                        
-                        for (var orderProperty:String in value)
-                            query.orderBy[orderProperty] = value[orderProperty].toLowerCase();
-                    }
-                    else
-                    {
-                        if (!(value is Function))
-                            query[option] = value;
-                    }
-                }
-            } 
-            catch (e:Error)
-            {
-                throw new ArgumentError("Could not process query options. Reason: " + e.message);
-            }
-            
-            return query;
-        }
-        
+                
         // helpers
 
         /** @private */

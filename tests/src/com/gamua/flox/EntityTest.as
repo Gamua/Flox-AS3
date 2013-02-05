@@ -312,7 +312,7 @@ package com.gamua.flox
                 Flox.shutdown();
                 onComplete();
             }
-        }   
+        }
         
         private function assertEqualEntities(entityA:Entity, entityB:Entity, 
                                              compareDates:Boolean=false):void
@@ -323,14 +323,20 @@ package com.gamua.flox
                 var objectA:Object = cloneObject(entityA);
                 var objectB:Object = cloneObject(entityB);
                 
-                delete objectA["createdAt"];
-                delete objectA["updatedAt"];
-                delete objectB["createdAt"];
-                delete objectB["updatedAt"];
+                if (objectA)
+                {
+                    delete objectA["createdAt"];
+                    delete objectA["updatedAt"];
+                }
+                
+                if (objectB)
+                {
+                    delete objectB["createdAt"];
+                    delete objectB["updatedAt"];
+                }
                 
                 assertEqualObjects(objectA, objectB);
             }
         }
-        
     }
 }

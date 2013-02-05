@@ -2,7 +2,7 @@ package
 {
     import com.gamua.flox.AnalyticsTest;
     import com.gamua.flox.Constants;
-    import com.gamua.flox.EntityQueryTest;
+    import com.gamua.flox.QueryTest;
     import com.gamua.flox.EntityTest;
     import com.gamua.flox.PersistentQueueTest;
     import com.gamua.flox.PersistentStoreTest;
@@ -45,7 +45,7 @@ package
             testRunner.add(ScoreTest);
             testRunner.add(EntityTest);
             testRunner.add(PlayerTest);
-            testRunner.add(EntityQueryTest);
+            testRunner.add(QueryTest);
             
             // ---
             

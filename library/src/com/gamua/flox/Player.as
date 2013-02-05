@@ -115,7 +115,7 @@ package com.gamua.flox
         public static function loginWithEmail(email:String, 
                                               onComplete:Function, onError:Function):void
         {
-            login(AuthenticationType.EMAIL, email, Flox.installationID);
+            login(AuthenticationType.EMAIL, email, Flox.installationID, onComplete, onError);
         }
         
         /** The current local player. */

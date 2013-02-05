@@ -8,7 +8,7 @@ package com.gamua.flox
     
     use namespace flox_internal;
     
-    public class EntityQueryTest extends UnitTest
+    public class QueryTest extends UnitTest
     {
         public override function setUp():void
         {
@@ -37,47 +37,7 @@ package com.gamua.flox
             Entity.setIndex(Product, "price");
         }
         
-        public function testConstructQuery():void
-        {
-            var asOptions:Object = { 
-                where: { "name": "Gameboy", "price <": 100, "price >": 50,
-                         "age >= ": 20, "age <= ": 40 },
-                orderBy: { score: "ASC", id: "desc" },
-                limit: 50,
-                offset: 13,
-                passThrough: "hugo",
-                onComplete: function onComplete():void { trace("never executed."); }
-            };
-            
-            var floxOptions:Object = Entity.constructQueryObject(asOptions);
-            var expectedOptions:Object = {
-                where: {
-                    name: { "=": "Gameboy" },
-                    price: { "<": 100, ">": 50 },
-                    age: { ">=": 20, "<=": 40 }
-                },
-                orderBy: { score: "asc", id: "desc" },
-                limit: 50,
-                offset: 13,
-                passThrough: "hugo"
-            };
-
-            assertEqualObjects(floxOptions, expectedOptions);
-        }
-        
-        public function testConstructSimpleQuery():void
-        {
-            var asOptions:Object = { where: { "name": "SNES" }};
-            var floxOptions:Object = Entity.constructQueryObject(asOptions);
-            var expectedOptions:Object = {
-                where: {
-                    name: { "=": "SNES" }
-                }};
-            
-            assertEqualObjects(floxOptions, expectedOptions);
-        }
-        
-        public function testSimpleQuery(onComplete:Function):void
+        public function testQuery1(onComplete:Function):void
         {
             var group:String = createUID();
             var product:Product = new Product("zulu", 26, group);
@@ -88,7 +48,7 @@ package com.gamua.flox
             makeQuery([product], [product], queryOptions, onComplete); 
         }
         
-        public function DEACTIVATED_testComplexQuery(onComplete:Function):void
+        public function testQuery2(onComplete:Function):void
         {
             // to get only the entities of this test back, we add a random 'group' identifier.
             var group:String = createUID();
@@ -103,7 +63,7 @@ package com.gamua.flox
             var expectedResult:Array = [ products[4], products[3] ];
             var queryOptions:Object = {
                 where: { "group": group },
-                orderBy: { "price": "desc" },
+                orderBy: "price desc",
                 limit: 2
             };
             
@@ -163,10 +123,17 @@ package com.gamua.flox
                 var objectA:Object = cloneObject(entityA);
                 var objectB:Object = cloneObject(entityB);
                 
-                delete objectA["createdAt"];
-                delete objectA["updatedAt"];
-                delete objectB["createdAt"];
-                delete objectB["updatedAt"];
+                if (objectA)
+                {
+                    delete objectA["createdAt"];
+                    delete objectA["updatedAt"];
+                }
+                
+                if (objectB)
+                {
+                    delete objectB["createdAt"];
+                    delete objectB["updatedAt"];
+                }
                 
                 assertEqualObjects(objectA, objectB);
             }
