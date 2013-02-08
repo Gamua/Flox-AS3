@@ -23,55 +23,98 @@ package com.gamua.flox
         public function testIndex():void
         {
             assert(Entity.getIndex(Product, "price"));
-            assert(Entity.getIndex(Product, "group"));
-            assert(!Entity.getIndex(Product, "name"));
+            assert(Entity.getIndex(Product, "name"));
+            assert(!Entity.getIndex(Product, "group"));
             
-            Entity.setIndex(Product, "name");
+            Entity.setIndex(Product, "group");
             Entity.setIndex(Product, "price", false);
             
-            assert(Entity.getIndex(Product, "name"));
+            assert(Entity.getIndex(Product, "group"));
             assert(!Entity.getIndex(Product, "price"));
             
             // undo changes
-            Entity.setIndex(Product, "name", false);
+            Entity.setIndex(Product, "group", false);
             Entity.setIndex(Product, "price");
         }
         
         public function testQuery1(onComplete:Function):void
         {
-            var group:String = createUID();
-            var product:Product = new Product("zulu", 26, group);
+            var name:String = createUID();
+            var product:Product = new Product(name, 26);
             var queryOptions:Object = {
-                where: { "group": group }
+                where: { name: name }
             };
             
-            makeQuery([product], [product], queryOptions, onComplete); 
+            makeQuery([product], queryOptions, checkResult, onComplete);
+            
+            function checkResult(entities:Array):void
+            {
+                assertEqual(entities.length, 1);
+                assertEqualEntities(entities[0], product);
+            }
         }
         
         public function testQuery2(onComplete:Function):void
         {
             // to get only the entities of this test back, we add a random 'group' identifier.
-            var group:String = createUID();
             var products:Array = [
-                new Product("alfa", 0, group),
-                new Product("bravo", 1, group),
-                new Product("charlie", 2, group),
-                new Product("delta", 3, group),
-                new Product("echo", 4, group)
+                new Product("alfa", 0),
+                new Product("bravo", 1),
+                new Product("charlie", 2),
+                new Product("delta", 3)
             ];
             
-            var expectedResult:Array = [ products[4], products[3] ];
+            var limit:int = 10;
             var queryOptions:Object = {
-                where: { "group": group },
-                orderBy: "price desc",
-                limit: 2
+                where: { "price >=": 1, "price <": 3 },
+                limit: limit
             };
             
-            makeQuery(products, expectedResult, queryOptions, onComplete); 
+            makeQuery(products, queryOptions, checkResult, onComplete);
+            
+            function checkResult(entities:Array):void
+            {
+                assert(entities.length >= 2);
+                assert(entities.length <= limit);
+                
+                for each (var product:Product in entities)
+                {
+                    assert(product.price >= 1);
+                    assert(product.price < 3);
+                }
+            }
         }
         
-        private function makeQuery(inputEntities:Array, expectedEntities:Array, 
-                                  queryOptions:Object, onComplete):void
+        public function testQuery3(onComplete:Function):void
+        {
+            // to get only the entities of this test back, we add a random 'group' identifier.
+            var products:Array = [
+                new Product("alfa", 0),
+                new Product("bravo", 1),
+                new Product("charlie", 2),
+                new Product("delta", 3)
+            ];
+            
+            var limit:int = 10;
+            var queryOptions:Object = {
+                where: { "name >": "alfa", "name <": "delta" },
+                limit: limit
+            };
+            
+            makeQuery(products, queryOptions, checkResult, onComplete);
+            
+            function checkResult(entities:Array):void
+            {
+                assert(entities.length >= 2);
+                assert(entities.length <= limit);
+                
+                for each (var product:Product in entities)
+                    assert(product.name == "bravo" || product.name == "charlie");
+            }
+        }
+        
+        private function makeQuery(inputEntities:Array, queryOptions:Object, onResult:Function, 
+                                   onComplete:Function):void
         {
             Flox.addEventListener(QueueEvent.QUEUE_PROCESSED, onProductsSaved);
             
@@ -93,17 +136,13 @@ package com.gamua.flox
                 {
                     fail("could not save entities: " + event.error);
                     onComplete();
-                }                
+                }
             }
             
             function onQueryComplete(outputEntities:Array):void
             {
                 assertNotNull(outputEntities);
-                assertEqual(outputEntities.length, expectedEntities.length);
-
-                for (var i:int=0; i<expectedEntities.length; ++i)
-                    assertEqualEntities(outputEntities[i], expectedEntities[i]);
-                
+                onResult(outputEntities);
                 onComplete();
             }
             
@@ -156,6 +195,7 @@ class Product extends Entity
         mGroup = group;
     }
     
+    [Indexed]
     public function get name():String { return mName; }
     public function set name(value:String):void { mName = value; }
     
@@ -163,7 +203,6 @@ class Product extends Entity
     public function get price():Number { return mPrice; }
     public function set price(value:Number):void { mPrice = value; }
     
-    [Indexed]
     public function get group():String { return mGroup; }
     public function set group(value:String):void { mGroup = value; }
 }
