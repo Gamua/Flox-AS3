@@ -13,6 +13,7 @@ package com.gamua.flox
         public override function setUp():void
         {
             Constants.initFlox();
+            Player.logout(); // create a new guest player for each test
         }
         
         public override function tearDown():void
@@ -37,7 +38,7 @@ package com.gamua.flox
             Entity.setIndex(Product, "price");
         }
         
-        public function testQuery1(onComplete:Function):void
+        public function testSimpleQuery(onComplete:Function):void
         {
             var name:String = createUID();
             var product:Product = new Product(name, 42);
@@ -54,38 +55,65 @@ package com.gamua.flox
             }
         }
         
-        public function testQuery2(onComplete:Function):void
+        public function testNormalQuery(onComplete:Function):void
         {
             // to get only the entities of this test back, we add a random 'group' identifier.
             var products:Array = [
                 new Product("alfa", 0),
                 new Product("bravo", 1),
                 new Product("charlie", 2),
-                new Product("delta", 3)
+                new Product("delta", 3),
+                new Product("echo", 4),
+                new Product("foxtrot", 5),
+                new Product("golf", 6)
             ];
             
-            var limit:int = 10;
             var queryOptions:Object = {
-                where: { "price >=": 1, "price <": 3 },
-                limit: limit
+                where: { "price >=": 1, "price <": 6 }
             };
             
             makeQuery(products, queryOptions, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
-                assert(entities.length >= 2);
-                assert(entities.length <= limit);
-                
-                for each (var product:Product in entities)
-                {
-                    assert(product.price >= 1);
-                    assert(product.price < 3);
-                }
+                entities.sortOn("price");
+                assert(entities.length == 5, "Wrong number of entities returned");
+                assertEqualEntities(entities[0], products[1]);
+                assertEqualEntities(entities[1], products[2]);
+                assertEqualEntities(entities[2], products[3]);
+                assertEqualEntities(entities[3], products[4]);
+                assertEqualEntities(entities[4], products[5]);
             }
         }
         
-        public function testQuery3(onComplete:Function):void
+        public function testNormalQueryWithLimit(onComplete:Function):void
+        {
+            // to get only the entities of this test back, we add a random 'group' identifier.
+            var products:Array = [
+                new Product("alfa", 0),
+                new Product("bravo", 1),
+                new Product("charlie", 2),
+                new Product("delta", 3),
+                new Product("echo", 4),
+                new Product("foxtrot", 5),
+                new Product("golf", 6)
+            ];
+            
+            var limit:int = 3;
+            var queryOptions:Object = {
+                where: { "price >=": 1, "price <": 6 },
+                limit: limit
+            };
+            
+            makeQuery(products, queryOptions, checkResult, onComplete);
+            
+            function checkResult(entities:Array):void
+            {
+                assert(entities.length == limit, "Wrong number of entities returned");
+            }
+        }
+        
+        public function testStringCompareQuery(onComplete:Function):void
         {
             // to get only the entities of this test back, we add a random 'group' identifier.
             var products:Array = [
@@ -95,21 +123,18 @@ package com.gamua.flox
                 new Product("delta", 3)
             ];
             
-            var limit:int = 10;
             var queryOptions:Object = {
-                where: { "name >": "alfa", "name <": "delta" },
-                limit: limit
+                where: { "name >": "alfa", "name <": "delta" }
             };
             
             makeQuery(products, queryOptions, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
-                assert(entities.length >= 2);
-                assert(entities.length <= limit);
-                
-                for each (var product:Product in entities)
-                    assert(product.name == "bravo" || product.name == "charlie");
+                entities.sortOn("price");
+                assert(entities.length == 2, "Wrong number of entities returned");
+                assertEqualEntities(entities[0], products[1]);
+                assertEqualEntities(entities[1], products[2]);
             }
         }
         
