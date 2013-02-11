@@ -40,7 +40,7 @@ package com.gamua.flox
         public function testQuery1(onComplete:Function):void
         {
             var name:String = createUID();
-            var product:Product = new Product(name, 26);
+            var product:Product = new Product(name, 42);
             var queryOptions:Object = {
                 where: { name: name }
             };
@@ -121,8 +121,6 @@ package com.gamua.flox
             for each (var entity:Entity in inputEntities)
                 entity.saveQueued();
                 
-            Flox.localPlayer.saveQueued();
-            
             function onProductsSaved(event:QueueEvent):void
             {
                 Flox.removeEventListener(QueueEvent.QUEUE_PROCESSED, onProductsSaved);

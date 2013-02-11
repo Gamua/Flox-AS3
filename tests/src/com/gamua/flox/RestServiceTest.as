@@ -23,6 +23,7 @@ package com.gamua.flox
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
+                assertNotNull(body);
                 assertEqual(body.status, "ok");
                 onComplete();
             }
