@@ -399,17 +399,19 @@ package com.gamua.flox
          *  The current local player, persistent through a shared object. */
         internal static function get localPlayer():Player
         {
+            var player:Player = null;
+
             try
             {
                 if (sPersistentData)
-                    return (sPersistentData.data.localPlayer as sPlayerClass) as Player;
-                else
-                    return null;
+                    player = (sPersistentData.data.localPlayer as sPlayerClass) as Player;
             }
             catch (e:Error)
             {
-                return null; // player could not be de-serialized; probably, class has changed.
+                // player could not be de-serialized; probably, class has changed.
             }
+
+            return player;
         }
         
         internal static function set localPlayer(value:Player):void
