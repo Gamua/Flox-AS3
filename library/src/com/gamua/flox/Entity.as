@@ -345,10 +345,9 @@ package com.gamua.flox
         public static function find(entityClass:Class, options:Object,
                                     onComplete:Function=null, onError:Function=null):void
         {
-            if (onComplete == null) onComplete = options.onComplete;
-            if (onError    == null) onError    = options.onError;
-            
             use namespace flox_internal;
+            
+            options = cloneObject(options, filterDate);
             
             var type:String = getType(entityClass);
             var path:String = createEntityURL(type);
@@ -395,11 +394,10 @@ package com.gamua.flox
         /** @private */
         internal function toObject():Object
         {
-            var object:Object = cloneObject(this);
+            // create clone as Object & replace Dates with Strings
+            var object:Object = cloneObject(this, filterDate);
 
             object["ownerId"] = mOwnerID;
-            object["createdAt"] = DateUtil.toString(mCreatedAt);
-            object["updatedAt"] = DateUtil.toString(mUpdatedAt);
 
             if ("authID" in object)
                 object["authId"] = object["authID"]; // note case 'Id' vs. 'ID'! 
@@ -435,12 +433,13 @@ package com.gamua.flox
             {
                 var access:String = accessor.@access.toString();
                 if (access == "readwrite") 
-                    updateProperty(entity, data, accessor.@name.toString());
+                    updateProperty(entity, data, accessor.@name.toString(), 
+                                                 accessor.@type.toString());
             }
         }
         
         private static function updateProperty(entity:Entity, serverData:Object, 
-                                               propertyName:String):void
+                                               propertyName:String, propertyType:String):void
         {
             var clientPN:String = propertyName;
             var serverPN:String = propertyName;
@@ -450,7 +449,7 @@ package com.gamua.flox
             
             if (serverPN in serverData)
             {
-                if (propertyName == "createdAt" || propertyName == "updatedAt")
+                if (propertyType == "Date")
                     entity[clientPN] = DateUtil.parse(serverData[serverPN]);
                 else
                     entity[clientPN] = serverData[serverPN];
@@ -460,6 +459,12 @@ package com.gamua.flox
         private static function createEntityURL(type:String, id:String=null):String
         {
             return createURL("entities", type, id);
+        }
+        
+        private static function filterDate(object:Object):Object
+        {
+            if (object is Date) return DateUtil.toString(object as Date);
+            else return null;
         }
         
         // properties

@@ -25,6 +25,7 @@ package com.gamua.flox
         {
             assert(Entity.getIndex(Product, "price"));
             assert(Entity.getIndex(Product, "name"));
+            assert(Entity.getIndex(Product, "date"));
             assert(!Entity.getIndex(Product, "group"));
             
             Entity.setIndex(Product, "group");
@@ -138,6 +139,30 @@ package com.gamua.flox
             }
         }
         
+        public function testDateCompareQuery(onComplete:Function):void
+        {
+            var products:Array = [
+                new Product("alfa",    0, null, new Date(2013, 1, 1, 10,  0)),
+                new Product("bravo",   1, null, new Date(2013, 1, 1, 10, 10)),
+                new Product("charlie", 2, null, new Date(2013, 1, 1, 10, 20)),
+                new Product("delta",   3, null, new Date(2013, 1, 1, 10, 30))
+            ];
+            
+            var queryOptions:Object = {
+                where: { "date >": products[0].date, "date <": products[3].date }
+            };
+            
+            makeQuery(products, queryOptions, checkResult, onComplete);
+            
+            function checkResult(entities:Array):void
+            {
+                entities.sortOn("date");
+                assert(entities.length == 2, "Wrong number of entities returned");
+                assertEqualEntities(entities[0], products[1]);
+                assertEqualEntities(entities[1], products[2]);
+            }
+        }
+        
         private function makeQuery(inputEntities:Array, queryOptions:Object, onResult:Function, 
                                    onComplete:Function):void
         {
@@ -210,12 +235,15 @@ class Product extends Entity
     private var mGroup:String;
     private var mName:String;
     private var mPrice:Number;
+    private var mDate:Date;
     
-    public function Product(name:String="unknown", price:Number=0, group:String=null)
+    public function Product(name:String="unknown", price:Number=0, group:String=null, 
+                            date:Date=null)
     {
         mName = name;
         mPrice = price;
         mGroup = group;
+        mDate = date;
     }
     
     [Indexed]
@@ -225,6 +253,10 @@ class Product extends Entity
     [Indexed]
     public function get price():Number { return mPrice; }
     public function set price(value:Number):void { mPrice = value; }
+    
+    [Indexed]
+    public function get date():Date { return mDate; }
+    public function set date(value:Date):void { mDate = value; }
     
     public function get group():String { return mGroup; }
     public function set group(value:String):void { mGroup = value; }

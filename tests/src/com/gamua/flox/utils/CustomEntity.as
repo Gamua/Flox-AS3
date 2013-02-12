@@ -7,12 +7,14 @@ package com.gamua.flox.utils
         private var mName:String;
         private var mAge:int;
         private var mData:Object;
+        private var mBirthday:Date;
         
         public function CustomEntity(name:String="unknown", age:int=0)
         {
             mName = name;
             mAge = age;
             mData = { value: int(Math.random() * 1000) };
+            mBirthday = new Date();
         }
         
         [Indexed]
@@ -25,5 +27,7 @@ package com.gamua.flox.utils
         public function get data():Object { return mData; }
         public function set data(value:Object):void { mData = value; }
         
+        public function get birthday():Date { return mBirthday; }
+        public function set birthday(value:Date):void { mBirthday = value; }
     }
 }

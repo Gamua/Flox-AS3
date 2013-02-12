@@ -2,6 +2,7 @@ package com.gamua.flox
 {
     import com.gamua.flox.events.QueueEvent;
     import com.gamua.flox.utils.CustomEntity;
+    import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.cloneObject;
     
     import starling.unit.UnitTest;
@@ -39,16 +40,20 @@ package com.gamua.flox
             assertEqualObjects(player, restoredPlayer);
         }
         
-        public function testGuestPlayer():void
+        public function testDateSerialization():void
         {
-            Constants.initFlox();
+            // dates should be serialized into XMLDateTime format.
             
-            var localPlayer:Player = Flox.localPlayer;
-            assertNotNull(localPlayer);
-            assertEqual(AuthenticationType.GUEST, localPlayer.authType);
-            assertNotNull(localPlayer.authID);
+            var entity:CustomEntity = new CustomEntity("hugo", 12);
+            var entityObject:Object = entity.toObject();
             
-            Flox.shutdown();
+            assertEqual(DateUtil.toString(entity.birthday), entityObject.birthday);
+            
+            var restoredEntity:CustomEntity = Entity.fromObject(
+                Entity.getType(CustomEntity), entity.id, entityObject) as CustomEntity;
+            
+            assertNotNull(restoredEntity);
+            assertEqualObjects(entity, restoredEntity);
         }
         
         public function testSaveAndLoadGuestWithCache(onComplete:Function):void

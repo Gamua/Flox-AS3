@@ -11,11 +11,13 @@ package com.gamua.flox.utils
      *  to get a Date object. */
     public class DateUtil
     {
+        /** @private */
         public function DateUtil() { throw new Error("This class cannot be instantiated."); }
         
         /** Parses dates that conform to the xs:DateTime format. */
         public static function parse(str:String):Date
         {
+            if (str == null) return null;
             var finalDate:Date;
             
             try

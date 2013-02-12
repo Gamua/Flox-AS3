@@ -57,5 +57,23 @@ package com.gamua.flox
             
             assertEqual(integer, integerClone);
         }
+        
+        public function testCloneObjectWithFilter():void
+        {
+            var date:Date = new Date(2013, 1, 1);
+            var object:Object = {
+                "integer": 15,
+                "number": 1.5,
+                "date": date
+            };
+            
+            var clone:Object = cloneObject(object, function(object:*):*
+            {
+                if (object is Date) return DateUtil.toString(object as Date);
+                else return null;
+            });
+            
+            assertEqual(DateUtil.toString(date), clone.date);
+        }
     }
 }

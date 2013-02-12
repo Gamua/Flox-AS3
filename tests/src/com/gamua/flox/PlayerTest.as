@@ -123,13 +123,13 @@ package com.gamua.flox
         {
             var emailUser:String = email.split("@").shift();
             var mailBoxUrl:String = "http://" + emailUser + ".mailinator.com";
-            setTimeout(downloadTextResource, 1000, mailBoxUrl, onMailBoxComplete, onError);
+            setTimeout(downloadTextResource, 2000, mailBoxUrl, onMailBoxComplete, onError);
             
             function onMailBoxComplete(htmlContents:String):void
             {
                 // open up mailinator mailbox, find link to email
                 var matches:Array = htmlContents.match(/<tr>.*?<a href=(.+?)>/);
-                if (matches.length == 2)
+                if (matches && matches.length == 2)
                     downloadTextResource("http://www.mailinator.com" + matches[1], onMailComplete, onError);
                 else
                 {
@@ -142,7 +142,7 @@ package com.gamua.flox
             {
                 // find link to flox email, visit it.
                 var matches:Array = htmlContents.match(/(https:\/\/www\.flox\.cc.+?)"/);
-                if (matches.length == 2)
+                if (matches && matches.length == 2)
                     downloadTextResource(matches[1], onAuthorizeComplete, onError);
             }
             
