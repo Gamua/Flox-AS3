@@ -399,7 +399,7 @@ package com.gamua.flox
          *  The current local player, persistent through a shared object. */
         internal static function get localPlayer():Player
         {
-            return sPersistentData ? sPersistentData.data.localPlayer as sPlayerClass : null;
+            return sPersistentData ? (sPersistentData.data.localPlayer as sPlayerClass) as Player : null;
         }
         
         internal static function set localPlayer(value:Player):void
