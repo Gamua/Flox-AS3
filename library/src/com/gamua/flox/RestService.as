@@ -329,7 +329,7 @@ package com.gamua.flox
         /** Decodes an object from JSON format, compressed in a Base64-encoded, zlib-compressed String. */ 
         private static function decode(string:String):Object
         {
-            if (string == null) return null;
+            if (string == null || string == "") return null;
             
             Base64.decodeToByteArray(string, sBuffer);
             sBuffer.uncompress();
