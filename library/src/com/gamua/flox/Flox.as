@@ -79,7 +79,6 @@ package com.gamua.flox
         private static var sGameVersion:String;
         private static var sRestService:RestService;
         private static var sPersistentData:SharedObject;
-        private static var sAuthentication:Authentication;
         private static var sInitialized:Boolean = false;
         
         private static var sTraceLogs:Boolean = true;
