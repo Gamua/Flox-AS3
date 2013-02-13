@@ -51,7 +51,7 @@ package com.gamua.flox
             
             function checkResult(entities:Array):void
             {
-                assertEqual(entities.length, 1);
+                assertEqual(entities.length, 1, "Wrong number of entities returned");
                 assertEqualEntities(entities[0], product);
             }
         }
@@ -222,7 +222,7 @@ package com.gamua.flox
                     delete objectB["updatedAt"];
                 }
                 
-                assertEqualObjects(objectA, objectB);
+                assertEqualObjects(objectA, objectB, "Entities do not match");
             }
         }
     }
