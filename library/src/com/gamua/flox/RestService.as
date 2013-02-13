@@ -63,6 +63,9 @@ package com.gamua.flox
                 data = null;
             }
             
+            if (authentication == null)
+                authentication = Flox.authentication;
+            
             var headers:Object = {};
             var xFloxHeader:Object = {
                 sdk: { 
@@ -244,8 +247,10 @@ package com.gamua.flox
                 {
                     mProcessingQueue = true;
                     var element:Object = mQueue.peek();
+                    var auth:Authentication = element.authentication as Authentication;
+                    
                     requestWithAuthentication(element.method, element.path, element.data, 
-                        element.authentication, onRequestComplete, onRequestError);
+                                              auth, onRequestComplete, onRequestError);
                 }
                 else 
                 {
