@@ -58,7 +58,6 @@ package com.gamua.flox
         
         public function testNormalQuery(onComplete:Function):void
         {
-            // to get only the entities of this test back, we add a random 'group' identifier.
             var products:Array = [
                 new Product("alfa", 0),
                 new Product("bravo", 1),
@@ -89,7 +88,6 @@ package com.gamua.flox
         
         public function testNormalQueryWithLimit(onComplete:Function):void
         {
-            // to get only the entities of this test back, we add a random 'group' identifier.
             var products:Array = [
                 new Product("alfa", 0),
                 new Product("bravo", 1),
@@ -116,7 +114,6 @@ package com.gamua.flox
         
         public function testStringCompareQuery(onComplete:Function):void
         {
-            // to get only the entities of this test back, we add a random 'group' identifier.
             var products:Array = [
                 new Product("alfa", 0),
                 new Product("bravo", 1),
@@ -160,6 +157,27 @@ package com.gamua.flox
                 assert(entities.length == 2, "Wrong number of entities returned");
                 assertEqualEntities(entities[0], products[1]);
                 assertEqualEntities(entities[1], products[2]);
+            }
+        }
+        
+        public function testInequalityQuery(onComplete:Function):void
+        {
+            var products:Array = [
+                new Product("alfa", 0),
+                new Product("bravo", 1),
+                new Product("charlie", 2),
+            ];
+            
+            var queryOptions:Object = {
+                where: { "price !=": 0, "price !=": 2 }
+            };
+            
+            makeQuery(products, queryOptions, checkResult, onComplete);
+            
+            function checkResult(entities:Array):void
+            {
+                assert(entities.length == 1, "Wrong number of entities returned");
+                assertEqualEntities(entities[0], products[1]);
             }
         }
         

@@ -347,6 +347,7 @@ package com.gamua.flox
         {
             use namespace flox_internal;
             
+            if (options == null) options = {};
             options = cloneObject(options, filterDate);
             
             var type:String = getType(entityClass);
