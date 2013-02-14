@@ -34,11 +34,12 @@ package com.gamua.flox
                 onComplete();
             }
         }
-        
-        public function testNonExistingMethod(onComplete:Function):void
-        {
-            requestNonExistingPath(".does-no-exist", onComplete);
-        }
+
+        // not yet supported by Flox Server
+        // public function testNonExistingMethod(onComplete:Function):void
+        // {
+        //     requestNonExistingPath(".does-no-exist", onComplete);
+        // }
         
         public function testGetNonExistingEntity(onComplete:Function):void
         {

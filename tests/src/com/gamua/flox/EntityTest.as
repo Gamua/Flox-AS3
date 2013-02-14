@@ -19,7 +19,7 @@ package com.gamua.flox
             assertNotNull(player.createdAt);
             assertNotNull(player.updatedAt);
             assertEqualObjects({}, player.permissions);
-            assertEqual(player.id, player.ownerID);
+            assertEqual(player.id, player.ownerId);
             assertEqual(player.authType, AuthenticationType.GUEST);
             assertEqual(player.type, playerType);
             assert(player.createdAt is Date);
@@ -27,9 +27,7 @@ package com.gamua.flox
             
             var playerObject:Object = player.toObject();
             assert("ownerId" in playerObject);
-            assertFalse("ownerID" in playerObject);
             assert("authId" in playerObject);
-            assertFalse("authID" in playerObject);
             assert(playerObject.createdAt is String);
             assert(playerObject.updatedAt is String);
             

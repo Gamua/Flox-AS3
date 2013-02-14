@@ -16,14 +16,14 @@ package com.gamua.flox
     public class Player extends Entity
     {
         private var mAuthType:String;
-        private var mAuthID:String;
+        private var mAuthId:String;
         
         public function Player()
         {
-            super.ownerID = this.id;
+            super.ownerId = this.id;
             
             mAuthType = AuthenticationType.GUEST;
-            mAuthID = createUID();
+            mAuthId = createUID();
         }
         
         /** Log in a player with the given authentication information. If you pass no
@@ -42,26 +42,26 @@ package com.gamua.flox
          *  @param onError:     function onError(error:String, httpStatus:int):void;
          */
         public static function login(
-            authType:String="guest", authID:String=null, authToken:String=null,
+            authType:String="guest", authId:String=null, authToken:String=null,
             onComplete:Function=null, onError:Function=null):void
         {
             Flox.checkInitialized();
             
             if (authType == AuthenticationType.GUEST)
             {
-                if (authID == null) authID = createUID();
+                if (authId == null) authId = createUID();
                 if (authToken == null) authToken = createUID();
 
                 var player:Player = new Flox.playerClass();
-                player.authID = authID;
+                player.authId = authId;
                 player.authType = authType;
                 
                 onAuthenticated(player);
             }
             else if (authType == AuthenticationType.EMAIL)
             {
-                var authData:Object = { id: local.id, authType: authType, authId: 
-                                        authID, authToken: authToken };
+                var authData:Object = { id: local.id, authType: authType, 
+                                        authId: authId, authToken: authToken };
                 
                 Flox.service.request(HttpMethod.POST, "authenticate", authData, 
                                      onRequestComplete, onError);
@@ -83,7 +83,7 @@ package com.gamua.flox
             function onAuthenticated(player:Player):void
             {
                 Flox.clearCache();
-                Flox.authentication = new Authentication(player.id, authType, authID, authToken);
+                Flox.authentication = new Authentication(player.id, authType, authId, authToken);
                 Flox.localPlayer = player;
                 execute(onComplete, player);
             }
@@ -127,7 +127,7 @@ package com.gamua.flox
         public function get authType():String { return mAuthType; }
         public function set authType(value:String):void { mAuthType = value; }
         
-        public function get authID():String { return mAuthID; }
-        public function set authID(value:String):void { mAuthID = value; }
+        public function get authId():String { return mAuthId; }
+        public function set authId(value:String):void { mAuthId = value; }
     }
 }

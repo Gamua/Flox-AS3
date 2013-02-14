@@ -164,12 +164,11 @@ package com.gamua.flox
         {
             var products:Array = [
                 new Product("alfa", 0),
-                new Product("bravo", 1),
-                new Product("charlie", 2),
+                new Product("bravo", 1)
             ];
             
             var queryOptions:Object = {
-                where: { "price !=": 0, "price !=": 2 }
+                where: { "price !=": 1 }
             };
             
             makeQuery(products, queryOptions, checkResult, onComplete);
@@ -177,7 +176,7 @@ package com.gamua.flox
             function checkResult(entities:Array):void
             {
                 assert(entities.length == 1, "Wrong number of entities returned");
-                assertEqualEntities(entities[0], products[1]);
+                assertEqualEntities(entities[0], products[0]);
             }
         }
         

@@ -35,8 +35,8 @@ package com.gamua.flox
         // since this class is saved in a SharedObject, everything has to be R/W!
         
         /** The player ID of the authenticated player. */
-        public function get playerID():String { return mPlayerID; }
-        public function set playerID(value:String):void { mPlayerID = value; }
+        public function get playerId():String { return mPlayerID; }
+        public function set playerId(value:String):void { mPlayerID = value; }
         
         /** The authentication type, which is one of the strings defined in the 
          *  'AuthenticationType' class. */

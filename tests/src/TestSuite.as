@@ -47,7 +47,6 @@ package
             testRunner.add(QueryTest);
             testRunner.add(PlayerTest);
             
-            
             // ---
             
             var padding:int = 10;

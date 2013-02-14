@@ -61,10 +61,10 @@ package com.gamua.flox
      */
     public class Entity
     {
-        private var mID:String;
+        private var mId:String;
         private var mCreatedAt:Date;
         private var mUpdatedAt:Date;
-        private var mOwnerID:String;
+        private var mOwnerId:String;
         private var mPermissions:Object;
         
         private static const sTypeCache:Dictionary = new Dictionary();
@@ -81,10 +81,10 @@ package com.gamua.flox
                 throw new Error("Abstract class -- do not instantiate");
             }
             
-            mID = createUID();
+            mId = createUID();
             mCreatedAt = new Date();
             mUpdatedAt = new Date();
-            mOwnerID = Flox.localPlayer ? Flox.localPlayer.id : null; 
+            mOwnerId = Flox.localPlayer ? Flox.localPlayer.id : null; 
             mPermissions = {};
         }
         
@@ -93,7 +93,7 @@ package com.gamua.flox
         {
             return formatString(
                 '[Entity type="{0}" id="{1}" createdAt="{2}" updatedAt="{3}" ownerId="{4}"]',
-                type, mID, DateUtil.toString(mCreatedAt), DateUtil.toString(mUpdatedAt), mOwnerID);
+                type, mId, DateUtil.toString(mCreatedAt), DateUtil.toString(mUpdatedAt), mOwnerId);
         }
         
         /** Save the entity on the server; if the entity already exists, the server version will
@@ -111,7 +111,7 @@ package com.gamua.flox
         public function save(onComplete:Function, onError:Function):void
         {
             var self:Entity = this;
-            var path:String = createEntityURL(type, mID);
+            var path:String = createEntityURL(type, mId);
             
             Flox.service.request(HttpMethod.PUT, path, toObject(), 
                                  onRequestComplete, onRequestError);
@@ -142,7 +142,7 @@ package com.gamua.flox
          */
         public function refresh(onComplete:Function, onError:Function):void
         {
-            var path:String = createEntityURL(type, mID);
+            var path:String = createEntityURL(type, mId);
             var self:Entity = this;
             
             Flox.service.request(HttpMethod.GET, path, null, onRequestComplete, onRequestError);
@@ -174,7 +174,7 @@ package com.gamua.flox
         public function destroy(onComplete:Function, onError:Function):void
         {
             var self:Entity = this;
-            Entity.destroy(getClass(this), mID, onDestroyComplete, onDestroyError);
+            Entity.destroy(getClass(this), mId, onDestroyComplete, onDestroyError);
             
             function onDestroyComplete():void
             {
@@ -267,7 +267,7 @@ package com.gamua.flox
          *  later. */
         public function saveQueued():void
         {
-            Flox.service.requestQueued(HttpMethod.PUT, createEntityURL(type, mID), toObject());
+            Flox.service.requestQueued(HttpMethod.PUT, createEntityURL(type, mId), toObject());
         }
         
         /** Delete the object the next time the player goes online. When the Flox server cannot be
@@ -275,7 +275,7 @@ package com.gamua.flox
          *  later. */
         public function destroyQueued():void
         {
-            Flox.service.requestQueued(HttpMethod.DELETE, createEntityURL(type, mID));
+            Flox.service.requestQueued(HttpMethod.DELETE, createEntityURL(type, mId));
         }
         
         // queries
@@ -348,7 +348,7 @@ package com.gamua.flox
             use namespace flox_internal;
             
             if (options == null) options = {};
-            options = cloneObject(options, filterDate);
+            else options = cloneObject(options, filterDate);
             
             var type:String = getType(entityClass);
             var path:String = createEntityURL(type);
@@ -397,15 +397,6 @@ package com.gamua.flox
         {
             // create clone as Object & replace Dates with Strings
             var object:Object = cloneObject(this, filterDate);
-
-            object["ownerId"] = mOwnerID;
-
-            if ("authID" in object)
-                object["authId"] = object["authID"]; // note case 'Id' vs. 'ID'! 
-
-            delete object["ownerID"];
-            delete object["authID"];
-            
             var indices:Array = Entity.getIndices(getClass(this)); 
             if (indices && indices.length) object.indices = indices; 
             
@@ -442,18 +433,12 @@ package com.gamua.flox
         private static function updateProperty(entity:Entity, serverData:Object, 
                                                propertyName:String, propertyType:String):void
         {
-            var clientPN:String = propertyName;
-            var serverPN:String = propertyName;
-            
-            if      (propertyName == "ownerID") { clientPN = "ownerID"; serverPN = "ownerId"; }
-            else if (propertyName == "authID")  { clientPN = "authID";  serverPN = "authId";  }
-            
-            if (serverPN in serverData)
+            if (propertyName in serverData)
             {
                 if (propertyType == "Date")
-                    entity[clientPN] = DateUtil.parse(serverData[serverPN]);
+                    entity[propertyName] = DateUtil.parse(serverData[propertyName]);
                 else
-                    entity[clientPN] = serverData[serverPN];
+                    entity[propertyName] = serverData[propertyName];
             }
         }
         
@@ -476,12 +461,12 @@ package com.gamua.flox
         
         /** This is the primary identifier of the entity. It must be unique within the objects of
          *  the same entity type. */
-        public function get id():String { return mID; }
-        public function set id(value:String):void { mID = value; }
+        public function get id():String { return mId; }
+        public function set id(value:String):void { mId = value; }
         
         /** The player ID of the owner of the entity. (Referencing a Player entitity.) */
-        public function get ownerID():String { return mOwnerID; }
-        public function set ownerID(value:String):void { mOwnerID = value; }
+        public function get ownerId():String { return mOwnerId; }
+        public function set ownerId(value:String):void { mOwnerId = value; }
         
         /** A set of permissions for the entity. TODO add more info here. */
         public function get permissions():Object { return mPermissions; }

@@ -73,7 +73,7 @@ package com.gamua.flox
                     version: Flox.VERSION
                 },
                 player: { 
-                    id:        authentication.playerID,
+                    id:        authentication.playerId,
                     authType:  authentication.type,
                     authId:    authentication.id,
                     authToken: authentication.token
