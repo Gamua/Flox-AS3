@@ -1,5 +1,9 @@
 package com.gamua.flox
 {
+    import com.gamua.flox.events.QueueEvent;
+    
+    import flash.events.Event;
+    
     import starling.unit.UnitTest;
     
     public class ScoreTest extends UnitTest
@@ -18,6 +22,35 @@ package com.gamua.flox
         {
             var score:int = Math.random() * 1000;
             Flox.postScore(Constants.LEADERBOARD_ID, score, "hugo");
+        }
+        
+        public function testJsonName(onComplete:Function):void
+        {
+            var leaderboardID:String = "json";
+            var date:Date = new Date();
+            var score:int = int(date.time / 10000);
+            var data:Object = { name: "hugo", score: score };
+            
+            Flox.addEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed);
+            Flox.postScore(leaderboardID, score, JSON.stringify(data));
+            
+            function onQueueProcessed(event:Event):void
+            {
+                Flox.removeEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed);
+                Flox.loadScores(leaderboardID, TimeScope.ALL_TIME, onScoresLoaded, onScoresError);
+            }
+            
+            function onScoresLoaded(scores:Vector.<Score>):void
+            {
+                assert(scores[0].value == score);
+                onComplete();
+            }
+            
+            function onScoresError(error:String):void
+            {
+                fail("Could not load score with JSON player name: " + error); 
+                onComplete();
+            }
         }
         
         public function testRetrieveScores(onComplete:Function):void
