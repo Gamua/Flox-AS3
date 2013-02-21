@@ -27,7 +27,7 @@ package com.gamua.flox
         }
         
         /** Log in a player with the given authentication information. If you pass no
-         *  parameters, a new guest will be logged in; the 'Flox.localPlayer' parameter will
+         *  parameters, a new guest will be logged in; the 'Flox.currentPlayer' parameter will
          *  immediately reference that player.
          * 
          *  <p>Flox requires that there's always a player logged in. Thus, there is no 'logout'  
@@ -38,7 +38,7 @@ package com.gamua.flox
          *  @param authType:    The type of authentication you want to use.
          *  @param authID:      The id of the player in its authentication system.
          *  @param authToken:   The token you received from the player's authentication system.  
-         *  @param onComplete:  function onComplete(localPlayer:Player):void;
+         *  @param onComplete:  function onComplete(currentPlayer:Player):void;
          *  @param onError:     function onError(error:String, httpStatus:int):void;
          */
         public static function login(
@@ -60,7 +60,7 @@ package com.gamua.flox
             }
             else if (authType == AuthenticationType.EMAIL)
             {
-                var authData:Object = { id: local.id, authType: authType, 
+                var authData:Object = { id: current.id, authType: authType, 
                                         authId: authId, authToken: authToken };
                 
                 Flox.service.request(HttpMethod.POST, "authenticate", authData, 
@@ -84,7 +84,7 @@ package com.gamua.flox
             {
                 Flox.clearCache();
                 Flox.authentication = new Authentication(player.id, authType, authId, authToken);
-                Flox.localPlayer = player;
+                Flox.currentPlayer = player;
                 execute(onComplete, player);
             }
         }
@@ -110,7 +110,7 @@ package com.gamua.flox
          *  until then.</li></ul> 
          *  
          *  @param email:      The e-mail address of the player trying to log in.  
-         *  @param onComplete: function onComplete(localPlayer:Player):void;
+         *  @param onComplete: function onComplete(currentPlayer:Player):void;
          *  @param onError:    function onError(error:String, httpStatus:int):void;*/ 
         public static function loginWithEmail(email:String, 
                                               onComplete:Function, onError:Function):void
@@ -119,9 +119,9 @@ package com.gamua.flox
         }
         
         /** The current local player. */
-        public static function get local():Player
+        public static function get current():Player
         {
-            return Flox.localPlayer;
+            return Flox.currentPlayer;
         }
 
         public function get authType():String { return mAuthType; }

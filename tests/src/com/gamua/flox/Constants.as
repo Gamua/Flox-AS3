@@ -13,13 +13,13 @@ package com.gamua.flox
         public static function get GAME_KEY():String
         {
             return PRODUCTION_SERVER ? "150a1bb6-b33d-4eb3-8848-23051f200359" :
-                                       "0d53277c-39ba-4519-8920-07a1a5af9581";
+                                       "58d92a16-a0ba-4c70-8539-2ef6bf6fa6ed";
         }
         
         public static function get BASE_URL():String
         {
             return PRODUCTION_SERVER ? "https://www.flox.cc/api" :
-                                       "http://192.168.11.132:8000/api";
+                                       "https://flox-by-gamua-test.appspot.com/api";
         }
         
         public static function createGameUrl(...args):String

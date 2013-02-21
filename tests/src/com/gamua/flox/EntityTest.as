@@ -69,10 +69,10 @@ package com.gamua.flox
             Constants.initFlox();
             Flox.clearCache();
             
-            var localPlayer:Player = Flox.localPlayer;
-            var originalData:Object = cloneObject(localPlayer);
+            var currentPlayer:Player = Flox.currentPlayer;
+            var originalData:Object = cloneObject(currentPlayer);
             
-            localPlayer.save(onSaveComplete, onSaveError);
+            currentPlayer.save(onSaveComplete, onSaveError);
 
             function onSaveComplete(player:Player):void
             {
@@ -96,9 +96,9 @@ package com.gamua.flox
                 assertNotNull(entity.createdAt);
                 assertNotNull(entity.updatedAt);
                 assertNotNull(entity.permissions);
-                assertEqualObjects(entity.permissions, localPlayer.permissions);
+                assertEqualObjects(entity.permissions, currentPlayer.permissions);
                 
-                assertEqualEntities(entity, localPlayer);
+                assertEqualEntities(entity, currentPlayer);
                 
                 Flox.shutdown();
                 onComplete();

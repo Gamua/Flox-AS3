@@ -84,7 +84,7 @@ package com.gamua.flox
             mId = createUID();
             mCreatedAt = new Date();
             mUpdatedAt = new Date();
-            mOwnerId = Flox.localPlayer ? Flox.localPlayer.id : null; 
+            mOwnerId = Flox.currentPlayer ? Flox.currentPlayer.id : null; 
             mPermissions = {};
         }
         

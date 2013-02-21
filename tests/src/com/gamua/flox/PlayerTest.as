@@ -30,21 +30,21 @@ package com.gamua.flox
         
         public function testGuestLogin():void
         {
-            var defaultGuest:Player = Player.local;
+            var defaultGuest:Player = Player.current;
             assertNotNull(defaultGuest);
             assertNotNull(defaultGuest.id);
             assertEqual(".player", defaultGuest.type);
             assertEqual(AuthenticationType.GUEST, defaultGuest.authType);
             
             Player.login();
-            var newGuest:Player = Player.local;
+            var newGuest:Player = Player.current;
             assert(defaultGuest != newGuest);
             assert(defaultGuest.id != newGuest.id);
         }
         
         public function testLoginCustomPlayer():void
         {
-            var player:CustomPlayer = Player.local as CustomPlayer;
+            var player:CustomPlayer = Player.current as CustomPlayer;
             var playerID:String = player.id;
             var lastName:String = "Baggins";
             player.lastName = lastName;
@@ -54,16 +54,16 @@ package com.gamua.flox
             Flox.shutdown();
             
             Constants.initFlox();
-            assertEqual(playerID, Player.local.id);
-            assertEqual(lastName, (Player.local as CustomPlayer).lastName);
+            assertEqual(playerID, Player.current.id);
+            assertEqual(lastName, (Player.current as CustomPlayer).lastName);
         }
         
         public function testLoginWithEmail(onComplete:Function):void
         {
-            var oldPlayerID:String = Player.local.id;
+            var oldPlayerID:String = Player.current.id;
             Player.logout();
             
-            var guestID:String = Player.local.id;
+            var guestID:String = Player.current.id;
             assert(oldPlayerID != guestID);
 
             var emailUser:String = "flox-unit-test-" + createUID();
@@ -73,7 +73,7 @@ package com.gamua.flox
             function onLoginComplete(player:Player):void
             {
                 assertEqual(player.id, guestID); // guest has been upgraded
-                assertEqual(Player.local.id, player.id);
+                assertEqual(Player.current.id, player.id);
                 
                 // now log out again, and retry!
                 Player.logout();

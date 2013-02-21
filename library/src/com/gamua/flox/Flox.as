@@ -124,7 +124,7 @@ package com.gamua.flox
                 sPersistentData = SharedObject.getLocal("Flox." + gameID);
             }
             
-            if (Player.local == null) Player.login();
+            if (Player.current == null) Player.login();
             
             sRestService.alwaysFail = false;
             sPersistentData.data.session = 
@@ -396,14 +396,14 @@ package com.gamua.flox
         
         /** @private
          *  The current local player, persistent through a shared object. */
-        internal static function get localPlayer():Player
+        internal static function get currentPlayer():Player
         {
-            return sPersistentData ? (sPersistentData.data.localPlayer as sPlayerClass) as Player : null;
+            return sPersistentData ? (sPersistentData.data.currentPlayer as sPlayerClass) as Player : null;
         }
         
-        internal static function set localPlayer(value:Player):void
+        internal static function set currentPlayer(value:Player):void
         {
-            sPersistentData.data.localPlayer = value;
+            sPersistentData.data.currentPlayer = value;
         }
         
         /** @private
