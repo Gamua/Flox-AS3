@@ -10,7 +10,6 @@ package com.gamua.flox
     import com.gamua.flox.utils.createUID;
     
     import flash.net.SharedObject;
-    import flash.utils.Dictionary;
 
     /** A queue that uses SharedObjects to save its contents to the disk. Objects are serialized
      *  using the AMF format, so be sure to use either primitive objects or classes to provide an

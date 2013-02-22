@@ -66,7 +66,7 @@ package com.gamua.flox
      *  @see TimeScope
      * 
      */
-    public class Flox
+    public final class Flox
     {
         /** The current version of the Flox library. */
         public static const VERSION:String  = "0.3";

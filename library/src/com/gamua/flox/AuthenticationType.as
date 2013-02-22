@@ -10,7 +10,7 @@ package com.gamua.flox
     /** A utility class providing strings of authentication types. This class contains all
      *  types that are currently supported by Flox, and will contain identifiers for Facebook,
      *  twitter and the likes. */
-    internal final class AuthenticationType
+    public final class AuthenticationType
     {
         /** @private */
         public function AuthenticationType() 

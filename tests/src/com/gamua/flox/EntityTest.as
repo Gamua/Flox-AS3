@@ -18,7 +18,7 @@ package com.gamua.flox
             assertNotNull(player.id);
             assertNotNull(player.createdAt);
             assertNotNull(player.updatedAt);
-            assertEqualObjects({}, player.permissions);
+            assertEqualObjects(Access.READ, player.publicAccess);
             assertEqual(player.id, player.ownerId);
             assertEqual(player.authType, AuthenticationType.GUEST);
             assertEqual(player.type, playerType);
@@ -95,8 +95,8 @@ package com.gamua.flox
                 
                 assertNotNull(entity.createdAt);
                 assertNotNull(entity.updatedAt);
-                assertNotNull(entity.permissions);
-                assertEqualObjects(entity.permissions, currentPlayer.permissions);
+                assertNotNull(entity.publicAccess);
+                assertEqualObjects(entity.publicAccess, currentPlayer.publicAccess);
                 
                 assertEqualEntities(entity, currentPlayer);
                 
@@ -119,6 +119,7 @@ package com.gamua.flox
             
             var testEntity:CustomEntity = new CustomEntity();
             assertEqual(testEntity.type, Entity.getType(CustomEntity));
+            assertEqual(Access.NONE, testEntity.publicAccess);
             
             testEntity.age = 31;
             testEntity.name = "Daniel";

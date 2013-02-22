@@ -65,7 +65,7 @@ package com.gamua.flox
         private var mCreatedAt:Date;
         private var mUpdatedAt:Date;
         private var mOwnerId:String;
-        private var mPermissions:Object;
+        private var mPublicAccess:String;
         
         private static const sTypeCache:Dictionary = new Dictionary();
         private static const sIndices:Dictionary = new Dictionary();
@@ -85,7 +85,7 @@ package com.gamua.flox
             mCreatedAt = new Date();
             mUpdatedAt = new Date();
             mOwnerId = Flox.currentPlayer ? Flox.currentPlayer.id : null; 
-            mPermissions = {};
+            mPublicAccess = "";
         }
         
         /** Returns a description of the entity, containing its basic information. */
@@ -468,9 +468,10 @@ package com.gamua.flox
         public function get ownerId():String { return mOwnerId; }
         public function set ownerId(value:String):void { mOwnerId = value; }
         
-        /** A set of permissions for the entity. TODO add more info here. */
-        public function get permissions():Object { return mPermissions; }
-        public function set permissions(value:Object):void { mPermissions = value ? value : {}; }
+        /** The access rights of all players except the owner.
+         *  (The owner always has unlimited access.) */
+        public function get publicAccess():String { return mPublicAccess; }
+        public function set publicAccess(value:String):void { mPublicAccess = value ? value : ""; }
         
         /** The date when this entity was created. */
         public function get createdAt():Date { return mCreatedAt; }

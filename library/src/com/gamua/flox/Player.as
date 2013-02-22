@@ -11,6 +11,8 @@ package com.gamua.flox
     import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.execute;
     
+    import flash.errors.IllegalOperationError;
+    
     /** An Entity that contains information about a Flox Player. */
     [Type(".player")]
     public class Player extends Entity
@@ -129,5 +131,11 @@ package com.gamua.flox
         
         public function get authId():String { return mAuthId; }
         public function set authId(value:String):void { mAuthId = value; }
+        
+        public override function set publicAccess(value:String):void
+        {
+            if (value != Access.READ_WRITE)
+                throw new IllegalOperationError("You cannot change access rights of a Player entity.");
+        }
     }
 }
