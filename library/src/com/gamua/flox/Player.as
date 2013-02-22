@@ -49,28 +49,24 @@ package com.gamua.flox
         {
             Flox.checkInitialized();
             
+            if (authId    == null) authId    = "";
+            if (authToken == null) authToken = "";
+            
             if (authType == AuthenticationType.GUEST)
             {
-                if (authId == null) authId = createUID();
-                if (authToken == null) authToken = createUID();
-
                 var player:Player = new Flox.playerClass();
                 player.authId = authId;
                 player.authType = authType;
                 
                 onAuthenticated(player);
             }
-            else if (authType == AuthenticationType.EMAIL)
+            else
             {
-                var authData:Object = { id: current.id, authType: authType, 
+                var authData:Object = { id: current.id, authType:  authType, 
                                         authId: authId, authToken: authToken };
                 
                 Flox.service.request(HttpMethod.POST, "authenticate", authData, 
                                      onRequestComplete, onError);
-            }
-            else
-            {
-                throw new ArgumentError("Authentication type not supported: " + authType);
             }
             
             function onRequestComplete(body:Object, httpStatus:int):void
@@ -92,7 +88,7 @@ package com.gamua.flox
         }
         
         /** Logs the current player out and immediately creates a new guest player.
-         *  (In Flox, 'Player.current' should always return a player object.) */
+         *  (In Flox, 'Player.current' will always return a player object.) */
         public static function logout():void
         {
             // we always need an active player! The login method, called without arguments,
@@ -118,6 +114,14 @@ package com.gamua.flox
                                               onComplete:Function, onError:Function):void
         {
             login(AuthenticationType.EMAIL, email, Flox.installationID, onComplete, onError);
+        }
+        
+        /** Log in a player with just a single 'key' string. The typical use-case of this
+         *  authentication is to combine Flox with other APIs that have their own user database 
+         *  (e.g. Mochi, Kongregate, GameCenter, etc). */
+        public static function loginWithKey(key:String, onComplete:Function, onError:Function):void
+        {
+            login(AuthenticationType.KEY, key, null, onComplete, onError); 
         }
         
         /** The current local player. */
