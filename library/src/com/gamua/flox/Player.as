@@ -23,6 +23,7 @@ package com.gamua.flox
         public function Player()
         {
             super.ownerId = this.id;
+            super.publicAccess = Access.READ;
             
             mAuthType = AuthenticationType.GUEST;
             mAuthId = createUID();
@@ -141,8 +142,10 @@ package com.gamua.flox
         /** @private */
         public override function set publicAccess(value:String):void
         {
-            if (value != Access.READ_WRITE)
+            if (value != Access.READ)
                 throw new IllegalOperationError("You cannot change access rights of a Player entity.");
+            
+            super.publicAccess = value;
         }
     }
 }
