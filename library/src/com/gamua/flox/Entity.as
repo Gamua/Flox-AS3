@@ -50,7 +50,6 @@ package com.gamua.flox
      *          mScore = score;
      *      }
      *
-     *      [Indexed] // optional: make this property available via 'Entity.find'-'where'-query      
      *      public function get level():int { return mLevel; }
      *      public function set level(value:int):void { mLevel = value; }
      *      
@@ -280,27 +279,6 @@ package com.gamua.flox
         
         // queries
         
-        /** Activates or deactivates an index on a certain property of an Entity class. Only
-         *  indexed properties can be queried with the 'find' method. */ 
-        public static function setIndex(entityClass:Class, propertyName:String, 
-                                        enableIndex:Boolean=true):void
-        {
-            prepareIndices(entityClass);
-            var indices:Array = getIndices(entityClass);
-            var currentPos:int = indices.indexOf(propertyName);
-            
-            if (enableIndex && currentPos == -1)
-                indices.push(propertyName);
-            else if (!enableIndex && currentPos > -1)
-                indices.splice(currentPos, 1);
-        }
-        
-        /** Indicates if a certain property of an Entity class is indexed. */
-        public static function getIndex(entityClass:Class, propertyName:String):Boolean
-        {
-            return getIndices(entityClass).indexOf(propertyName) != -1;
-        }
-        
         private static function getIndices(entityClass:Class):Array
         {
             prepareIndices(entityClass);
@@ -309,6 +287,8 @@ package com.gamua.flox
         
         private static function prepareIndices(entityClass:Class):void
         {
+            // TODO: update for new Index architecture.
+            /*
             var indices:Array = sIndices[entityClass];
             
             if (indices == null)
@@ -321,9 +301,13 @@ package com.gamua.flox
                 
                 sIndices[entityClass] = indices;
             }
+            */
         }
         
-        /** Get a list of entities from the server. The 'options' array is used to construct a
+        /** @private
+         *  TODO: set 'public' after updating index logic
+         * 
+         *  Get a list of entities from the server. The 'options' array is used to construct a
          *  query. Here is a sample query with all available query options. All of them are
          *  optional. Note that you can pass "onComplete" and "onError" either in the 
          *  options-object, or as parameters of the function.
@@ -342,7 +326,7 @@ package com.gamua.flox
          *  @param onError:    executed when the operation was not successful; function signature:
          *                     <pre>onError(error:String, transient:Boolean):void;</pre>         
          */
-        public static function find(entityClass:Class, options:Object,
+        internal static function find(entityClass:Class, options:Object,
                                     onComplete:Function=null, onError:Function=null):void
         {
             use namespace flox_internal;
@@ -397,8 +381,10 @@ package com.gamua.flox
         {
             // create clone as Object & replace Dates with Strings
             var object:Object = cloneObject(this, filterDate);
-            var indices:Array = Entity.getIndices(getClass(this)); 
-            if (indices && indices.length) object.indices = indices; 
+            
+            // TODO: add indices
+            // var indices:Array = Entity.getIndices(getClass(this)); 
+            // if (indices && indices.length) object.indices = indices; 
             
             return object;
         }

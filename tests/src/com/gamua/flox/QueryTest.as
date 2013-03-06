@@ -21,25 +21,7 @@ package com.gamua.flox
             Flox.shutdown();
         }
         
-        public function testIndex():void
-        {
-            assert(Entity.getIndex(Product, "price"));
-            assert(Entity.getIndex(Product, "name"));
-            assert(Entity.getIndex(Product, "date"));
-            assert(!Entity.getIndex(Product, "group"));
-            
-            Entity.setIndex(Product, "group");
-            Entity.setIndex(Product, "price", false);
-            
-            assert(Entity.getIndex(Product, "group"));
-            assert(!Entity.getIndex(Product, "price"));
-            
-            // undo changes
-            Entity.setIndex(Product, "group", false);
-            Entity.setIndex(Product, "price");
-        }
-        
-        public function testSimpleQuery(onComplete:Function):void
+        public function DISABLED_testSimpleQuery(onComplete:Function):void
         {
             var name:String = createUID();
             var product:Product = new Product(name, 42);
@@ -56,7 +38,7 @@ package com.gamua.flox
             }
         }
         
-        public function testNormalQuery(onComplete:Function):void
+        public function DISABLED_testNormalQuery(onComplete:Function):void
         {
             var products:Array = [
                 new Product("alfa", 0),
@@ -86,7 +68,7 @@ package com.gamua.flox
             }
         }
         
-        public function testNormalQueryWithLimit(onComplete:Function):void
+        public function DISABLED_testNormalQueryWithLimit(onComplete:Function):void
         {
             var products:Array = [
                 new Product("alfa", 0),
@@ -112,7 +94,7 @@ package com.gamua.flox
             }
         }
         
-        public function testStringCompareQuery(onComplete:Function):void
+        public function DISABLED_testStringCompareQuery(onComplete:Function):void
         {
             var products:Array = [
                 new Product("alfa", 0),
@@ -136,7 +118,7 @@ package com.gamua.flox
             }
         }
         
-        public function testDateCompareQuery(onComplete:Function):void
+        public function DISABLED_testDateCompareQuery(onComplete:Function):void
         {
             var products:Array = [
                 new Product("alfa",    0, null, new Date(2013, 1, 1, 10,  0)),
@@ -160,7 +142,7 @@ package com.gamua.flox
             }
         }
         
-        public function testInequalityQuery(onComplete:Function):void
+        public function DISABLED_testInequalityQuery(onComplete:Function):void
         {
             var products:Array = [
                 new Product("alfa", 0),
