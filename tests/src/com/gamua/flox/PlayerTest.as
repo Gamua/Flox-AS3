@@ -71,6 +71,7 @@ package com.gamua.flox
             {
                 assertEqual(player.id, guestID);
                 assertEqual(Player.current.id, guestID);
+                assertEqual(AuthenticationType.KEY, player.authType);
                 
                 Player.logout();
                 
@@ -109,6 +110,7 @@ package com.gamua.flox
             {
                 assertEqual(player.id, guestID); // guest has been upgraded
                 assertEqual(Player.current.id, player.id);
+                assertEqual(AuthenticationType.EMAIL, player.authType);
                 
                 // now log out again, and retry!
                 Player.logout();

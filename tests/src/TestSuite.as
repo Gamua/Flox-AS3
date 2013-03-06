@@ -2,11 +2,12 @@ package
 {
     import com.gamua.flox.AnalyticsTest;
     import com.gamua.flox.Constants;
-    import com.gamua.flox.QueryTest;
     import com.gamua.flox.EntityTest;
+    import com.gamua.flox.AccessTest;
     import com.gamua.flox.PersistentQueueTest;
     import com.gamua.flox.PersistentStoreTest;
     import com.gamua.flox.PlayerTest;
+    import com.gamua.flox.QueryTest;
     import com.gamua.flox.RestServiceTest;
     import com.gamua.flox.ScoreTest;
     import com.gamua.flox.SharedObjectPoolTest;
@@ -46,6 +47,7 @@ package
             testRunner.add(EntityTest);
             testRunner.add(QueryTest);
             testRunner.add(PlayerTest);
+            testRunner.add(AccessTest);
             
             // ---
             
