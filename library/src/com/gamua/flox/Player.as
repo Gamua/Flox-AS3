@@ -63,8 +63,10 @@ package com.gamua.flox
             }
             else
             {
-                var authData:Object = { id: current.id, authType:  authType, 
-                                        authId: authId, authToken: authToken };
+                var authData:Object = { authType:  authType, authId: authId, authToken: authToken };
+                
+                if (current.authType == AuthenticationType.GUEST) 
+                    authData.id = current.id; 
                 
                 Flox.service.request(HttpMethod.POST, "authenticate", authData, 
                                      onRequestComplete, onError);
