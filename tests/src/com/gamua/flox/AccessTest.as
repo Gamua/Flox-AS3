@@ -51,7 +51,6 @@ package com.gamua.flox
             
             function onEntitySaved(entity:CustomEntity):void
             {
-                Player.logout(); // TODO: shouldn't be necessary -> server change required
                 Player.loginWithKey(KEY_2, onLoginPlayer2Complete, onError);
             }
             

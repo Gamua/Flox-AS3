@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<project name="flox-as3" basedir="../..">
+
+    <property name="output.directory" value="../out"/>
+
+    <target name="clear.output.directory">
+        <delete dir="${output.directory}" failonerror="false"/>
+        <mkdir dir="${output.directory}"/>
+    </target>
+</project>
