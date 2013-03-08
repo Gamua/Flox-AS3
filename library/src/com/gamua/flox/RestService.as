@@ -217,7 +217,7 @@ package com.gamua.flox
                                                       onComplete, onError);
                         else
                             execute(onError, event.error, event.httpStatus);
-                    })
+                    });
             }
             else
             {
