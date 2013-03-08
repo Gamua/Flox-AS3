@@ -10,6 +10,7 @@ package com.gamua.flox.utils
     /** Provides a list of HTTP methods (verbs). */
     public final class HttpStatus
     {
+        /** @private */
         public function HttpStatus() { throw new Error("This class cannot be instantiated."); }
         
         /** We don't know the actual HTTP status. */
@@ -48,11 +49,14 @@ package com.gamua.flox.utils
         /** The server is down for maintenance. */
         public static const SERVICE_UNAVAILABLE:int = 503;
         
+        /** Indicates if a status code depicts a success or a failure. */
         public static function isSuccess(status:int):Boolean
         {
             return status > 0 && status < 400;
         }
         
+        /** Indicates if an error might go away if the request is tried again (i.e. the server
+         *  was not reachable or there was a network error). */
         public static function isTransientError(status:int):Boolean
         {
             return status == UNKNOWN || status == SERVICE_UNAVAILABLE;
