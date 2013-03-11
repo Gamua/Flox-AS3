@@ -226,14 +226,14 @@ package com.gamua.flox
             function onLoadComplete(entity:Entity, fromCache:Boolean):void
             {
                 Flox.shutdown();
-                fail("deleted entity could be loaded");
+                assertNull(entity, "deleted entity could be loaded");
                 onComplete();
             }
             
             function onLoadError(error:String, transient:Boolean):void
             {
                 Flox.shutdown();
-                assertFalse(transient);
+                fail("Loading deleted entity produced error, but should just return null instead");
                 onComplete();
             }
         }

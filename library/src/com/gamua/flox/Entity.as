@@ -148,8 +148,13 @@ package com.gamua.flox
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
-                refreshEntity(self, body);
-                execute(onComplete, self, httpStatus == HttpStatus.NOT_MODIFIED);
+                if (httpStatus == HttpStatus.NO_CONTENT)
+                    onRequestError("Entity has been deleted", httpStatus);
+                else
+                {
+                    refreshEntity(self, body);
+                    execute(onComplete, self, httpStatus == HttpStatus.NOT_MODIFIED);
+                }
             }
             
             function onRequestError(error:String, httpStatus:int):void
@@ -195,8 +200,9 @@ package com.gamua.flox
          *  It is guaranteed that one (and only one) of the provided callbacks will be executed;
          *  all callback arguments are optional.
          *  
-         *  <p>The 'fromCache' argument indicates that the entity hasn't changed since you last
-         *  received it from the server.</p>
+         *  <p>If there is no Entity with this type and ID stored on the server, the 'onComplete'
+         *  callback will be executed with an Entity value of 'null'. The 'fromCache' argument 
+         *  indicates if the entity has changed since you last received it from the server.</p>
          *  
          *  <p>Note that the 'onError' callback may give you a cached version of the entity. This
          *  is possible if you have received the Entity already in the past. This might allow you
@@ -225,7 +231,7 @@ package com.gamua.flox
             
             function onRequestError(error:String, httpStatus:int, cachedBody:Object):void
             {
-                entity = cachedBody ? Entity.fromObject(type, id, cachedBody) : null; 
+                entity = Entity.fromObject(type, id, cachedBody); 
                 execute(onError, error, entity);
             }
         }
@@ -394,6 +400,8 @@ package com.gamua.flox
         {
             var entity:Entity;
             
+            if (data == null)
+                return null;
             if (type in sTypeCache)
                 entity = new (sTypeCache[type] as Class)();
             else
