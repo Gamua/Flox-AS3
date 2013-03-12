@@ -265,6 +265,15 @@ package com.gamua.flox
             }
         }
         
+        /** Deletes the entity with the given type and id from the server the next time the
+         *  player goes online. When the Flox server cannot be reached at the moment, the request
+         *  will be added to a queue and will be repeated later. */
+        public static function destroyQueued(entityClass:Class, id:String):void
+        {
+            var path:String = createEntityURL(getType(entityClass), id);
+            Flox.service.requestQueued(HttpMethod.DELETE, path);
+        }
+        
         // queued requests
         
         /** Save the object the next time the player goes online. When the Flox server cannot be
@@ -274,7 +283,7 @@ package com.gamua.flox
         {
             Flox.service.requestQueued(HttpMethod.PUT, createEntityURL(type, mId), toObject());
         }
-        
+
         /** Delete the object the next time the player goes online. When the Flox server cannot be
          *  reached at the moment, the request will be added to a queue and will be repeated
          *  later. */
@@ -379,7 +388,7 @@ package com.gamua.flox
                 execute(onError, error, HttpStatus.isTransientError(httpStatus));
             }
         }
-                
+        
         // helpers
 
         /** @private */
