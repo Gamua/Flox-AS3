@@ -104,7 +104,7 @@ package com.gamua.flox
 
             var emailUser:String = "flox-unit-test-" + createUID();
             var email:String = emailUser + "@mailinator.com";
-            Player.loginWithEmail(email, onLoginComplete, onError);
+            Player.loginWithEmail(email, onLoginComplete, onLoginError);
             
             function onLoginComplete(player:Player):void
             {
@@ -117,23 +117,23 @@ package com.gamua.flox
                 Player.loginWithEmail(email, onSecondLoginComplete, onSecondLoginError);
             }
             
-            function onError(error:String, httpStatus:int):void
+            function onLoginError(error:String, confirmationMailSent:Boolean):void
             {
-                if (httpStatus != HttpStatus.FORBIDDEN)
+                if (confirmationMailSent)
                 {
-                    fail("login via e-mail procedure did not work. Error: " + error);
-                    onComplete();
+                    activatePlayerThroughEmail(email, onPlayerActivated, onMailError);
                 }
                 else
                 {
-                    activatePlayerThroughEmail(email, onPlayerActivated, onMailError);
+                    fail("login via e-mail procedure did not work. Error: " + error);
+                    onComplete();
                 }
             }
             
             function onPlayerActivated():void
             {
                 // authentication url visited! Now we can log in.
-                Player.loginWithEmail(email, onLoginComplete, onError);
+                Player.loginWithEmail(email, onLoginComplete, onLoginError);
             }
             
             function onMailError(error:String, httpStatus:int):void

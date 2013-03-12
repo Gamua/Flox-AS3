@@ -8,6 +8,7 @@
 package com.gamua.flox
 {
     import com.gamua.flox.utils.HttpMethod;
+    import com.gamua.flox.utils.HttpStatus;
     import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.execute;
     
@@ -107,16 +108,20 @@ package com.gamua.flox
          *  "email".</li>
          *  <li>When the player tries to log in with the same address on another device,
          *  he will get an e-mail with a confirmation link, and the login will fail until the
-         *  player clicks on that link. You will get an error with http status '403' (forbidden)
-         *  until then.</li></ul> 
+         *  player clicks on that link.</li></ul> 
          *  
          *  @param email:      The e-mail address of the player trying to log in.  
          *  @param onComplete: function onComplete(currentPlayer:Player):void;
-         *  @param onError:    function onError(error:String, httpStatus:int):void;*/ 
+         *  @param onError:    function onError(error:String, confirmationMailSent:Boolean):void;*/ 
         public static function loginWithEmail(email:String, 
                                               onComplete:Function, onError:Function):void
         {
-            login(AuthenticationType.EMAIL, email, Flox.installationID, onComplete, onError);
+            login(AuthenticationType.EMAIL, email, Flox.installationID, onComplete, onLoginError);
+            
+            function onLoginError(error:String, httpStatus:int):void
+            {
+                execute(onError, error, httpStatus == HttpStatus.FORBIDDEN);
+            }
         }
         
         /** Log in a player with just a single 'key' string. The typical use-case of this
