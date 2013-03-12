@@ -318,6 +318,40 @@ package com.gamua.flox
             }
         }
         
+        public function testLoadFromCacheAfterSavingQueued(onComplete:Function):void
+        {
+            Constants.initFlox();
+            
+            Flox.clearCache();
+            Flox.service.alwaysFail = true;
+            Flox.addEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed);
+            
+            var testEntity:CustomEntity = new CustomEntity("get-me-from-cache", Math.random() * 10000);
+            testEntity.saveQueued();
+            
+            function onQueueProcessed(event:QueueEvent):void
+            {
+                assertFalse(event.success);
+                Flox.removeEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed);
+                Entity.load(CustomEntity, testEntity.id, onLoadComplete, onLoadError);
+            }
+            
+            function onLoadComplete():void
+            {
+                Flox.shutdown();
+                fail("could load entity although 'alwaysFail' was enabled");
+                onComplete();
+            }
+            
+            function onLoadError(error:String, cachedEntity:Entity):void
+            {
+                assertNotNull(cachedEntity);
+                assertEqualEntities(cachedEntity, testEntity);
+                Flox.shutdown();
+                onComplete();
+            }
+        }
+        
         private function assertEqualEntities(entityA:Entity, entityB:Entity, 
                                              compareDates:Boolean=false):void
         {

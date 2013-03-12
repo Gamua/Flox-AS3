@@ -216,7 +216,8 @@ package com.gamua.flox
                             requestWithAuthentication(method, path, data, auth,
                                                       onComplete, onError);
                         else
-                            execute(onError, event.error, event.httpStatus);
+                            execute(onError, event.error, event.httpStatus,
+                                    method == HttpMethod.GET ? mCache.getObject(path) : null);
                     });
             }
             else
@@ -230,6 +231,10 @@ package com.gamua.flox
          *  queue. */
         public function requestQueued(method:String, path:String, data:Object=null):void
         {
+            // To allow developers to use Flox offline, we're optimistic here:
+            // even though the operation might fail, we're saving the object in the cache.
+            if (method == HttpMethod.PUT) mCache.setObject(path, data);
+            
             mQueue.enqueue({ method: method, path: path, data: data,
                              authentication: Flox.authentication });
             processQueue();
