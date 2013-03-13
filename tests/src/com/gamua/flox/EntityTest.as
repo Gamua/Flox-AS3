@@ -81,7 +81,7 @@ package com.gamua.flox
                 Entity.load(Player, player.id, onLoadComplete, onLoadError);
             }
             
-            function onSaveError(error:String, transient:Boolean):void
+            function onSaveError(error:String, httpStatus:int):void
             {
                 Flox.shutdown();
                 fail("Could not save player: " + error);
@@ -104,7 +104,7 @@ package com.gamua.flox
                 onComplete();
             }
             
-            function onLoadError(error:String, transient:Boolean):void
+            function onLoadError(error:String, httpStatus:int, cachedEntity:Entity):void
             {
                 Flox.shutdown();
                 fail("Could not load player: " + error);
@@ -134,7 +134,7 @@ package com.gamua.flox
                 Entity.load(CustomEntity, testEntity.id, onLoadComplete, onLoadError);
             }
             
-            function onSaveError(error:String, transient:Boolean):void
+            function onSaveError(error:String, httpStatus:int):void
             {
                 Flox.shutdown();
                 fail("Could not save custom entity: " + error);
@@ -149,7 +149,7 @@ package com.gamua.flox
                 onComplete();
             }
             
-            function onLoadError(error:String, transient:Boolean):void
+            function onLoadError(error:String, httpStatus:int):void
             {
                 Flox.shutdown();
                 fail("Could not load custom entity: " + error);
@@ -188,7 +188,7 @@ package com.gamua.flox
                 onComplete();
             }
             
-            function onError(error:String, transient:Boolean):void
+            function onError(error:String, httpStatus:int):void
             {
                 Flox.shutdown();
                 fail("Error with custom entity: " + error);
@@ -216,7 +216,7 @@ package com.gamua.flox
                 Entity.load(CustomEntity, entityID, onLoadComplete, onLoadError);
             }
             
-            function onSaveOrDestroyError(error:String, transient:Boolean):void
+            function onSaveOrDestroyError(error:String, httpStatus:int):void
             {
                 Flox.shutdown();
                 fail("Error in save or destroy: " + error);
@@ -230,7 +230,7 @@ package com.gamua.flox
                 onComplete();
             }
             
-            function onLoadError(error:String, transient:Boolean):void
+            function onLoadError(error:String, httpStatus:int):void
             {
                 Flox.shutdown();
                 fail("Loading deleted entity produced error, but should just return null instead");
@@ -253,7 +253,7 @@ package com.gamua.flox
                 Entity.load(CustomEntity, entity.id, onLoadComplete, onLoadError);
             }
             
-            function onSaveError(error:String, transient:Boolean):void
+            function onSaveError(error:String, httpStatus:int):void
             {
                 Flox.shutdown();
                 fail("Error in save: " + error);
@@ -267,7 +267,7 @@ package com.gamua.flox
                 onComplete();
             }
             
-            function onLoadError(error:String, cachedEntity:Entity):void
+            function onLoadError(error:String, httpStatus:int, cachedEntity:Entity):void
             {
                 assertNotNull(cachedEntity);
                 assertEqualEntities(cachedEntity, testEntity);
@@ -343,7 +343,7 @@ package com.gamua.flox
                 onComplete();
             }
             
-            function onLoadError(error:String, cachedEntity:Entity):void
+            function onLoadError(error:String, httpStatus:int, cachedEntity:Entity):void
             {
                 assertNotNull(cachedEntity);
                 assertEqualEntities(cachedEntity, testEntity);

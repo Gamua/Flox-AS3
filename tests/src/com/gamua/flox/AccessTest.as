@@ -1,6 +1,7 @@
 package com.gamua.flox
 {
     import com.gamua.flox.utils.CustomEntity;
+    import com.gamua.flox.utils.HttpStatus;
     
     import starling.unit.UnitTest;
     
@@ -89,10 +90,10 @@ package com.gamua.flox
                 onComplete();
             }
             
-            function onEntityLoadError(error:String, transient:Boolean):void
+            function onEntityLoadError(error:String, httpStatus:int, cachedEntity:Entity):void
             {
                 if (access == Access.NONE)
-                    assertFalse(transient);
+                    assertFalse(HttpStatus.isTransientError(httpStatus));
                 else
                     fail("Could not load entity with '" + access + "' access");
                 

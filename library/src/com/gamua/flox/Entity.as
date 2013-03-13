@@ -99,13 +99,13 @@ package com.gamua.flox
          *  be updated with the local changes. It is guaranteed that one (and only one) of the 
          *  provided callbacks will be executed; all callback arguments are optional.
          * 
-         *  <p>The 'transient' argument tells you if the error might go away if you try again 
-         *  (e.g. the server was not reachable).</p> 
+         *  <p>Use the method 'HttpStatus.isTransientError(httpStatus)' to find out if the error
+         *  is just temporary (e.g. the server was not reachable).</p> 
          *  
          *  @param onComplete: executed when the operation is successful; function signature:
          *                     <pre>onComplete(entity:Entity):void;</pre>
          *  @param onError:    executed when the operation was not successful; function signature:
-         *                     <pre>onError(error:String, transient:Boolean):void;</pre>         
+         *                     <pre>onError(error:String, httpStatus:int):void;</pre>         
          */
         public function save(onComplete:Function, onError:Function):void
         {
@@ -113,16 +113,11 @@ package com.gamua.flox
             var path:String = createEntityURL(type, mId);
             
             Flox.service.request(HttpMethod.PUT, path, toObject(), 
-                                 onRequestComplete, onRequestError);
+                                 onRequestComplete, onError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
                 execute(onComplete, self);
-            }
-            
-            function onRequestError(error:String, httpStatus:int):void
-            {
-                execute(onError, error, HttpStatus.isTransientError(httpStatus));
             }
         }
         
@@ -131,35 +126,31 @@ package com.gamua.flox
          *  all callback arguments are optional.
          * 
          *  <p>The 'fromCache' argument indicates that the entity hasn't changed since you last
-         *  received it from the server. The 'transient' argument tells you if the error might 
-         *  go away if you try again (e.g. the server was not reachable).</p> 
+         *  received it from the server. In case of an error, use the method  
+         *  'HttpStatus.isTransientError(httpStatus)' to find out if it's just temporary (e.g. the 
+         *  server was not reachable).</p> 
          *  
          *  @param onComplete: executed when the operation is successful; function signature:
          *                     <pre>onComplete(entity:Entity, fromCache:Boolean):void;</pre>
          *  @param onError:    executed when the operation was not successful; function signature:
-         *                     <pre>onError(error:String, transient:Boolean):void;</pre>         
+         *                     <pre>onError(error:String, httpStatus:int):void;</pre>         
          */
         public function refresh(onComplete:Function, onError:Function):void
         {
             var path:String = createEntityURL(type, mId);
             var self:Entity = this;
             
-            Flox.service.request(HttpMethod.GET, path, null, onRequestComplete, onRequestError);
+            Flox.service.request(HttpMethod.GET, path, null, onRequestComplete, onError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
                 if (httpStatus == HttpStatus.NO_CONTENT)
-                    onRequestError("Entity has been deleted", httpStatus);
+                    execute(onError, "Entity has been deleted", httpStatus);
                 else
                 {
                     refreshEntity(self, body);
                     execute(onComplete, self, httpStatus == HttpStatus.NOT_MODIFIED);
                 }
-            }
-            
-            function onRequestError(error:String, httpStatus:int):void
-            {
-                execute(onError, error, HttpStatus.isTransientError(httpStatus));
             }
         }
         
@@ -167,34 +158,26 @@ package com.gamua.flox
          *  It is guaranteed that one (and only one) of the provided callbacks will be executed;
          *  all callback arguments are optional.
          * 
-         *  <p>The 'transient' argument tells you if the error might go away if you try again 
-         *  (e.g. the server was not reachable).</p> 
+         *  <p>Use the method 'HttpStatus.isTransientError(httpStatus)' to find out if the error
+         *  is just temporary (e.g. the server was not reachable).</p> 
          *  
          *  @param onComplete: executed when the operation is successful; function signature:
          *                     <pre>onComplete(entity:Entity):void;</pre>
          *  @param onError:    executed when the operation was not successful; function signature:
-         *                     <pre>onError(error:String, transient:Boolean):void;</pre>         
+         *                     <pre>onError(error:String, httpStatus:int):void;</pre>         
          */
         public function destroy(onComplete:Function, onError:Function):void
         {
             var self:Entity = this;
-            Entity.destroy(getClass(this), mId, onDestroyComplete, onDestroyError);
+            Entity.destroy(getClass(this), mId, onDestroyComplete, onError);
             
             function onDestroyComplete():void
             {
                 execute(onComplete, self);
             }
-            
-            function onDestroyError(error:String, httpStatus:int):void
-            {
-                execute(onError, error, HttpStatus.isTransientError(httpStatus));
-            }
         }
         
         // static methods
-        
-        // onComplete(entity:Entity, fromCache:Boolean)
-        // onError(error:String, cachedEntity:Entity)
         
         /** Loads an entity with the given type and ID from the server.
          *  It is guaranteed that one (and only one) of the provided callbacks will be executed;
@@ -212,7 +195,7 @@ package com.gamua.flox
          *  @param onComplete: executed when the operation is successful; function signature:
          *                     <pre>onComplete(entity:Entity, fromCache:Boolean):void;</pre>
          *  @param onError:    executed when the operation was not successful; function signature:
-         *                     <pre>onError(error:String, cachedEntity:Entity):void;</pre>
+         *                     <pre>onError(error:String, httpStatus:int, cachedEntity:Entity):void;</pre>
          */
         public static function load(entityClass:Class, id:String, 
                                     onComplete:Function, onError:Function):void
@@ -232,7 +215,7 @@ package com.gamua.flox
             function onRequestError(error:String, httpStatus:int, cachedBody:Object):void
             {
                 entity = Entity.fromObject(type, id, cachedBody); 
-                execute(onError, error, entity);
+                execute(onError, error, httpStatus, entity);
             }
         }
         
@@ -240,28 +223,23 @@ package com.gamua.flox
          *  It is guaranteed that one (and only one) of the provided callbacks will be executed;
          *  all callback arguments are optional.
          * 
-         *  <p>The 'transient' argument tells you if the error might go away if you try again 
-         *  (e.g. the server was not reachable).</p> 
+         *  <p>Use the method 'HttpStatus.isTransientError(httpStatus)' to find out if the error
+         *  is just temporary (e.g. the server was not reachable).</p> 
          *  
          *  @param onComplete: executed when the operation is successful; function signature:
          *                     <pre>onComplete():void;</pre>
          *  @param onError:    executed when the operation was not successful; function signature:
-         *                     <pre>onError(error:String, transient:Boolean):void;</pre>         
+         *                     <pre>onError(error:String, httpStatus:int):void;</pre>         
          */
         public static function destroy(entityClass:Class, id:String, 
                                        onComplete:Function, onError:Function):void
         {
             var path:String = createEntityURL(getType(entityClass), id);
-            Flox.service.request(HttpMethod.DELETE, path, null, onRequestComplete, onRequestError);
+            Flox.service.request(HttpMethod.DELETE, path, null, onRequestComplete, onError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
                 execute(onComplete);
-            }
-            
-            function onRequestError(error:String, httpStatus:int):void
-            {
-                execute(onError, error, HttpStatus.isTransientError(httpStatus));
             }
         }
         
@@ -339,7 +317,7 @@ package com.gamua.flox
          *  @param onComplete: executed when the operation is successful; function signature:
          *                     <pre>onComplete(entities:Array):void;</pre>
          *  @param onError:    executed when the operation was not successful; function signature:
-         *                     <pre>onError(error:String, transient:Boolean):void;</pre>         
+         *                     <pre>onError(error:String, httpStatus:int):void;</pre>         
          */
         internal static function find(entityClass:Class, options:Object,
                                     onComplete:Function=null, onError:Function=null):void
@@ -365,7 +343,7 @@ package com.gamua.flox
             }
             
             Flox.service.request(HttpMethod.GET, path, { q: JSON.stringify(options) },
-                onRequestComplete, onRequestError);
+                onRequestComplete, onError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
@@ -381,11 +359,6 @@ package com.gamua.flox
                 }
                 
                 execute(onComplete, entities);
-            }
-            
-            function onRequestError(error:String, httpStatus:int):void
-            {
-                execute(onError, error, HttpStatus.isTransientError(httpStatus));
             }
         }
         
