@@ -3,6 +3,7 @@ package com.gamua.flox
     import com.gamua.flox.events.QueueEvent;
     import com.gamua.flox.utils.CustomEntity;
     import com.gamua.flox.utils.DateUtil;
+    import com.gamua.flox.utils.HttpStatus;
     import com.gamua.flox.utils.cloneObject;
     
     import starling.unit.UnitTest;
@@ -226,14 +227,14 @@ package com.gamua.flox
             function onLoadComplete(entity:Entity, fromCache:Boolean):void
             {
                 Flox.shutdown();
-                assertNull(entity, "deleted entity could be loaded");
+                fail("deleted entity could be loaded");
                 onComplete();
             }
             
             function onLoadError(error:String, httpStatus:int):void
             {
                 Flox.shutdown();
-                fail("Loading deleted entity produced error, but should just return null instead");
+                assertEqual(HttpStatus.NOT_FOUND, httpStatus, "wrong http status");
                 onComplete();
             }
         }
