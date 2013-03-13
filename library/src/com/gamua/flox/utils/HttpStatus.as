@@ -7,7 +7,7 @@
 
 package com.gamua.flox.utils
 {
-    /** Provides a list of HTTP methods (verbs). */
+    /** Provides a list of HTTP status codes that are returned by the Flox server. */
     public final class HttpStatus
     {
         /** @private */

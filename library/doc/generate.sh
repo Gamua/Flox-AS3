@@ -15,4 +15,5 @@ ASDOC="/Applications/Adobe Flash Builder 4.6/sdks/4.6.0/bin/asdoc"
   -window-title "Flox AS3 Reference" \
   -package com.gamua.flox "The main components of the Flox cloud service." \
   -package com.gamua.flox.utils "Utility classes and helper methods." \
+  -package com.gamua.flox.events "Event classes used by Flox." \
   -output html

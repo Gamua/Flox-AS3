@@ -14,13 +14,15 @@ package com.gamua.flox
     
     import flash.errors.IllegalOperationError;
     
-    /** An Entity that contains information about a Flox Player. */
+    /** An Entity that contains information about a Flox Player. The class also contains static
+     *  methods for Player login and logout. */
     [Type(".player")]
     public class Player extends Entity
     {
         private var mAuthType:String;
         private var mAuthId:String;
         
+        /** Don't call this method directly; use the 'Player.login' methods instead. */
         public function Player()
         {
             super.ownerId = this.id;

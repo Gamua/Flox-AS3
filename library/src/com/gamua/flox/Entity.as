@@ -49,7 +49,7 @@ package com.gamua.flox
      *          mLevel = level;
      *          mScore = score;
      *      }
-     *
+     *      
      *      public function get level():int { return mLevel; }
      *      public function set level(value:int):void { mLevel = value; }
      *      
@@ -95,12 +95,12 @@ package com.gamua.flox
                 type, mId, DateUtil.toString(mCreatedAt), DateUtil.toString(mUpdatedAt), mOwnerId);
         }
         
-        /** Save the entity on the server; if the entity already exists, the server version will
+        /** Saves the entity on the server; if the entity already exists, the server version will
          *  be updated with the local changes. It is guaranteed that one (and only one) of the 
          *  provided callbacks will be executed; all callback arguments are optional.
          * 
-         *  <p>Use the method 'HttpStatus.isTransientError(httpStatus)' to find out if the error
-         *  is just temporary (e.g. the server was not reachable).</p> 
+         *  <p>In case of an error, use the method 'HttpStatus.isTransientError(httpStatus)'
+         *  to find out if the error is just temporary (e.g. the server was not reachable).</p> 
          *  
          *  @param onComplete: executed when the operation is successful; function signature:
          *                     <pre>onComplete(entity:Entity):void;</pre>
@@ -109,19 +109,18 @@ package com.gamua.flox
          */
         public function save(onComplete:Function, onError:Function):void
         {
-            var self:Entity = this;
-            var path:String = createEntityURL(type, mId);
-            
-            Flox.service.request(HttpMethod.PUT, path, toObject(), 
-                                 onRequestComplete, onError);
-            
-            function onRequestComplete(body:Object, httpStatus:int):void
-            {
-                execute(onComplete, self);
-            }
+            Entity.save(this, onComplete, onError);
         }
         
-        /** Refresh the entity with the version that is currently stored on the server.
+        /** Saves the entity the next time the player goes online. When the Flox server cannot be
+         *  reached at the moment, the request will be added to a queue and will be repeated
+         *  later. */
+        public function saveQueued():void
+        {
+            Entity.saveQueued(this);
+        }
+        
+        /** Refreshes the entity with the version that is currently stored on the server.
          *  It is guaranteed that one (and only one) of the provided callbacks will be executed;
          *  all callback arguments are optional.
          * 
@@ -137,34 +136,19 @@ package com.gamua.flox
          */
         public function refresh(onComplete:Function, onError:Function):void
         {
-            var path:String = createEntityURL(type, mId);
-            var self:Entity = this;
-            
-            Flox.service.request(HttpMethod.GET, path, null, onRequestComplete, onError);
-            
-            function onRequestComplete(body:Object, httpStatus:int):void
-            {
-                if (httpStatus == HttpStatus.NO_CONTENT)
-                    execute(onError, "Entity has been deleted", httpStatus);
-                else
-                {
-                    refreshEntity(self, body);
-                    execute(onComplete, self, httpStatus == HttpStatus.NOT_MODIFIED);
-                }
-            }
+            Entity.refresh(this, onComplete, onError);
         }
         
-        /** Deletes the entity from the server.
-         *  It is guaranteed that one (and only one) of the provided callbacks will be executed;
-         *  all callback arguments are optional.
+        /** Deletes the entity from the server. It is guaranteed that one (and only one) of the 
+         *  provided callbacks will be executed; all callback arguments are optional.
          * 
-         *  <p>Use the method 'HttpStatus.isTransientError(httpStatus)' to find out if the error
-         *  is just temporary (e.g. the server was not reachable).</p> 
+         *  <p>In case of an error, use the method 'HttpStatus.isTransientError(httpStatus)' 
+         *  to find out if the error is just temporary (e.g. the server was not reachable).</p> 
          *  
-         *  @param onComplete: executed when the operation is successful; function signature:
-         *                     <pre>onComplete(entity:Entity):void;</pre>
-         *  @param onError:    executed when the operation was not successful; function signature:
-         *                     <pre>onError(error:String, httpStatus:int):void;</pre>         
+         *  @param onComplete:  executed when the operation is successful; function signature:
+         *                      <pre>onComplete(entity:Entity):void;</pre>
+         *  @param onError:     executed when the operation was not successful; function signature:
+         *                      <pre>onError(error:String, httpStatus:int):void;</pre>         
          */
         public function destroy(onComplete:Function, onError:Function):void
         {
@@ -177,25 +161,37 @@ package com.gamua.flox
             }
         }
         
+        /** Deletes the entity the next time the player goes online. When the Flox server cannot be
+         *  reached at the moment, the request will be added to a queue and will be repeated
+         *  later. */
+        public function destroyQueued():void
+        {
+            Flox.service.requestQueued(HttpMethod.DELETE, createEntityURL(type, mId));
+        }
+
         // static methods
         
         /** Loads an entity with the given type and ID from the server.
          *  It is guaranteed that one (and only one) of the provided callbacks will be executed;
          *  all callback arguments are optional.
          *  
-         *  <p>If there is no Entity with this type and ID stored on the server, the 'onComplete'
-         *  callback will be executed with an Entity value of 'null'. The 'fromCache' argument 
-         *  indicates if the entity has changed since you last received it from the server.</p>
+         *  <p>The 'fromCache' argument indicates if the entity has changed since you last 
+         *  received it from the server.</p>
          *  
          *  <p>Note that the 'onError' callback may give you a cached version of the entity. This
          *  is possible if you have received the Entity already in the past. This might allow you
          *  to work with the entity even though the player has lost the connection to the Flox
          *  server.</p>
+         * 
+         *  <p>If there is no Entity with this type and ID stored on the server, the 'httpStatus'
+         *  of the 'onError' callback will be 'HttpStatus.NOT_FOUND'.</p>
          *  
-         *  @param onComplete: executed when the operation is successful; function signature:
-         *                     <pre>onComplete(entity:Entity, fromCache:Boolean):void;</pre>
-         *  @param onError:    executed when the operation was not successful; function signature:
-         *                     <pre>onError(error:String, httpStatus:int, cachedEntity:Entity):void;</pre>
+         *  @param entityClass: the class of the entity to load.
+         *  @param id:          the id of the entity to load.
+         *  @param onComplete:  executed when the operation is successful; function signature:
+         *                      <pre>onComplete(entity:Entity, fromCache:Boolean):void;</pre>
+         *  @param onError:     executed when the operation was not successful; function signature:
+         *                      <pre>onError(error:String, httpStatus:int, cachedEntity:Entity):void;</pre>
          */
         public static function load(entityClass:Class, id:String, 
                                     onComplete:Function, onError:Function):void
@@ -219,17 +215,85 @@ package com.gamua.flox
             }
         }
         
-        /** Deletes the entity with the given type and ID from the server.
+        /** Saves an entity on the server; if the entity already exists, the server version will
+         *  be updated with the local changes. It is guaranteed that one (and only one) of the 
+         *  provided callbacks will be executed; all callback arguments are optional.
+         * 
+         *  <p>In case of an error, use the method 'HttpStatus.isTransientError(httpStatus)'
+         *  to find out if the error is just temporary (e.g. the server was not reachable).</p> 
+         *    
+         *  @param entity:     the entity to save.
+         *  @param onComplete: executed when the operation is successful; function signature:
+         *                     <pre>onComplete(entity:Entity):void;</pre>
+         *  @param onError:    executed when the operation was not successful; function signature:
+         *                     <pre>onError(error:String, httpStatus:int):void;</pre>         
+         */
+        public static function save(entity:Entity, onComplete:Function, onError:Function):void
+        {
+            var path:String = createEntityURL(entity.type, entity.id);
+            Flox.service.request(HttpMethod.PUT, path, entity.toObject(), 
+                                 onRequestComplete, onError);
+            
+            function onRequestComplete(body:Object, httpStatus:int):void
+            {
+                execute(onComplete, entity);
+            }
+        }
+        
+        /** Saves an entity the next time the player goes online. When the Flox server cannot be
+         *  reached at the moment, the request will be added to a queue and will be repeated
+         *  later. */
+        public static function saveQueued(entity:Entity):void
+        {
+            var path:String = createEntityURL(entity.type, entity.id);
+            Flox.service.requestQueued(HttpMethod.PUT, path, entity.toObject());
+        }
+        
+        /** Refreshes an entity with the version that is currently stored on the server.
          *  It is guaranteed that one (and only one) of the provided callbacks will be executed;
          *  all callback arguments are optional.
          * 
-         *  <p>Use the method 'HttpStatus.isTransientError(httpStatus)' to find out if the error
-         *  is just temporary (e.g. the server was not reachable).</p> 
+         *  <p>The 'fromCache' argument indicates that the entity hasn't changed since you last
+         *  received it from the server. In case of an error, use the method  
+         *  'HttpStatus.isTransientError(httpStatus)' to find out if it's just temporary (e.g. the 
+         *  server was not reachable).</p> 
          *  
+         *  @param entity:     the entity to save.
          *  @param onComplete: executed when the operation is successful; function signature:
-         *                     <pre>onComplete():void;</pre>
+         *                     <pre>onComplete(entity:Entity, fromCache:Boolean):void;</pre>
          *  @param onError:    executed when the operation was not successful; function signature:
          *                     <pre>onError(error:String, httpStatus:int):void;</pre>         
+         */
+        public static function refresh(entity:Entity, onComplete:Function, onError:Function):void
+        {
+            var path:String = createEntityURL(entity.type, entity.id);
+            Flox.service.request(HttpMethod.GET, path, null, onRequestComplete, onError);
+            
+            function onRequestComplete(body:Object, httpStatus:int):void
+            {
+                if (httpStatus == HttpStatus.NO_CONTENT)
+                    execute(onError, "Entity has been deleted", httpStatus);
+                else
+                {
+                    refreshEntity(entity, body);
+                    execute(onComplete, entity, httpStatus == HttpStatus.NOT_MODIFIED);
+                }
+            }
+        }
+
+        /** Deletes an entity with the given type and ID from the server.
+         *  It is guaranteed that one (and only one) of the provided callbacks will be executed;
+         *  all callback arguments are optional.
+         * 
+         *  <p>In case of an error, use the method 'HttpStatus.isTransientError(httpStatus)' to 
+         *  find out if the error is just temporary (e.g. the server was not reachable).</p> 
+         *  
+         *  @param entityClass: the class of the entity that will be destroyed.
+         *  @param id:          the ID of the entity that will be destroyed.
+         *  @param onComplete:  executed when the operation is successful; function signature:
+         *                      <pre>onComplete():void;</pre>
+         *  @param onError:     executed when the operation was not successful; function signature:
+         *                      <pre>onError(error:String, httpStatus:int):void;</pre>         
          */
         public static function destroy(entityClass:Class, id:String, 
                                        onComplete:Function, onError:Function):void
@@ -243,31 +307,13 @@ package com.gamua.flox
             }
         }
         
-        /** Deletes the entity with the given type and id from the server the next time the
-         *  player goes online. When the Flox server cannot be reached at the moment, the request
-         *  will be added to a queue and will be repeated later. */
+        /** Deletes an entity the next time the player goes online. When the Flox server cannot be
+         *  reached at the moment, the request will be added to a queue and will be repeated
+         *  later. */
         public static function destroyQueued(entityClass:Class, id:String):void
         {
             var path:String = createEntityURL(getType(entityClass), id);
             Flox.service.requestQueued(HttpMethod.DELETE, path);
-        }
-        
-        // queued requests
-        
-        /** Save the object the next time the player goes online. When the Flox server cannot be
-         *  reached at the moment, the request will be added to a queue and will be repeated
-         *  later. */
-        public function saveQueued():void
-        {
-            Flox.service.requestQueued(HttpMethod.PUT, createEntityURL(type, mId), toObject());
-        }
-
-        /** Delete the object the next time the player goes online. When the Flox server cannot be
-         *  reached at the moment, the request will be added to a queue and will be repeated
-         *  later. */
-        public function destroyQueued():void
-        {
-            Flox.service.requestQueued(HttpMethod.DELETE, createEntityURL(type, mId));
         }
         
         // queries
@@ -314,10 +360,12 @@ package com.gamua.flox
          *      onError:    function(error:String):void { ... }
          *  }</code></p>
          * 
-         *  @param onComplete: executed when the operation is successful; function signature:
-         *                     <pre>onComplete(entities:Array):void;</pre>
-         *  @param onError:    executed when the operation was not successful; function signature:
-         *                     <pre>onError(error:String, httpStatus:int):void;</pre>         
+         *  @param entityClass: the class of entities you want to find.
+         *  @param options:     the query options.
+         *  @param onComplete:  executed when the operation is successful; function signature:
+         *                      <pre>onComplete(entities:Array):void;</pre>
+         *  @param onError:     executed when the operation was not successful; function signature:
+         *                      <pre>onError(error:String, httpStatus:int):void;</pre>         
          */
         internal static function find(entityClass:Class, options:Object,
                                     onComplete:Function=null, onError:Function=null):void

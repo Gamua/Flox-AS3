@@ -225,7 +225,7 @@ package com.gamua.flox
             sRestService.clearQueue();
         }
         
-        /** Clears the service cache (containing e.g. previously fetched entities or scores). */
+        /** Clears the service cache (containing previously fetched entities or scores). */
         public static function clearCache():void
         {
             checkInitialized();
