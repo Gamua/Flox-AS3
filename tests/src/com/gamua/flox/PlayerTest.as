@@ -178,9 +178,15 @@ package com.gamua.flox
             function onMailComplete(htmlContents:String):void
             {
                 // find link to flox email, visit it.
-                var matches:Array = htmlContents.match(/(https:\/\/www\.flox\.cc.+?)"/);
+                var matches:Array = htmlContents.match(
+                    '<a href="(https://www.flox.cc/games/.+?/players/.+?/authorize.+?)"');
                 if (matches && matches.length == 2)
                     downloadTextResource(matches[1], onAuthorizeComplete, onError);
+                else
+                {
+                    fail("Could not find Flox link in mail");
+                    onComplete();
+                }
             }
             
             function onAuthorizeComplete(htmlContents:String):void
