@@ -338,8 +338,6 @@ package com.gamua.flox
         internal static function find(entityClass:Class, options:Object,
                                       onComplete:Function=null, onError:Function=null):void
         {
-            use namespace flox_internal;
-            
             if (options == null) options = {};
             else options = cloneObject(options, filterDate);
             
@@ -452,9 +450,15 @@ package com.gamua.flox
         public function get type():String { return getType(getClass(this)); }
         
         /** This is the primary identifier of the entity. It must be unique within the objects of
-         *  the same entity type. */
+         *  the same entity type. Allowed are alphanumeric characters, '-' and '_'. */
         public function get id():String { return mId; }
-        public function set id(value:String):void { mId = value; }
+        public function set id(value:String):void
+        { 
+            if (/[^a-zA-Z0-9\-_]/.test(value))
+                throw new Error("Invalid id: use only alphanumeric characters, '-', and '_'.");
+            
+            mId = value; 
+        }
         
         /** The player ID of the owner of the entity. (Referencing a Player entitity.) */
         public function get ownerId():String { return mOwnerId; }

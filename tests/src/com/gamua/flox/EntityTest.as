@@ -39,6 +39,19 @@ package com.gamua.flox
             assertEqualObjects(player, restoredPlayer);
         }
         
+        public function testInvalidID():void
+        {
+            var entity:CustomEntity = new CustomEntity();
+            entity.id = "123abcABC-_";
+            
+            try
+            {
+                entity.id = "abc!$def";
+                fail("Entity excepted invalid id");
+            }
+            catch (e:Error) { }
+        }
+        
         public function testDateSerialization():void
         {
             // dates should be serialized into XMLDateTime format.
