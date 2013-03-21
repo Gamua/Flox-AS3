@@ -352,7 +352,8 @@ package com.gamua.flox
         
         // properties
         
-        /** If enabled, all requests will fail. Useful only for unit testing. */
+        /** @private 
+         *  If enabled, all requests will fail. Useful only for unit testing. */
         internal function get alwaysFail():Boolean { return mAlwaysFail; }
         internal function set alwaysFail(value:Boolean):void { mAlwaysFail = value; }
         

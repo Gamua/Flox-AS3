@@ -104,20 +104,34 @@ package com.gamua.flox
 
             var emailUser:String = "flox-unit-test-" + createUID();
             var email:String = emailUser + "@mailinator.com";
-            Player.loginWithEmail(email, onLoginComplete, onLoginError);
+            Player.loginWithEmail(email, onLogin1Complete, onLogin1Error);
             
-            function onLoginComplete(player:Player):void
+            function onLogin1Complete(player:Player):void
             {
+                // first login should work right away.
                 assertEqual(player.id, guestID); // guest has been upgraded
                 assertEqual(Player.current.id, player.id);
                 assertEqual(AuthenticationType.EMAIL, player.authType);
                 
-                // now log out again, and retry!
+                // now log out and retry on a different device
+                Flox.resetInstallationID();
                 Player.logout();
-                Player.loginWithEmail(email, onSecondLoginComplete, onSecondLoginError);
+                Player.loginWithEmail(email, onLogin2Complete, onLogin2Error);
             }
             
-            function onLoginError(error:String, confirmationMailSent:Boolean):void
+            function onLogin1Error(error:String, confirmationMailSent:Boolean):void
+            {
+                fail("first login produced error: " + error);
+                onComplete();
+            }
+            
+            function onLogin2Complete(player:Player):void
+            {
+                fail("login attempt on different device should have failed, but succeeded");
+                onComplete();
+            }
+            
+            function onLogin2Error(error:String, confirmationMailSent:Boolean):void
             {
                 if (confirmationMailSent)
                 {
@@ -133,7 +147,7 @@ package com.gamua.flox
             function onPlayerActivated():void
             {
                 // authentication url visited! Now we can log in.
-                Player.loginWithEmail(email, onLoginComplete, onLoginError);
+                Player.loginWithEmail(email, onLogin3Complete, onLogin3Error);
             }
             
             function onMailError(error:String, httpStatus:int):void
@@ -142,15 +156,15 @@ package com.gamua.flox
                 onComplete();
             }
             
-            function onSecondLoginComplete(player:Player):void
+            function onLogin3Complete(player:Player):void
             {
                 assertEqual(guestID, player.id);
                 onComplete();
             }
             
-            function onSecondLoginError(error:String):void
+            function onLogin3Error(error:String):void
             {
-                fail("Second login did not work!");
+                fail("Login after mail activation did not work!");
                 onComplete();
             }
         }

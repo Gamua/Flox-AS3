@@ -418,6 +418,14 @@ package com.gamua.flox
             sPersistentData.data.authentication = value;
         }
         
+        /** @private 
+         *  Resets (changes) the installation id. Useful only for unit testing. */
+        internal static function resetInstallationID():void
+        {
+            checkInitialized();
+            sPersistentData.data.installationID = null;
+        }
+        
         // properties
         
         /** The unique id of this game. */
