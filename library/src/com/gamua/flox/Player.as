@@ -109,7 +109,11 @@ package com.gamua.flox
          *  will be converted into a player with auth-type "EMAIL".</li>
          *  <li>When the player tries to log in with the same address on another device,
          *  he will get an e-mail with a confirmation link, and the login will fail until the
-         *  player clicks on that link.</li></ul> 
+         *  player clicks on that link.</li></ul>
+         * 
+         *  <p>In case of an error, the HTTP status tells you if a confirmation mail was sent:
+         *  "HttpStatus.FORBIDDEN" means that the mail was sent; "HttpStatus.TOO_MANY_REQUESTS"
+         *  means that a mail has already been sent within the last 15 minutes.</p>
          *  
          *  @param email:      The e-mail address of the player trying to log in.  
          *  @param onComplete: function onComplete(currentPlayer:Player):void;
