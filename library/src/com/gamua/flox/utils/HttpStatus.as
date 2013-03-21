@@ -40,6 +40,9 @@ package com.gamua.flox.utils
         /** An If-Match precondition failed in a PUT/POST request. */
         public static const PRECONDITION_FAILED:int = 412;
         
+        /** The user has sent too many requests in a given amount of time. */  
+        public static const TOO_MANY_REQUESTS:int = 429;
+        
         /** Something unexpected happened within server code. */
         public static const INTERNAL_SERVER_ERROR:int = 500;
         

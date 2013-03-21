@@ -104,17 +104,16 @@ package com.gamua.flox
         }
         
         /** Log in a player with his email address. 
-         * 
-         *  <ul><li>If this is the first time this email address
-         *  is used, the current guest player will be converted into a player with auth-type
-         *  "email".</li>
+         *  
+         *  <ul><li>If this is the first time this email address is used, the current guest player 
+         *  will be converted into a player with auth-type "EMAIL".</li>
          *  <li>When the player tries to log in with the same address on another device,
          *  he will get an e-mail with a confirmation link, and the login will fail until the
          *  player clicks on that link.</li></ul> 
          *  
          *  @param email:      The e-mail address of the player trying to log in.  
          *  @param onComplete: function onComplete(currentPlayer:Player):void;
-         *  @param onError:    function onError(error:String, confirmationMailSent:Boolean):void;*/ 
+         *  @param onError:    function onError(error:String, httpStatus:int, confirmationMailSent:Boolean):void;*/ 
         public static function loginWithEmail(email:String, 
                                               onComplete:Function, onError:Function):void
         {
@@ -122,7 +121,7 @@ package com.gamua.flox
             
             function onLoginError(error:String, httpStatus:int):void
             {
-                execute(onError, error, httpStatus == HttpStatus.FORBIDDEN);
+                execute(onError, error, httpStatus, httpStatus == HttpStatus.FORBIDDEN);
             }
         }
         

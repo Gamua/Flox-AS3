@@ -1,7 +1,6 @@
 package com.gamua.flox
 {
     import com.gamua.flox.utils.DateUtil;
-    import com.gamua.flox.utils.HttpStatus;
     import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.downloadTextResource;
     
@@ -119,7 +118,7 @@ package com.gamua.flox
                 Player.loginWithEmail(email, onLogin2Complete, onLogin2Error);
             }
             
-            function onLogin1Error(error:String, confirmationMailSent:Boolean):void
+            function onLogin1Error(error:String, httpStatus:int, confirmationMailSent:Boolean):void
             {
                 fail("first login produced error: " + error);
                 onComplete();
@@ -131,7 +130,7 @@ package com.gamua.flox
                 onComplete();
             }
             
-            function onLogin2Error(error:String, confirmationMailSent:Boolean):void
+            function onLogin2Error(error:String, httpStatus:int, confirmationMailSent:Boolean):void
             {
                 if (confirmationMailSent)
                 {
