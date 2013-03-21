@@ -80,7 +80,7 @@ package com.gamua.flox
         public function testCreateUID():void
         {
             var uid:String = createUID();
-            assertEqual(22, uid.length, "UID does not have the right length");
+            assertEqual(16, uid.length, "UID does not have the right length");
         }
     }
 }

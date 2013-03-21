@@ -11,23 +11,14 @@ package com.gamua.flox.utils
     import flash.utils.ByteArray;
 
     /**
-     *  Generates a UID (unique identifier) based on ActionScript's pseudo-random 
-     *  number generator and the current time.
-     *
-     *  <p>The UID contains only alphanumeric chars and has a length of 22 characters. It will
-     *  not be truly globally unique; but it is the best we can do without player support for 
-     *  UID generation.</p>
+     *  Generates a UID (unique identifier) based on ActionScript's "flash.crypto" random number
+     *  generator. The UID contains 16 alphanumeric characters. 
      */
     public function createUID():String
     {
-        // By incorporating both the current time and "flash.crypto",
-        // we hope to create the best possible result.
+        var bytes:ByteArray = flash.crypto.generateRandomBytes(12);
+        var b64:String = Base64.encodeByteArray(bytes);
         
-        var bytes:ByteArray = flash.crypto.generateRandomBytes(10);
-        bytes.position = bytes.length;
-        bytes.writeDouble(new Date().time);
-        
-        var b64:String = Base64.encodeByteArray(bytes).substr(0, 22);
         while (b64.indexOf("/") != -1) b64 = b64.replace("/", getRandomChar());
         while (b64.indexOf("+") != -1) b64 = b64.replace("+", getRandomChar());
         
