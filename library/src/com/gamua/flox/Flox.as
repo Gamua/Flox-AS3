@@ -198,9 +198,9 @@ package com.gamua.flox
                 {
                     var scores:Vector.<Score> = new <Score>[];
                     for each (var rawScore:Object in rawScores)
-                        scores.push(new Score(rawScore.playerName, rawScore.countryCode, 
-                            parseInt(rawScore.value), 
-                            DateUtil.parse(rawScore.createdAt)));
+                        scores.push(new Score(
+                            rawScore.playerId, rawScore.playerName, parseInt(rawScore.value),
+                            DateUtil.parse(rawScore.createdAt), rawScore.countryCode));
                     return scores;
                 }
             }
