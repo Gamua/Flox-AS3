@@ -2,6 +2,7 @@ package com.gamua.flox
 {
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.cloneObject;
+    import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.createURL;
     
     import starling.unit.UnitTest;
@@ -74,6 +75,12 @@ package com.gamua.flox
             });
             
             assertEqual(DateUtil.toString(date), clone.date);
+        }
+        
+        public function testCreateUID():void
+        {
+            var uid:String = createUID();
+            assertEqual(22, uid.length, "UID does not have the right length");
         }
     }
 }

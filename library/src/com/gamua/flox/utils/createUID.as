@@ -8,51 +8,42 @@
 package com.gamua.flox.utils
 {
     /**
-     *  Generates a UID (unique identifier) based on ActionScript's
-     *  pseudo-random number generator and the current time.
+     *  Generates a UID (unique identifier) based on ActionScript's pseudo-random 
+     *  number generator and the current time.
      *
-     *  <p>The UID has the form <code>"XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"</code>
-     *  where X is a hexadecimal digit (0-9, A-F).</p>
-     *
-     *  <p>This UID will not be truly globally unique; but it is the best
-     *  we can do without player support for UID generation.</p>
+     *  <p>The UID uses alphanumeric chars and has a length of 22 characters. It will not be truly
+     *  globally unique; but it is the best we can do without player support for UID generation.</p>
      */
     public function createUID():String
     {
-        var uid:Array = new Array(36);
-        var index:int = 0;
+        var uid:Array = new Array(14);
         var i:int;
-        var j:int;
         
-        for (i = 0; i < 8; i++)
-            uid[index++] = ALPHA_CHAR_CODES[int(Math.random() *  16)];
-        
-        for (i = 0; i < 3; i++)
+        if (CHAR_CODES == null)
         {
-            uid[index++] = 45; // charCode for "-"
-            
-            for (j = 0; j < 4; j++)
-                uid[index++] = ALPHA_CHAR_CODES[int(Math.random() *  16)];
+            CHAR_CODES = [];
+            for (i=48; i<=57;  ++i) CHAR_CODES.push(i);
+            for (i=65; i<=90;  ++i) CHAR_CODES.push(i);
+            for (i=97; i<=122; ++i) CHAR_CODES.push(i);
+            NUM_CHAR_CODES = CHAR_CODES.length;
         }
         
-        uid[index++] = 45; // charCode for "-"
-
+        // index  0-13: random chars 
+        // index 14-21: encoded time
+        
         // Note: time is the number of milliseconds since 1970, which is currently more than one 
-        // trillion. We use the low 8 hex digits of this number in the UID. Just in case the 
-        // system clock has been reset to Jan 1-4, 1970 (in which case this number could have only
-        // 1-7 hex digits), we pad on the left with 7 zeros before taking the low digits.
-        var time:Number = new Date().time;
-        var timeString:String = ("0000000" + time.toString(16).toUpperCase()).substr(-8);
+        // trillion. Just in case the system clock has been reset to 1970 
+        // (in which case the string might be too short), we pad on the left with 7 zeros.
+
+        for (i=0; i<14; ++i)
+            uid[i] = CHAR_CODES[int(Math.random() * NUM_CHAR_CODES)];
         
-        for (i = 0; i < 8; i++)
-            uid[index++] = timeString.charCodeAt(i);
+        var numberString:String = String.fromCharCode.apply(null, uid);
+        var timeString:String = ("0000000" + new Date().time.toString(36)).substr(-8);
         
-        for (i = 0; i < 4; i++)
-            uid[index++] = ALPHA_CHAR_CODES[int(Math.random() *  16)];
-        
-        return String.fromCharCode.apply(null, uid);
+        return numberString + timeString;
     }
 }
 
-// Char codes for 0123456789ABCDEF
-const ALPHA_CHAR_CODES:Array = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70];
+var CHAR_CODES:Array = null;
+var NUM_CHAR_CODES:int;
