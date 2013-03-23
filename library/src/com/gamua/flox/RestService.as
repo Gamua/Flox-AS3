@@ -66,6 +66,7 @@ package com.gamua.flox
             if (authentication == null)
                 authentication = Flox.authentication;
             
+            var cachedResult:Object = null;
             var headers:Object = {};
             var xFloxHeader:Object = {
                 sdk: { 
@@ -87,7 +88,10 @@ package com.gamua.flox
             headers["X-Flox"] = xFloxHeader;
             
             if (method == HttpMethod.GET && mCache.containsKey(path))
-                headers["If-None-Match"] = mCache.getMetaData(path, "eTag");
+            {
+                cachedResult = mCache.getObject(path);
+                if (cachedResult) headers["If-None-Match"] = mCache.getMetaData(path, "eTag");
+            }
             
             var loader:URLLoader = new URLLoader();
             loader.addEventListener(Event.COMPLETE, onLoaderComplete);
@@ -138,7 +142,7 @@ package com.gamua.flox
                         if (method == HttpMethod.GET)
                         {
                             if (status == HttpStatus.NOT_MODIFIED)
-                                result = mCache.getObject(path);
+                                result = cachedResult;
                             else
                                 mCache.setObject(path, body, { eTag: headers.ETag });
                         }
