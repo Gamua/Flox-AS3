@@ -18,6 +18,7 @@ package com.gamua.flox
     internal class GameSession
     {
         private var mGameVersion:String;
+        private var mFirstStartTime:Date;
         private var mStartTime:Date;
         private var mDuration:int;
         private var mLog:Array;
@@ -26,10 +27,11 @@ package com.gamua.flox
         
         /** Do not call this constructor directly, but create sessions via the static 
          *  'start' method instead. */
-        public function GameSession(gameVersion:String="1.0")
+        public function GameSession(lastSession:GameSession=null, gameVersion:String="1.0")
         {
-            mGameVersion = gameVersion;
+            mFirstStartTime = lastSession ? lastSession.firstStartTime : new Date();
             mStartTime = new Date();
+            mGameVersion = gameVersion;
             mDuration = 0;
             mLog = [];
             mNumErrors = 0;
@@ -43,7 +45,7 @@ package com.gamua.flox
                                      lastSession:GameSession=null, 
                                      reportAnalytics:Boolean=true):GameSession
         {
-            var newSession:GameSession = new GameSession(gameVersion);
+            var newSession:GameSession = new GameSession(lastSession, gameVersion);
             var resolution:String = Capabilities.screenResolutionX + "x" + 
                                     Capabilities.screenResolutionY;
             
@@ -62,8 +64,9 @@ package com.gamua.flox
             if (lastSession)
             {
                 lastSession.pause();
-                data.lastStartTime = DateUtil.toString(lastSession.startTime);
-                data.lastDuration  = lastSession.duration;
+                data.firstStartTime = DateUtil.toString(lastSession.firstStartTime);
+                data.lastStartTime  = DateUtil.toString(lastSession.startTime);
+                data.lastDuration   = lastSession.duration;
                 data.lastLog = lastSession.log;
             }
             
@@ -135,6 +138,10 @@ package com.gamua.flox
         /** The exact time the session was started. */
         public function get startTime():Date { return mStartTime; }
         public function set startTime(value:Date):void { mStartTime = value; }
+        
+        /** The time the very first session was started on this device. */ 
+        public function get firstStartTime():Date { return mFirstStartTime || new Date(); }
+        public function set firstStartTime(value:Date):void { mFirstStartTime = value; }
         
         /** The duration of the session in seconds. */
         public function get duration():int { return mDuration; }
