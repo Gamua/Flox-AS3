@@ -396,8 +396,6 @@ package com.gamua.flox
         {
             var entity:Entity;
             
-            if (data == null)
-                return null;
             if (type in sTypeCache)
                 entity = new (sTypeCache[type] as Class)();
             else
@@ -411,6 +409,8 @@ package com.gamua.flox
         
         private static function refreshEntity(entity:Entity, data:Object):void
         {
+            if (entity == null || data == null) return;
+            
             for each (var accessor:XML in describeType(entity).accessor)
             {
                 var access:String = accessor.@access.toString();
