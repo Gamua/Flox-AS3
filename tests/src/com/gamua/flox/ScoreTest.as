@@ -105,7 +105,6 @@ package com.gamua.flox
                 highscore = scores[0].value;
                 
                 Flox.postScore(leaderboardID, highscore + 1, "Tony");
-                Flox.postScore(leaderboardID, highscore + 2, "Tony");
                 Flox.postScore(leaderboardID, highscore + 1, "Tina");
 
                 Flox.loadScores(leaderboardID, TimeScope.THIS_WEEK, 
@@ -114,10 +113,13 @@ package com.gamua.flox
             
             function onLoadMoreScoresComplete(scores:Vector.<Score>):void
             {
-                assertEqual("Tony", scores[0].playerName, "wrong leader");
-                assertEqual("Tina", scores[1].playerName, "wrong follow-up");
-                assertEqual(highscore + 2, scores[0].value, "wrong leader score");
-                assertEqual(highscore + 1, scores[1].value, "wrong follow-up score");
+                var tony:Score = scores[0].playerName == "Tony" ? scores[0] : scores[1];
+                var tina:Score = scores[0].playerName == "Tina" ? scores[0] : scores[1];
+                
+                assertEqual(tony.value, tina.value, "wrong scores");
+                assertEqual(highscore + 1, tony.value, "wrong score");
+                assertEqual(tony.playerName, "Tony", "wrong name");
+                assertEqual(tina.playerName, "Tina", "wrong name");
                 onComplete();
             }
             
