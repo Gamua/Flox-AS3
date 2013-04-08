@@ -92,6 +92,42 @@ package com.gamua.flox
             }
         }
         
+        public function testPostAndLoadScoresWithDifferentNames(onComplete:Function):void
+        {
+            var highscore:int;
+            var leaderboardID:String = Constants.LEADERBOARD_ID;
+            Flox.postScore(leaderboardID, 100, "Tony"); 
+            Flox.loadScores(leaderboardID, TimeScope.THIS_WEEK, onLoadScoresComplete, onError);
+            
+            function onLoadScoresComplete(scores:Vector.<Score>):void
+            {
+                assert(scores.length > 0, "didn't receive any score");
+                highscore = scores[0].value;
+                
+                Flox.postScore(leaderboardID, highscore + 1, "Tony");
+                Flox.postScore(leaderboardID, highscore + 2, "Tony");
+                Flox.postScore(leaderboardID, highscore + 1, "Tina");
+
+                Flox.loadScores(leaderboardID, TimeScope.THIS_WEEK, 
+                    onLoadMoreScoresComplete, onError);
+            }
+            
+            function onLoadMoreScoresComplete(scores:Vector.<Score>):void
+            {
+                assertEqual("Tony", scores[0].playerName, "wrong leader");
+                assertEqual("Tina", scores[1].playerName, "wrong follow-up");
+                assertEqual(highscore + 2, scores[0].value, "wrong leader score");
+                assertEqual(highscore + 1, scores[1].value, "wrong follow-up score");
+                onComplete();
+            }
+            
+            function onError(error:String):void
+            {
+                fail("error loading leaderboard: " + error);
+                onComplete();
+            }
+        }
+        
         public function testOffline(onComplete:Function):void
         {
             Flox.service.alwaysFail = true;
