@@ -26,6 +26,7 @@
     <classEntry path="com.gamua.flox.utils.formatString"/>
     <classEntry path="com.gamua.flox.utils.parseBool"/>
     <classEntry path="com.gamua.flox.events.QueueEvent"/>
+    <classEntry path="com.gamua.flox.Query"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

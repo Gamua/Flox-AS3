@@ -318,6 +318,22 @@ package com.gamua.flox
             mCache.clear();
         }
         
+        /** Returns an object that was previously received with a GET method from the cache.
+         *  If an eTag is given, it must match the object's eTag; otherwise, 
+         *  the method returns null. */
+        public function getFromCache(path:String, eTag:String=null):Object
+        {
+            if (mCache.containsKey(path))
+            {
+                var cachedObject:Object = mCache.getObject(path);
+                var cachedETag:String = mCache.getMetaData(path, "eTag").toString();
+                
+                if (eTag == null || eTag == cachedETag)
+                    return cachedObject;
+            }
+            return null;
+        }
+        
         // object encoding
         
         /** Encodes an object as parameters for a 'GET' request. */

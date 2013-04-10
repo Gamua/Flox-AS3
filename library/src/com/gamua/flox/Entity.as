@@ -284,111 +284,13 @@ package com.gamua.flox
             }
         }
         
-        // queries
-        
-        private static function getIndices(entityClass:Class):Array
-        {
-            prepareIndices(entityClass);
-            return sIndices[entityClass];
-        }
-        
-        private static function prepareIndices(entityClass:Class):void
-        {
-            // TODO: update for new Index architecture.
-            /*
-            var indices:Array = sIndices[entityClass];
-            
-            if (indices == null)
-            {
-                indices = [];
-                
-                for each (var accessor:XML in describeType(entityClass).accessor)
-                    if (accessor.metadata.(@name == "Indexed").length())
-                        indices.push(accessor.@name.toXMLString());
-                
-                sIndices[entityClass] = indices;
-            }
-            */
-        }
-        
-        /** @private
-         *  TODO: set 'public' after updating index logic
-         * 
-         *  Get a list of entities from the server. The 'options' array is used to construct a
-         *  query. Here is a sample query with all available query options. All of them are
-         *  optional. Note that you can pass "onComplete" and "onError" either in the 
-         *  options-object, or as parameters of the function.
-         *  
-         *  <p><code>Entity.find(GameSession, {
-         *      where: { player: "Barak" },
-         *      orderBy: "score", // defaults to "score asc", you can also use "score desc"
-         *      offset: 20,
-         *      limit: 50,
-         *      onComplete: function(entities:Array):void { ... },
-         *      onError:    function(error:String):void { ... }
-         *  }</code></p>
-         * 
-         *  @param entityClass: the class of entities you want to find.
-         *  @param options:     the query options.
-         *  @param onComplete:  executed when the operation is successful; function signature:
-         *                      <pre>onComplete(entities:Array):void;</pre>
-         *  @param onError:     executed when the operation was not successful; function signature:
-         *                      <pre>onError(error:String, httpStatus:int):void;</pre>         
-         */
-        internal static function find(entityClass:Class, options:Object,
-                                      onComplete:Function=null, onError:Function=null):void
-        {
-            if (options == null) options = {};
-            else options = cloneObject(options, filterDate);
-            
-            var type:String = getType(entityClass);
-            var path:String = createEntityURL(type);
-            
-            if (options.onComplete != null)
-            {
-                onComplete = options.onComplete;
-                delete options["onComplete"];
-            }
-            
-            if (options.onError != null)
-            {
-                onError = options.onError;
-                delete options["onError"];
-            }
-            
-            Flox.service.request(HttpMethod.GET, path, { q: JSON.stringify(options) },
-                onRequestComplete, onError);
-            
-            function onRequestComplete(body:Object, httpStatus:int):void
-            {
-                var entities:Array = [];
-                
-                for each (var result:Object in body as Array)
-                {
-                    var id:String = result.id;
-                    var eTag:String = result.eTag;
-                    entities.push(Entity.fromObject(type, id, result.entity));
-                    
-                    // TODO: add to cache
-                }
-                
-                execute(onComplete, entities);
-            }
-        }
-        
         // helpers
 
         /** @private */
         internal function toObject():Object
         {
             // create clone as Object & replace Dates with Strings
-            var object:Object = cloneObject(this, filterDate);
-            
-            // TODO: add indices
-            // var indices:Array = Entity.getIndices(getClass(this)); 
-            // if (indices && indices.length) object.indices = indices; 
-            
-            return object;
+            return cloneObject(this, filterDate);
         }
         
         /** @private */
@@ -405,6 +307,16 @@ package com.gamua.flox
             refreshEntity(entity, data);
             
             return entity;
+        }
+        
+        /** @private */
+        internal static function fromCache(type:String, id:String, eTag:String=null):Entity
+        {
+            var path:String = createEntityURL(type, id);
+            var cachedObject:Object = Flox.service.getFromCache(path, eTag);
+            
+            if (cachedObject) return fromObject(type, id, cachedObject);
+            else              return null;
         }
         
         private static function refreshEntity(entity:Entity, data:Object):void

@@ -1,6 +1,7 @@
 package com.gamua.flox
 {
     import com.gamua.flox.events.QueueEvent;
+    import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.cloneObject;
     import com.gamua.flox.utils.createUID;
     
@@ -21,24 +22,64 @@ package com.gamua.flox
             Flox.shutdown();
         }
         
-        public function DISABLED_testSimpleQuery(onComplete:Function):void
+        public function testWhere():void
+        {
+            var query:Query = new Query(Player);
+            
+            assertEqual('dunno == 10', query.where("dunno == ?", 10), "wrong replacement");
+            assertEqual('dunno == "hugo"', query.where("dunno == ?", "hugo"), "wrong replacement");
+            assertEqual('dunno == true', query.where("dunno == ?", true), "wrong replacement");
+            
+            assertEqual('dunno == 10 AND watnot == "test"', 
+                query.where("dunno == ? AND watnot == ?", 10, "test"), "wrong replacement");
+            
+            assertEqual('dunno == 10 AND watnot == ?', 
+                query.where("dunno == ? AND watnot == ?", 10), "wrong replacement");
+            
+            assertEqual('dunno == 10 AND watnot == "test"', 
+                query.where("dunno == ? AND watnot == ?", 10, "test", true), "wrong replacement");
+            
+            var date:Date = new Date();
+            var dateStr:String = DateUtil.toString(date);
+            
+            assertEqual('date == "' + dateStr + '"',
+                query.where('date == ?', date), "wrong date replacement"); 
+        }
+        
+        public function testSimpleQuery(onComplete:Function):void
         {
             var name:String = createUID();
             var product:Product = new Product(name, 42);
-            var queryOptions:Object = {
-                where: { name: name }
-            };
+            var query:Query = new Query(Product, "name == ?", name);
             
-            makeQuery([product], queryOptions, checkResult, onComplete);
+            makeQuery([product], query, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
-                assertEqual(entities.length, 1, "Wrong number of entities returned");
+                var count:int = entities.length;
+                assertEqual(count, 1, "Wrong number of entities returned: " + count);
                 assertEqualEntities(entities[0], product);
             }
         }
         
-        public function DISABLED_testNormalQuery(onComplete:Function):void
+        public function testSimpleAndQuery(onComplete:Function):void
+        {
+            var name:String = createUID();
+            var price:int = Math.random() * 100;
+            var product:Product = new Product(name, price);
+            var query:Query = new Query(Product, "name == ? AND price == ?", name, price);
+            
+            makeQuery([product], query, checkResult, onComplete);
+            
+            function checkResult(entities:Array):void
+            {
+                var count:int = entities.length;
+                assertEqual(count, 1, "Wrong number of entities returned: " + count);
+                assertEqualEntities(entities[0], product);
+            }
+        }
+        
+        public function testNormalQuery(onComplete:Function):void
         {
             var products:Array = [
                 new Product("alfa", 0),
@@ -50,11 +91,8 @@ package com.gamua.flox
                 new Product("golf", 6)
             ];
             
-            var queryOptions:Object = {
-                where: { "price >=": 1, "price <": 6 }
-            };
-            
-            makeQuery(products, queryOptions, checkResult, onComplete);
+            var query:Query = new Query(Product, "price >= ? AND price < ?", 1, 6);
+            makeQuery(products, query, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
@@ -68,7 +106,7 @@ package com.gamua.flox
             }
         }
         
-        public function DISABLED_testNormalQueryWithLimit(onComplete:Function):void
+        public function testNormalQueryWithLimit(onComplete:Function):void
         {
             var products:Array = [
                 new Product("alfa", 0),
@@ -81,20 +119,23 @@ package com.gamua.flox
             ];
             
             var limit:int = 3;
-            var queryOptions:Object = {
-                where: { "price >=": 1, "price <": 6 },
-                limit: limit
-            };
+            var query:Query = new Query(Product, "price >= 1 AND price < 6");
+            query.limit = limit;
+            assertEqual(limit, query.limit, "wrong limit");
             
-            makeQuery(products, queryOptions, checkResult, onComplete);
+            makeQuery(products, query, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
+                entities.sortOn("price");
                 assert(entities.length == limit, "Wrong number of entities returned");
+                assertEqualEntities(entities[0], products[1]);
+                assertEqualEntities(entities[1], products[2]);
+                assertEqualEntities(entities[2], products[3]);
             }
         }
         
-        public function DISABLED_testStringCompareQuery(onComplete:Function):void
+        public function testStringCompareQuery(onComplete:Function):void
         {
             var products:Array = [
                 new Product("alfa", 0),
@@ -103,11 +144,8 @@ package com.gamua.flox
                 new Product("delta", 3)
             ];
             
-            var queryOptions:Object = {
-                where: { "name >": "alfa", "name <": "delta" }
-            };
-            
-            makeQuery(products, queryOptions, checkResult, onComplete);
+            var query:Query = new Query(Product, "name > ? AND name < ?", "alfa", "delta");
+            makeQuery(products, query, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
@@ -118,7 +156,7 @@ package com.gamua.flox
             }
         }
         
-        public function DISABLED_testDateCompareQuery(onComplete:Function):void
+        public function testDateCompareQuery(onComplete:Function):void
         {
             var products:Array = [
                 new Product("alfa",    0, null, new Date(2013, 1, 1, 10,  0)),
@@ -127,11 +165,10 @@ package com.gamua.flox
                 new Product("delta",   3, null, new Date(2013, 1, 1, 10, 30))
             ];
             
-            var queryOptions:Object = {
-                where: { "date >": products[0].date, "date <": products[3].date }
-            };
+            var query:Query = new Query(Product, "date > ? AND date < ?", 
+                                        products[0].date, products[3].date);
             
-            makeQuery(products, queryOptions, checkResult, onComplete);
+            makeQuery(products, query, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
@@ -142,18 +179,15 @@ package com.gamua.flox
             }
         }
         
-        public function DISABLED_testInequalityQuery(onComplete:Function):void
+        public function testInequalityQuery(onComplete:Function):void
         {
             var products:Array = [
                 new Product("alfa", 0),
                 new Product("bravo", 1)
             ];
-            
-            var queryOptions:Object = {
-                where: { "price !=": 1 }
-            };
-            
-            makeQuery(products, queryOptions, checkResult, onComplete);
+
+            var query:Query = new Query(Product, "price != 1");
+            makeQuery(products, query, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
@@ -162,8 +196,8 @@ package com.gamua.flox
             }
         }
         
-        private function makeQuery(inputEntities:Array, queryOptions:Object, onResult:Function, 
-                                   onComplete:Function):void
+        private function makeQuery(inputEntities:Array, query:Query, 
+                                   onResult:Function, onComplete:Function):void
         {
             Flox.addEventListener(QueueEvent.QUEUE_PROCESSED, onProductsSaved);
             
@@ -176,8 +210,7 @@ package com.gamua.flox
                 
                 if (event.success)
                 {
-                    Entity.find(inputEntities[0].constructor, queryOptions,
-                        onQueryComplete, onQueryError);
+                    query.find(onQueryComplete, onQueryError);
                 }
                 else
                 {
