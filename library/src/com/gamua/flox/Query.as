@@ -80,9 +80,7 @@ package com.gamua.flox
             for each (var arg:* in args)
             {
                 if (arg is Date) arg = DateUtil.toString(arg);
-                var format:String = (arg is Number || arg is Boolean) ? '{0}' : '"{0}"';
-                var replacement:String = formatString(format, arg);
-                constraints = constraints.replace("?", replacement);
+                constraints = constraints.replace("?", JSON.stringify(arg));
             }
         
             mWhere = constraints;

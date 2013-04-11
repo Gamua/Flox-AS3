@@ -39,11 +39,35 @@ package com.gamua.flox
             assertEqual('dunno == 10 AND watnot == "test"', 
                 query.where("dunno == ? AND watnot == ?", 10, "test", true), "wrong replacement");
             
+            assertEqual('enabled == true',
+                query.where("enabled == ?", true), "wrong bool replacement");
+            
             var date:Date = new Date();
             var dateStr:String = DateUtil.toString(date);
             
             assertEqual('date == "' + dateStr + '"',
-                query.where('date == ?', date), "wrong date replacement"); 
+                query.where('date == ?', date), "wrong date replacement");
+            
+            var evil:String = "\" OR date != \"";
+            var correctedEvil:String = query.where('date == ?', evil);
+            var expectedEvil:String = "date == \"\\\" OR date != \\\"\"";
+            
+            assertEqual(expectedEvil, correctedEvil, "unsafe string not replaced correctly");
+        }
+
+        public function testEmptyQuery(onComplete:Function):void
+        {
+            var product:Product = new Product("tamagotchi", 42);
+            var query:Query = new Query(Product);
+            
+            makeQuery([product], query, checkResult, onComplete);
+            
+            function checkResult(entities:Array):void
+            {
+                var count:int = entities.length;
+                assertEqual(count, 1, "Wrong number of entities returned: " + count);
+                assertEqualEntities(entities[0], product);
+            }
         }
         
         public function testSimpleQuery(onComplete:Function):void
@@ -135,6 +159,26 @@ package com.gamua.flox
             }
         }
         
+        public function testOrQuery(onComplete:Function):void
+        {
+            var products:Array = [
+                new Product("alfa", 0),
+                new Product("bravo", 1),
+                new Product("charlie", 2),
+            ];
+            
+            var query:Query = new Query(Product, "name == ? OR price == 2", "bravo");
+            makeQuery(products, query, checkResult, onComplete);
+            
+            function checkResult(entities:Array):void
+            {
+                entities.sortOn("price");
+                assert(entities.length == 2, "Wrong number of entities returned");
+                assertEqualEntities(entities[0], products[1]);
+                assertEqualEntities(entities[1], products[2]);
+            }
+        }
+        
         public function testStringCompareQuery(onComplete:Function):void
         {
             var products:Array = [
@@ -193,6 +237,29 @@ package com.gamua.flox
             {
                 assert(entities.length == 1, "Wrong number of entities returned");
                 assertEqualEntities(entities[0], products[0]);
+            }
+        }
+        
+        public function testGroupedQuery(onComplete:Function):void
+        {
+            var products:Array = [
+                new Product("alfa", 0),
+                new Product("alfa", 1),
+                new Product("bravo", 1),
+                new Product("charlie", 1),
+                new Product("bravo", 2)
+            ];
+            
+            var query:Query = new Query(Product, 
+                "(name == ? OR name == ?) AND (price == 1)", "alfa", "bravo");
+            makeQuery(products, query, checkResult, onComplete);
+            
+            function checkResult(entities:Array):void
+            {
+                entities.sortOn("name");
+                assert(entities.length == 2, "Wrong number of entities returned");
+                assertEqualEntities(entities[0], products[1]);
+                assertEqualEntities(entities[1], products[2]);
             }
         }
         
