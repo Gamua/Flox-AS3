@@ -263,6 +263,22 @@ package com.gamua.flox
             }
         }
         
+        public function testInjectionQuery(onComplete:Function):void
+        {
+            var name:String = ' OR name == "hugo"';
+            var product0:Product = new Product("hugo", 10);
+            var product1:Product = new Product(name, 11);
+            
+            var query:Query = new Query(Product, "name == ?", name);
+            makeQuery([product0, product1], query, checkResult, onComplete);
+            
+            function checkResult(entities:Array):void
+            {
+                assert(entities.length == 1, "Wrong number of entities returned");
+                assertEqualEntities(entities[0], product1);
+            }
+        }
+        
         private function makeQuery(inputEntities:Array, query:Query, 
                                    onResult:Function, onComplete:Function):void
         {
