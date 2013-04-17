@@ -77,14 +77,25 @@ package com.gamua.flox
          */ 
         public function where(constraints:String, ...args):String
         {
-            for each (var arg:* in args)
+            var regEx:RegExp = /\?/g;
+            var match:Object;
+            var lastIndex:int = -1;
+            mWhere = "";
+            
+            while ((match = regEx.exec(constraints)) != null)
             {
+                if (args.length == 0) throw new ArgumentError("Incorrect number of placeholders");
+                
+                var arg:* = args.shift();
                 if (arg is Date) arg = DateUtil.toString(arg);
-                constraints = constraints.replace("?", JSON.stringify(arg));
+                
+                mWhere += constraints.substr(lastIndex + 1, match.index - lastIndex - 1);
+                mWhere += JSON.stringify(arg);
+                lastIndex = match.index;
             }
-        
-            mWhere = constraints;
-            return constraints;
+            
+            mWhere += constraints.substr(lastIndex + 1);
+            return mWhere;
         }
         
         /** Executes the query and passes the list of results to the "onComplete" callback. 

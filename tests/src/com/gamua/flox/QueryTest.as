@@ -33,8 +33,8 @@ package com.gamua.flox
             assertEqual('dunno == 10 AND watnot == "test"', 
                 query.where("dunno == ? AND watnot == ?", 10, "test"), "wrong replacement");
             
-            assertEqual('dunno == 10 AND watnot == ?', 
-                query.where("dunno == ? AND watnot == ?", 10), "wrong replacement");
+            assertEqual('dunno == 10 AND watnot == 11', 
+                query.where("dunno == ? AND watnot == 11", 10), "wrong replacement");
             
             assertEqual('dunno == 10 AND watnot == "test"', 
                 query.where("dunno == ? AND watnot == ?", 10, "test", true), "wrong replacement");
@@ -53,8 +53,13 @@ package com.gamua.flox
             var expectedEvil:String = "date == \"\\\" OR date != \\\"\"";
             
             assertEqual(expectedEvil, correctedEvil, "unsafe string not replaced correctly");
+            
+            // it must also be possible to replace a question mark with a "?" string.
+            assertEqual('dunno == "?" AND x == "hugo"',
+                query.where("dunno == ? AND x == ?", "?", "hugo"), 
+                "question mark not replaced with question mark");
         }
-
+        
         public function testEmptyQuery(onComplete:Function):void
         {
             var product:Product = new Product("tamagotchi", 42);
