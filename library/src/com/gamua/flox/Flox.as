@@ -69,7 +69,7 @@ package com.gamua.flox
     public final class Flox
     {
         /** The current version of the Flox library. */
-        public static const VERSION:String  = "0.4.1";
+        public static const VERSION:String  = "0.5";
         
         /** The base URL of the Flox REST API. */
         public static const BASE_URL:String = "https://www.flox.cc/api";
