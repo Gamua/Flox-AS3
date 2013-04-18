@@ -54,7 +54,7 @@ package com.gamua.flox
      *  <pre>
      *  Flox.postScore("default", 999, "Johnny");
      *  Flox.loadScores("default", TimeScope.ALL_TIME, 
-     *      function onComplete(scores:Vector.&lt;Score&gt;):void
+     *      function onComplete(scores:Array):void
      *      {
      *          trace("retrieved " + scores.length + " scores");
      *      },
@@ -161,8 +161,8 @@ package com.gamua.flox
          *  @param leaderboardID: the leaderboard ID you have defined in the Flox online interface.
          *  @param timescope:  the time range the leaderboard contains. The corresponding string
          *                     constants are defined in the "TimeScope" class. 
-         *  @param onComplete: a callback with the form: 
-         *                     <pre>onComplete(scores:Vector.&lt;Score&gt;):void;</pre>
+         *  @param onComplete: a callback containing an Array of 'Score' instances: 
+         *                     <pre>onComplete(scores:Array):void;</pre>
          *  @param onError:    a callback with the form:
          *                     <pre>onError(error:String, cachedScores:Vector.&lt;Score&gt;):void;</pre>
          */
@@ -183,20 +183,20 @@ package com.gamua.flox
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
-                execute(onComplete, createScoreVector(body as Array));
+                execute(onComplete, createScoreArray(body as Array));
             }
             
             function onRequestError(error:String, httpStatus:int, cachedBody:Object):void
             {
-                execute(onError, error, createScoreVector(cachedBody as Array)); 
+                execute(onError, error, createScoreArray(cachedBody as Array)); 
             }
             
-            function createScoreVector(rawScores:Array):Vector.<Score>
+            function createScoreArray(rawScores:Array):Array
             {
                 if (rawScores == null) return null;
                 else
                 {
-                    var scores:Vector.<Score> = new <Score>[];
+                    var scores:Array = [];
                     for each (var rawScore:Object in rawScores)
                         scores.push(new Score(
                             rawScore.playerId, rawScore.playerName, parseInt(rawScore.value),
@@ -401,6 +401,7 @@ package com.gamua.flox
             return sPersistentData ? (sPersistentData.data.currentPlayer as sPlayerClass) as Player : null;
         }
         
+        /** @private */
         internal static function set currentPlayer(value:Player):void
         {
             sPersistentData.data.currentPlayer = value;
@@ -413,6 +414,7 @@ package com.gamua.flox
             return sPersistentData ? sPersistentData.data.authentication as Authentication : null;
         }
         
+        /** @private */
         internal static function set authentication(value:Authentication):void
         {
             sPersistentData.data.authentication = value;
