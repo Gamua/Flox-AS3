@@ -41,20 +41,20 @@ package com.gamua.flox
      *  [Type("gameState")] // optional server type; defaults to class name.
      *  public class GameState extends Entity
      *  {
-     *      private var mLevel:int;
-     *      private var mScore:int;
+     *      private var _level:int;
+     *      private var _score:int;
      *      
      *      public function GameState(level:int=0, score:int=0)
      *      {
-     *          mLevel = level;
-     *          mScore = score;
+     *          _level = level;
+     *          _score = score;
      *      }
      *      
-     *      public function get level():int { return mLevel; }
-     *      public function set level(value:int):void { mLevel = value; }
+     *      public function get level():int { return _level; }
+     *      public function set level(value:int):void { _level = value; }
      *      
-     *      public function get score():int { return mScore; }
-     *      public function set score(value:int):void { mScore = value; }
+     *      public function get score():int { return _score; }
+     *      public function set score(value:int):void { _score = value; }
      *  }</pre>
      *  
      */

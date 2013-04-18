@@ -10,6 +10,7 @@ package com.gamua.flox.utils
     /** Provides a list of HTTP methods (verbs). */
     public final class HttpMethod
     {
+        /** @private */
         public function HttpMethod() { throw new Error("This class cannot be instantiated."); }
         
         public static const GET:String    = "get";

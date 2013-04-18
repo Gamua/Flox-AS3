@@ -40,7 +40,7 @@ package com.gamua.flox
                 Flox.loadScores(leaderboardID, TimeScope.ALL_TIME, onScoresLoaded, onScoresError);
             }
             
-            function onScoresLoaded(scores:Vector.<Score>):void
+            function onScoresLoaded(scores:Array):void
             {
                 assert(scores[0].value == score);
                 onComplete();
@@ -55,13 +55,13 @@ package com.gamua.flox
         
         public function testRetrieveScores(onComplete:Function):void
         {
-            var serverScores:Vector.<Score>;
+            var serverScores:Array;
             
             Flox.clearCache();
             Flox.loadScores(Constants.LEADERBOARD_ID, TimeScope.ALL_TIME,
                 onScoresLoaded, onScoresError);
             
-            function onScoresLoaded(scores:Vector.<Score>):void
+            function onScoresLoaded(scores:Array):void
             {
                 assertNotNull(scores, "retrieved 'null' scores");
                 serverScores = scores;
@@ -78,13 +78,13 @@ package com.gamua.flox
                 onComplete();
             }
             
-            function onCacheScoresLoaded(scores:Vector.<Score>):void
+            function onCacheScoresLoaded(scores:Array):void
             {
                 fail("Received scores even though 'alwaysFail' is enabled");
                 onComplete();
             }
             
-            function onCacheScoresError(error:String, cachedScores:Vector.<Score>):void
+            function onCacheScoresError(error:String, cachedScores:Array):void
             {
                 assertNotNull(cachedScores, "retrieved 'null' scores");
                 assertEqualObjects(cachedScores, serverScores);
@@ -99,7 +99,7 @@ package com.gamua.flox
             Flox.postScore(leaderboardID, 100, "Tony"); 
             Flox.loadScores(leaderboardID, TimeScope.THIS_WEEK, onLoadScoresComplete, onError);
             
-            function onLoadScoresComplete(scores:Vector.<Score>):void
+            function onLoadScoresComplete(scores:Array):void
             {
                 assert(scores.length > 0, "didn't receive any score");
                 highscore = scores[0].value;
@@ -111,7 +111,7 @@ package com.gamua.flox
                     onLoadMoreScoresComplete, onError);
             }
             
-            function onLoadMoreScoresComplete(scores:Vector.<Score>):void
+            function onLoadMoreScoresComplete(scores:Array):void
             {
                 var tony:Score = scores[0].playerName == "Tony" ? scores[0] : scores[1];
                 var tina:Score = scores[0].playerName == "Tina" ? scores[0] : scores[1];
@@ -137,13 +137,13 @@ package com.gamua.flox
             Flox.loadScores(Constants.LEADERBOARD_ID, TimeScope.ALL_TIME,
                 onScoresLoaded, onScoresError);
             
-            function onScoresLoaded(scores:Vector.<Score>):void
+            function onScoresLoaded(scores:Array):void
             {
                 fail("Received scores even though 'alwaysFail' is enabled");
                 onComplete();
             }
             
-            function onScoresError(error:String, cachedScores:Vector.<Score>):void
+            function onScoresError(error:String, cachedScores:Array):void
             {
                 assertNull(cachedScores);
                 onComplete();

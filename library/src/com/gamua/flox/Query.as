@@ -11,7 +11,6 @@ package com.gamua.flox
     import com.gamua.flox.utils.HttpMethod;
     import com.gamua.flox.utils.createURL;
     import com.gamua.flox.utils.execute;
-    import com.gamua.flox.utils.formatString;
 
     /** The Query class allows you to retrieve entities from the server by narrowing down
      *  the results with certain constraints. The system works similar to SQL "select" statements.
@@ -24,7 +23,7 @@ package com.gamua.flox
      *  an index containing both "level" and "score" properties.</p>
      *  <pre>
      *  var query:Query = new Query(Player);
-     *  query.where("level == ? and score > ?", "tutorial", 500);
+     *  query.where("level == ? AND score > ?", "tutorial", 500);
      *  query.find(function onComplete(players:Array):void
      *  {
      *      // the 'players' array contains all players in the 'tutorial' level
@@ -34,7 +33,7 @@ package com.gamua.flox
      *  {
      *      trace("something went wrong: " + error);
      *  });</pre>
-     */  
+     */
     public class Query
     {
         private var mClass:Class;
@@ -69,7 +68,7 @@ package com.gamua.flox
          *  Strings with quotations marks). Here is an example:</p>
          *  <pre>
          *  query.where("name == ? AND score > ?", "thomas", 500); 
-         *  // -> 'name == "thomas" AND score == 500'</pre>
+         *  // -> 'name == "thomas" AND score > 500'</pre>
          *  
          *  <p>Note that subsequent calls to this method will replace preceding constraints.</p>
          *  
@@ -99,8 +98,7 @@ package com.gamua.flox
         }
         
         /** Executes the query and passes the list of results to the "onComplete" callback. 
-         *  Beware: if you haven't created the required indices, the result array will always be
-         *  empty!
+         *  Don't forget to create appropriate indices for your queries!
          *  
          *  @param onComplete: a callback with the form: 
          *                     <pre>onComplete(entities:Array):void;</pre>

@@ -21,7 +21,7 @@ package com.gamua.flox
         /** A guest account, i.e. the user is not authenticated at all. */
         public static const GUEST:String = "guest";
         
-        /** Knowledge of a single identifier allows theh player to login. */
+        /** Knowledge of a single identifier allows the player to login. */
         public static const KEY:String = "key";
         
         /** The user proves to have access to a certain e-mail address. */
