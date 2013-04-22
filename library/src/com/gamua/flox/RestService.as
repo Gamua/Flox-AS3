@@ -171,7 +171,7 @@ package com.gamua.flox
             function onLoaderError(event:IOErrorEvent):void
             {
                 closeLoader();
-                execute(onError, event.text, httpStatus,
+                execute(onError, "IO " + event.text, httpStatus,
                     (method == HttpMethod.GET) ? mCache.getObject(path) : null);
             }
             
@@ -291,7 +291,8 @@ package com.gamua.flox
                 else
                 {
                     // server answered, but there was a logic error -> no retry
-                    Flox.logWarning("Flox service queue request failed: {0}", error);
+                    Flox.logWarning("Flox service queue request failed: {0}, HttpStatus: {1}", 
+                                    error, httpStatus);
                     
                     mQueue.dequeue();
                     processQueue();
