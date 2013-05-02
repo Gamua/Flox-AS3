@@ -166,7 +166,8 @@ package com.gamua.flox
         /** Indicates the entity type that is searched. */
         public function get type():String { return Entity.getType(mClass); }
         
-        /** Indicates the offset of the results returned by the query. @default 0 */
+        /** Indicates the offset of the results returned by the query, i.e. how many results 
+         *  should be skipped from the beginning of the result list. * @default 0 */
         public function get offset():int { return mOffset; }
         public function set offset(value:int):void { mOffset = value; }
         
