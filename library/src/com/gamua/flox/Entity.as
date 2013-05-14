@@ -323,7 +323,15 @@ package com.gamua.flox
         {
             if (entity == null || data == null) return;
             
-            for each (var accessor:XML in describeType(entity).accessor)
+            var typeDescription:XML = describeType(entity);
+            
+            for each (var variable:XML in typeDescription.variable)
+            {
+                updateProperty(entity, data, variable.@name.toString(),
+                                             variable.@type.toString());
+            }
+            
+            for each (var accessor:XML in typeDescription.accessor)
             {
                 var access:String = accessor.@access.toString();
                 if (access == "readwrite") 

@@ -9,15 +9,17 @@ package com.gamua.flox.utils
         private var mData:Object;
         private var mBirthday:Date;
         
+        public var publicMember:String;
+        
         public function CustomEntity(name:String="unknown", age:int=0)
         {
             mName = name;
             mAge = age;
             mData = { value: int(Math.random() * 1000) };
             mBirthday = new Date();
+            publicMember = "undefined";
         }
         
-        [Indexed]
         public function get name():String { return mName; }
         public function set name(value:String):void { mName = value; }
         

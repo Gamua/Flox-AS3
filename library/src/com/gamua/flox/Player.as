@@ -66,7 +66,7 @@ package com.gamua.flox
             }
             else
             {
-                var authData:Object = { authType:  authType, authId: authId, authToken: authToken };
+                var authData:Object = { authType: authType, authId: authId, authToken: authToken };
                 
                 if (current.authType == AuthenticationType.GUEST) 
                     authData.id = current.id; 

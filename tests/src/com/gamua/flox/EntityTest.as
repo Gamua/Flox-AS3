@@ -138,6 +138,8 @@ package com.gamua.flox
             testEntity.age = 31;
             testEntity.name = "Daniel";
             testEntity.data.nickname = "PrimaryFeather";
+            testEntity.publicMember = "test";
+            
             var originalData:Object = cloneObject(testEntity);
             testEntity.save(onSaveComplete, onSaveError);
             

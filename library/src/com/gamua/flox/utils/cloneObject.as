@@ -45,6 +45,7 @@ package com.gamua.flox.utils
         else 
         {
             var objectClone:Object = {};
+            var typeDescription:XML = null;
             
             if (getQualifiedClassName(object) == "Object")
             {
@@ -53,7 +54,15 @@ package com.gamua.flox.utils
             }
             else
             {
-                for each (var accessor:XML in describeType(object).accessor)
+                typeDescription = describeType(object);
+                
+                for each (var variable:XML in typeDescription.variable)
+                {
+                    var variableName:String = variable.@name.toString();
+                    objectClone[variableName] = cloneObject(object[variableName], filter);
+                }
+                
+                for each (var accessor:XML in typeDescription.accessor)
                 {
                     var access:String = accessor.@access.toString();
                     var accessorName:String = accessor.@name.toString();
