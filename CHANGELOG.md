@@ -1,7 +1,7 @@
 Flox: Changelog
 ===============
 
-version 0.5 - 2012-04-18
+version 0.5 - 2013-04-18
 ------------------------
 
 * added 'Query' class for SQL-like entity retrieval
@@ -9,12 +9,12 @@ version 0.5 - 2012-04-18
 * changed 'onComplete' argument in 'loadScores' to 'Array', for consistency with Query class
 * more robust error handling when service cache is corrupted
 
-version 0.4.1 - 2012-03-14
+version 0.4.1 - 2013-03-14
 --------------------------
 
 * removed static save and refresh methods
 
-version 0.4 - 2012-03-13
+version 0.4 - 2013-03-13
 ------------------------
 
 * added 'Entity' class for storing arbitrary objects on the server
