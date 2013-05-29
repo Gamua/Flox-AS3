@@ -28,6 +28,32 @@ package com.gamua.flox
             assertEqual(player.type, ".player");
         }
         
+        public function testChangeInhibitedPlayerProperties():void
+        {
+            var player:CustomPlayer = Player.current as CustomPlayer;
+            
+            try
+            {
+                player.authId = "4";
+                fail("Changing auth ID did not fail");
+            } 
+            catch (e:Error) {}
+            
+            try
+            {
+                player.authType = AuthenticationType.KEY;
+                fail("Changing auth key did not fail");
+            }
+            catch (e:Error) {}
+            
+            try
+            {
+                player.publicAccess = Access.NONE;
+                fail("Changing public access rights did not fail");
+            }
+            catch (e:Error) {}
+        }
+
         public function testGuestLogin():void
         {
             var defaultGuest:Player = Player.current;
@@ -111,6 +137,11 @@ package com.gamua.flox
                 assertEqual(player.id, guestID); // guest has been upgraded
                 assertEqual(Player.current.id, player.id);
                 assertEqual(AuthenticationType.EMAIL, player.authType);
+                
+                // changing the player here caused a problem on the server-side once, 
+                // so we do that here.
+                (player as CustomPlayer).lastName = "changed";
+                player.saveQueued();
                 
                 // now log out and retry on a different device
                 Flox.resetInstallationID();

@@ -9,7 +9,6 @@ package com.gamua.flox
 {
     import com.gamua.flox.utils.HttpMethod;
     import com.gamua.flox.utils.HttpStatus;
-    import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.execute;
     
     import flash.errors.IllegalOperationError;
@@ -28,8 +27,8 @@ package com.gamua.flox
             super.ownerId = this.id;
             super.publicAccess = Access.READ;
             
-            mAuthType = AuthenticationType.GUEST;
-            mAuthId = createUID();
+            mAuthType = null;
+            mAuthId   = null;
         }
         
         /** Log in a player with the given authentication information. If you pass no
@@ -145,19 +144,31 @@ package com.gamua.flox
 
         /** The type of authentication the player used to log in. */
         public function get authType():String { return mAuthType; }
-        public function set authType(value:String):void { mAuthType = value; }
+        public function set authType(value:String):void
+        {
+            if (mAuthType != null && mAuthType != value)
+                throw new IllegalOperationError("Cannot change the authentication type of a Player entity.");
+            else
+                mAuthType = value; 
+        }
         
         /** The main identifier of the player's authentication system. */
         public function get authId():String { return mAuthId; }
-        public function set authId(value:String):void { mAuthId = value; }
+        public function set authId(value:String):void 
+        { 
+            if (mAuthId != null && mAuthId != value)
+                throw new IllegalOperationError("Cannot change the authentication ID of a Player entity.");
+            else
+                mAuthId = value; 
+        }
         
         /** @private */
         public override function set publicAccess(value:String):void
         {
             if (value != Access.READ)
-                throw new IllegalOperationError("You cannot change access rights of a Player entity.");
-            
-            super.publicAccess = value;
+                throw new IllegalOperationError("Cannot change access rights of a Player entity.");
+            else
+                super.publicAccess = value;
         }
     }
 }
