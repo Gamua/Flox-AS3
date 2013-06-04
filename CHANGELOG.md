@@ -1,6 +1,13 @@
 Flox: Changelog
 ===============
 
+version 0.6 - 2013-06-04
+------------------------
+
+* added serialization of public members in Entities
+* added some more API documentation
+* prohibiting change of certain properties in the Player class
+
 version 0.5 - 2013-04-18
 ------------------------
 
