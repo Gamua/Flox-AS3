@@ -7,7 +7,7 @@
 echo "Please enter the version number (like '1.0'), followed by [ENTER]:"
 read version
 
-ASDOC="/Applications/Adobe Flash Builder 4.6/sdks/4.6.0/bin/asdoc"
+ASDOC="/Applications/Adobe Flash Builder 4.7/sdks/4.6.0/bin/asdoc"
 
 "${ASDOC}" \
   -doc-sources ../src \
