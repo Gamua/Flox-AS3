@@ -105,6 +105,9 @@ package com.gamua.flox
             if (sInitialized)
                 throw new Error("Flox is already initialized!");
             
+            if ("preventBackup" in SharedObject)
+                SharedObject["preventBackup"] = true;
+            
             registerClassAlias(GameSession);
             registerClassAlias(Authentication);
             registerClassAlias(Player);
