@@ -1,6 +1,12 @@
 Flox: Changelog
 ===============
 
+version 0.7 - 2013-06-26
+------------------------
+
+* added optional [NonSerialized] meta data for entity properties
+* preventing backup of shared objects on iCloud for iOS
+
 version 0.6 - 2013-06-04
 ------------------------
 
