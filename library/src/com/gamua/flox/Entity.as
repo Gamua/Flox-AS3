@@ -32,7 +32,9 @@ package com.gamua.flox
      *       <code>int, Number, Boolean, String, Object, Array.</code>
      *       Support for nested entities or complex data types may be added at a later time.</li>
      *   <li>The server type of the class is defined by its name. If you want to use a different
-     *       name, you can provide "Type" MetaData (see sample below).</li> 
+     *       name, you can provide "Type" MetaData (see sample below).</li>
+     *   <li>To prevent serialization of a certain property, you can mark it with "NonSerialized" 
+     *       MetaData (see sample below).</li> 
      *  </ul>
      *  
      *  <p>Here is an example class:</p>
@@ -55,6 +57,10 @@ package com.gamua.flox
      *      
      *      public function get score():int { return _score; }
      *      public function set score(value:int):void { _score = value; }
+     * 
+     *      [NonSerialized] // optional: prevent serialization of this property
+     *      public function get internalState:Object { ... }
+     *      public function set internalState(value:Object):void { ... }
      *  }</pre>
      *  
      */
