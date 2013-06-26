@@ -11,7 +11,8 @@ package com.gamua.flox.utils
 
     /** Creates a deep copy of the object. 
      *  Beware: all complex data types will become mere 'Object' instances. Supported are only
-     *  primitive data types, arrays and objects.
+     *  primitive data types, arrays and objects. Any properties marked with "NonSerialized" 
+     *  meta data will be ignored by this method. 
      * 
      *  <p>Optionally, you can pass a 'filter' function. It will be called on any child object.
      *  You can use this filter to create custom serializations. The following sample exchanges
@@ -55,20 +56,16 @@ package com.gamua.flox.utils
             else
             {
                 typeDescription = describeType(object);
+                var properties:XMLList = typeDescription.variable + typeDescription.accessor;
                 
-                for each (var variable:XML in typeDescription.variable)
+                for each (var property:XML in properties)
                 {
-                    var variableName:String = variable.@name.toString();
-                    objectClone[variableName] = cloneObject(object[variableName], filter);
-                }
-                
-                for each (var accessor:XML in typeDescription.accessor)
-                {
-                    var access:String = accessor.@access.toString();
-                    var accessorName:String = accessor.@name.toString();
+                    var propertyName:String = property.@name.toString();
+                    var access:String = property.@access.toString(); 
+                    var nonSerializedMetaData:XMLList = property.metadata.(@name == "NonSerialized");
                     
-                    if (access == "readwrite" || access == "read") 
-                        objectClone[accessorName] = cloneObject(object[accessorName], filter);
+                    if (access != "writeonly" && nonSerializedMetaData.length() == 0)
+                        objectClone[propertyName] = cloneObject(object[propertyName], filter);
                 }
             }
             

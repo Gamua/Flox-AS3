@@ -77,10 +77,42 @@ package com.gamua.flox
             assertEqual(DateUtil.toString(date), clone.date);
         }
         
+        public function testCloneObjectWithNonSerializedMetaData():void
+        {
+            var object:CustomObject = new CustomObject();
+            object.publicVar = 1;
+            object.publicNonSerializedMember = 2;
+            object.publicNonSerializedProperty = 3;
+            
+            var clone:Object = cloneObject(object);
+            
+            assertEqual(clone.publicVar, object.publicVar);
+            assertFalse("publicNonSerializedMember" in clone);
+            assertFalse("publicNonSerializedProperty" in clone);
+        }
+        
         public function testCreateUID():void
         {
             var uid:String = createUID();
             assertEqual(16, uid.length, "UID does not have the right length");
         }
+    }
+}
+
+class CustomObject
+{
+    private var privateVar:int;
+    public var publicVar:int;
+ 
+    [NonSerialized]
+    public var publicNonSerializedMember:int;
+    
+    [NonSerialized]
+    public function get publicNonSerializedProperty():int { return privateVar; }
+    public function set publicNonSerializedProperty(value:int):void { privateVar = value; }
+    
+    public function CustomObject()
+    {
+        privateVar = publicVar = publicNonSerializedMember = 0;
     }
 }

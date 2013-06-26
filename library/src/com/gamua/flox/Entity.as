@@ -367,6 +367,7 @@ package com.gamua.flox
         
         /** The type of the entity, which is per default the name of class. This is what
          *  groups Entities together on the server. */
+        [NonSerialized]
         public function get type():String { return getType(getClass(this)); }
         
         /** This is the primary identifier of the entity. It must be unique within the objects of
