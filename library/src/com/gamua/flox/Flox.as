@@ -167,7 +167,7 @@ package com.gamua.flox
          *  @param onComplete: a callback containing an Array of 'Score' instances: 
          *                     <pre>onComplete(scores:Array):void;</pre>
          *  @param onError:    a callback with the form:
-         *                     <pre>onError(error:String, cachedScores:Vector.&lt;Score&gt;):void;</pre>
+         *                     <pre>onError(error:String, cachedScores:Array):void;</pre>
          */
         public static function loadScores(leaderboardID:String, timescope:String,
                                           onComplete:Function, onError:Function):void
