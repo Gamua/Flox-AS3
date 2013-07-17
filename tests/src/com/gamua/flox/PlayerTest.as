@@ -223,7 +223,7 @@ package com.gamua.flox
             {
                 // find link to flox email, visit it.
                 var matches:Array = htmlContents.match(
-                    '<a href="(https://www.flox.cc/games/.+?/players/.+?/authorize.+?)"');
+                    '<a href="(https://(?:www.)?flox.*/games/.+?/players/.+?/authorize.+?)"');
                 if (matches && matches.length == 2)
                     downloadTextResource(matches[1], onAuthorizeComplete, onError);
                 else
@@ -235,6 +235,39 @@ package com.gamua.flox
             
             function onAuthorizeComplete(htmlContents:String):void
             {
+                onComplete();
+            }
+        }
+        
+        public function testCannotUseSameKeyTwice(onComplete:Function):void
+        {
+            var key:String = createUID();
+            Player.loginWithKey(key, onLoginComplete, onLoginError);
+            
+            function onLoginComplete(player:CustomPlayer):void
+            {
+                // by changing the ID and saving the player, we'd (in theory) create a new
+                // player object on the server that has the same key. That must not be allowed.
+                
+                player.id = createUID();
+                player.save(onSaveComplete, onSaveError);
+            }
+            
+            function onLoginError(error:String):void
+            {
+                fail("key login failed");
+                onComplete();
+            }
+            
+            function onSaveComplete():void
+            {
+                fail("server did not prohibit using the same auth ID twice");
+                onComplete();
+            }
+            
+            function onSaveError(error:String):void
+            {
+                // that's fine, it's supposed to fail.
                 onComplete();
             }
         }
