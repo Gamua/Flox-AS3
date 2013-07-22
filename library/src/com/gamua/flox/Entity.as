@@ -7,6 +7,7 @@
 
 package com.gamua.flox
 {
+    import com.gamua.flox.events.QueueEvent;
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpMethod;
     import com.gamua.flox.utils.HttpStatus;
@@ -263,14 +264,30 @@ package com.gamua.flox
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
+                // createdAt and updatedAt are always set by server, thus we update them here.
+                entity.createdAt = DateUtil.parse(body.createdAt);
+                entity.updatedAt = DateUtil.parse(body.updatedAt);
+                
                 execute(onComplete, entity);
             }
         }
         
         private static function saveQueued(entity:Entity):void
         {
+            var service:RestService = Flox.service;
             var path:String = createEntityURL(entity.type, entity.id);
-            Flox.service.requestQueued(HttpMethod.PUT, path, entity.toObject());
+            
+            service.requestQueued(HttpMethod.PUT, path, entity.toObject());
+            service.addEventListener(QueueEvent.QUEUE_PROCESSED,
+                function onQueueProcessed(event:QueueEvent):void
+                {
+                    service.removeEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed);
+                    
+                    // createdAt and updatedAt are always set by server, thus we update them here.
+                    var cachedObject:Object = Flox.service.getFromCache(path);
+                    entity.createdAt = DateUtil.parse(cachedObject.createdAt);
+                    entity.updatedAt = DateUtil.parse(cachedObject.updatedAt);
+                });
         }
         
         private static function refresh(entity:Entity, onComplete:Function, onError:Function):void

@@ -89,7 +89,7 @@ package com.gamua.flox
 
             function onSaveComplete(player:Player):void
             {
-                assertEqualObjects(originalData, cloneObject(player));
+                assertEqualEntities(originalData, player);
                 if (!useCache) Flox.clearCache();
                 Entity.load(Player, player.id, onLoadComplete, onLoadError);
             }
@@ -144,7 +144,7 @@ package com.gamua.flox
             
             function onSaveComplete(entity:CustomEntity):void
             {
-                assertEqualObjects(originalData, cloneObject(entity));
+                assertEqualEntities(originalData, entity);
                 Flox.clearCache();
                 Entity.load(CustomEntity, testEntity.id, onLoadComplete, onLoadError);
             }
@@ -188,7 +188,7 @@ package com.gamua.flox
             
             function onSaveComplete(entity:CustomEntity):void
             {
-                assertEqualObjects(originalData, cloneObject(entity));
+                assertEqualEntities(originalData, entity);
                 entity.name = "Hugo";
                 entity.age = 5;
                 
@@ -198,7 +198,7 @@ package com.gamua.flox
             
             function onRefreshComplete(entity:Entity, fromCache:Boolean):void
             {
-                assertEqualObjects(originalData, cloneObject(entity));
+                assertEqualEntities(originalData, entity);
                 Flox.shutdown();
                 onComplete();
             }
@@ -367,7 +367,81 @@ package com.gamua.flox
             }
         }
         
-        private function assertEqualEntities(entityA:Entity, entityB:Entity, 
+        public function testDatesAreUpdatedOnSave(onComplete:Function):void
+        {
+            Constants.initFlox();
+            Flox.clearCache();
+            
+            var origCreatedAt:Date;
+            var origUpdatedAt:Date;
+            var testEntity:CustomEntity = new CustomEntity("check-dates", Math.random() * 100);
+            testEntity.save(onSaveComplete, onError);
+            
+            function onSaveComplete(entity:CustomEntity):void
+            {
+                origCreatedAt = entity.createdAt;
+                origUpdatedAt = entity.updatedAt;
+                Flox.clearCache(); // force reload from server
+                
+                testEntity.name = "modified";
+                testEntity.save(onUpdateComplete, onError);
+            }
+            
+            function onUpdateComplete(entity:CustomEntity):void
+            {
+                assertEqual(DateUtil.toString(origCreatedAt), DateUtil.toString(entity.createdAt),
+                            "createdAt was modified on save");
+                assert(DateUtil.toString(origUpdatedAt) != DateUtil.toString(entity.updatedAt),
+                       "updatedAt was not modified");
+                
+                Flox.shutdown();
+                onComplete();
+            }
+            
+            function onError(error:String):void
+            {
+                fail("Error while saving or loading entity: " + error);
+                Flox.shutdown();
+                onComplete();
+            }
+        }
+        
+        public function testDatesAreUpdatedOnSaveQueued(onComplete:Function):void
+        {
+            Constants.initFlox();
+            Flox.clearCache();
+            Flox.addEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed);
+            
+            var testEntity:CustomEntity = new CustomEntity("check-dates-2", Math.random() * 100);
+            testEntity.saveQueued();
+            
+            function onQueueProcessed(event:QueueEvent):void
+            {
+                Flox.removeEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed);
+                assert(event.success, "event queue not processed successfully");
+                Entity.load(CustomEntity, testEntity.id, onLoadComplete, onLoadError);
+            }
+            
+            function onLoadComplete(entity:CustomEntity):void
+            {
+                assertEqual(DateUtil.toString(entity.createdAt), DateUtil.toString(testEntity.createdAt),
+                    "createdAt was not updated with server time on saveQueued");
+                assertEqual(DateUtil.toString(entity.updatedAt), DateUtil.toString(testEntity.updatedAt),
+                    "updatedAt was not updated with server time on saveQueued");
+                
+                Flox.shutdown();
+                onComplete();
+            }
+            
+            function onLoadError(error:String):void
+            {
+                fail("Error while loading entity: " + error);
+                Flox.shutdown();
+                onComplete();
+            }
+        }
+        
+        private function assertEqualEntities(entityA:Object, entityB:Object, 
                                              compareDates:Boolean=false):void
         {
             if (compareDates) assertEqualObjects(entityA, entityB);

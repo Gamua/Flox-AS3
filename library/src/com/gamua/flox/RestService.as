@@ -12,6 +12,7 @@ package com.gamua.flox
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpMethod;
     import com.gamua.flox.utils.HttpStatus;
+    import com.gamua.flox.utils.cloneObject;
     import com.gamua.flox.utils.createURL;
     import com.gamua.flox.utils.execute;
     
@@ -148,6 +149,13 @@ package com.gamua.flox
                         }
                         else if (method == HttpMethod.PUT)
                         {
+                            if ("createdAt" in result && "updatedAt" in result)
+                            {
+                                data = cloneObject(data);
+                                data.createdAt = result.createdAt;
+                                data.updatedAt = result.updatedAt;
+                            }
+                            
                             mCache.setObject(path, data, { eTag: headers.ETag });
                         }
                         else if (method == HttpMethod.DELETE)
@@ -327,7 +335,7 @@ package com.gamua.flox
             if (mCache.containsKey(path))
             {
                 var cachedObject:Object = mCache.getObject(path);
-                var cachedETag:String = mCache.getMetaData(path, "eTag").toString();
+                var cachedETag:String = mCache.getMetaData(path, "eTag") as String;
                 
                 if (eTag == null || eTag == cachedETag)
                     return cachedObject;
