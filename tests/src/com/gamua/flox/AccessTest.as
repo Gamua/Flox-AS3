@@ -82,10 +82,10 @@ package com.gamua.flox
                 onComplete();
             }
             
-            function onEntitySaveError():void
+            function onEntitySaveError(error:String):void
             {
                 if (access == Access.READ_WRITE)
-                    fail("Could not modify READ_WRITE entity");
+                    fail("Could not modify READ_WRITE entity: " + error);
                 
                 onComplete();
             }
@@ -95,7 +95,7 @@ package com.gamua.flox
                 if (access == Access.NONE)
                     assertFalse(HttpStatus.isTransientError(httpStatus));
                 else
-                    fail("Could not load entity with '" + access + "' access");
+                    fail("Could not load entity with '" + access + "' access: " + error);
                 
                 onComplete();
             }
