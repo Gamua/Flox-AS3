@@ -1,5 +1,7 @@
 package starling.unit
 {
+    import flash.utils.getTimer;
+    
     import starling.display.Sprite;
     import starling.events.Event;
     import starling.text.BitmapFont;
@@ -23,6 +25,7 @@ package starling.unit
         private var mLogLines:Sprite;
         private var mNumLogLines:int;
         private var mStatusInfo:TextField;
+        private var mStartMoment:Number;
         
         public function TestGui(testRunner:TestRunner, width:int, height:int)
         {
@@ -43,6 +46,7 @@ package starling.unit
         
         public function start():void
         {
+            mStartMoment = getTimer() / 1000;
             addEventListener(Event.ENTER_FRAME, onEnterFrame);
         }
         
@@ -57,8 +61,11 @@ package starling.unit
             
             if (status == TestRunner.STATUS_FINISHED)
             {
+                var duration:int = getTimer() / 1000 - mStartMoment;
                 stop();
+                
                 log("Finished all tests!", Color.AQUA);
+                log("Duration: " + duration + " seconds.", Color.AQUA);
             }
         }
         
