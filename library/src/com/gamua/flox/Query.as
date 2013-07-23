@@ -16,10 +16,10 @@ package com.gamua.flox
      *  the results with certain constraints. The system works similar to SQL "select" statements.
      * 
      *  <p>Before you can make a query, you have to create indices that match the query. You can
-     *  do that in the online interface. An index has to contain all the properties that are 
+     *  do that in the Flox online interface. An index has to contain all the properties that are
      *  referenced in the constraints.</p>
      * 
-     *  <p>Here is an example of how you can execute a Query with Flox. This query requires 
+     *  <p>Here is an example of how you can execute a Query with Flox. This query requires
      *  an index containing both "level" and "score" properties.</p>
      *  <pre>
      *  var query:Query = new Query(Player);
@@ -33,6 +33,10 @@ package com.gamua.flox
      *  {
      *      trace("something went wrong: " + error);
      *  });</pre>
+     *  
+     *  <p>Beware that an entity that was just saved might not be available through a query
+     *  right away; it will take a moment before the index has been stored (the exact time
+     *  may vary depending on server load, but it's typically between 0.25 and 5.0 seconds).</p>
      */
     public class Query
     {
