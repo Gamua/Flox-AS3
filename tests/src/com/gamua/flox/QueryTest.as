@@ -66,11 +66,10 @@ package com.gamua.flox
             var product:Product = new Product("tamagotchi", 42);
             var query:Query = new Query(Product);
             
-            makeQuery([product], query, checkResult, onComplete);
+            makeQuery([product], query, 1, checkResult, onComplete);
             
-            function checkResult(entities:Array, count:int):void
+            function checkResult(entities:Array):void
             {
-                assertEqual(count, 1, "Wrong number of entities returned: " + count);
                 assertEqualEntities(entities[0], product);
             }
         }
@@ -81,11 +80,10 @@ package com.gamua.flox
             var product:Product = new Product(name, 42);
             var query:Query = new Query(Product, "name == ?", name);
             
-            makeQuery([product], query, checkResult, onComplete);
+            makeQuery([product], query, 1, checkResult, onComplete);
             
-            function checkResult(entities:Array, count:int):void
+            function checkResult(entities:Array):void
             {
-                assertEqual(count, 1, "Wrong number of entities returned: " + count);
                 assertEqualEntities(entities[0], product);
             }
         }
@@ -97,11 +95,10 @@ package com.gamua.flox
             var product:Product = new Product(name, price);
             var query:Query = new Query(Product, "name == ? AND price == ?", name, price);
             
-            makeQuery([product], query, checkResult, onComplete);
+            makeQuery([product], query, 1, checkResult, onComplete);
             
-            function checkResult(entities:Array, count:int):void
+            function checkResult(entities:Array):void
             {
-                assertEqual(count, 1, "Wrong number of entities returned: " + count);
                 assertEqualEntities(entities[0], product);
             }
         }
@@ -119,12 +116,11 @@ package com.gamua.flox
             ];
             
             var query:Query = new Query(Product, "price >= ? AND price < ?", 1, 6);
-            makeQuery(products, query, checkResult, onComplete);
+            makeQuery(products, query, 5, checkResult, onComplete);
             
-            function checkResult(entities:Array, count):void
+            function checkResult(entities:Array):void
             {
                 entities.sortOn("price");
-                assert(count == 5, "Wrong number of entities returned: " + count);
                 assertEqualEntities(entities[0], products[1]);
                 assertEqualEntities(entities[1], products[2]);
                 assertEqualEntities(entities[2], products[3]);
@@ -150,12 +146,11 @@ package com.gamua.flox
             query.limit = limit;
             assertEqual(limit, query.limit, "wrong limit");
             
-            makeQuery(products, query, checkResult, onComplete);
+            makeQuery(products, query, limit, checkResult, onComplete);
             
-            function checkResult(entities:Array, count:int):void
+            function checkResult(entities:Array):void
             {
                 entities.sortOn("price");
-                assert(count == limit, "Wrong number of entities returned: " + count);
                 assertEqualEntities(entities[0], products[1]);
                 assertEqualEntities(entities[1], products[2]);
                 assertEqualEntities(entities[2], products[3]);
@@ -171,12 +166,11 @@ package com.gamua.flox
             ];
             
             var query:Query = new Query(Product, "name == ? OR price == 2", "bravo");
-            makeQuery(products, query, checkResult, onComplete);
+            makeQuery(products, query, 2, checkResult, onComplete);
             
-            function checkResult(entities:Array, count:int):void
+            function checkResult(entities:Array):void
             {
                 entities.sortOn("price");
-                assert(count == 2, "Wrong number of entities returned: " + count);
                 assertEqualEntities(entities[0], products[1]);
                 assertEqualEntities(entities[1], products[2]);
             }
@@ -192,12 +186,11 @@ package com.gamua.flox
             ];
             
             var query:Query = new Query(Product, "name > ? AND name < ?", "alfa", "delta");
-            makeQuery(products, query, checkResult, onComplete);
+            makeQuery(products, query, 2, checkResult, onComplete);
             
-            function checkResult(entities:Array, count:int):void
+            function checkResult(entities:Array):void
             {
                 entities.sortOn("price");
-                assert(count == 2, "Wrong number of entities returned: " + count);
                 assertEqualEntities(entities[0], products[1]);
                 assertEqualEntities(entities[1], products[2]);
             }
@@ -215,12 +208,11 @@ package com.gamua.flox
             var query:Query = new Query(Product, "date > ? AND date < ?", 
                                         products[0].date, products[3].date);
             
-            makeQuery(products, query, checkResult, onComplete);
+            makeQuery(products, query, 2, checkResult, onComplete);
             
-            function checkResult(entities:Array, count:int):void
+            function checkResult(entities:Array):void
             {
                 entities.sortOn("date");
-                assert(count == 2, "Wrong number of entities returned: " + count);
                 assertEqualEntities(entities[0], products[1]);
                 assertEqualEntities(entities[1], products[2]);
             }
@@ -234,11 +226,10 @@ package com.gamua.flox
             ];
 
             var query:Query = new Query(Product, "price != 1");
-            makeQuery(products, query, checkResult, onComplete);
+            makeQuery(products, query, 1, checkResult, onComplete);
             
-            function checkResult(entities:Array, count:int):void
+            function checkResult(entities:Array):void
             {
-                assert(count == 1, "Wrong number of entities returned: " + count);
                 assertEqualEntities(entities[0], products[0]);
             }
         }
@@ -255,12 +246,11 @@ package com.gamua.flox
             
             var query:Query = new Query(Product, 
                 "(name == ? OR name == ?) AND (price == 1)", "alfa", "bravo");
-            makeQuery(products, query, checkResult, onComplete);
+            makeQuery(products, query, 2, checkResult, onComplete);
             
-            function checkResult(entities:Array, count:int):void
+            function checkResult(entities:Array):void
             {
                 entities.sortOn("name");
-                assert(count == 2, "Wrong number of entities returned: " + count);
                 assertEqualEntities(entities[0], products[1]);
                 assertEqualEntities(entities[1], products[2]);
             }
@@ -273,18 +263,18 @@ package com.gamua.flox
             var product1:Product = new Product(name, 11);
             
             var query:Query = new Query(Product, "name == ?", name);
-            makeQuery([product0, product1], query, checkResult, onComplete);
+            makeQuery([product0, product1], query, 1, checkResult, onComplete);
             
-            function checkResult(entities:Array, count:int):void
+            function checkResult(entities:Array):void
             {
-                assert(count == 1, "Wrong number of entities returned: " + count);
                 assertEqualEntities(entities[0], product1);
             }
         }
         
-        private function makeQuery(inputEntities:Array, query:Query, 
+        private function makeQuery(inputEntities:Array, query:Query, expectedCount:int,
                                    onResult:Function, onComplete:Function):void
         {
+            var tries:int = 10;
             Flox.addEventListener(QueueEvent.QUEUE_PROCESSED, onProductsSaved);
             
             for each (var entity:Entity in inputEntities)
@@ -307,9 +297,30 @@ package com.gamua.flox
             
             function onQueryComplete(outputEntities:Array):void
             {
-                assertNotNull(outputEntities);
-                execute(onResult, outputEntities, outputEntities.length);
-                onComplete();
+                if (outputEntities == null)
+                {
+                    fail("query returned result 'null'");
+                    onComplete();
+                }
+                else if (outputEntities.length != expectedCount)
+                {
+                    if (tries-- > 0)
+                    {
+                        trace("  retrying ...");
+                        query.find(onQueryComplete, onQueryError);
+                    }
+                    else
+                    {
+                        fail("wrong number of entities returned: " + outputEntities.length);
+                        onComplete();
+                    }
+                }
+                else
+                {
+                    assert(outputEntities is Array);
+                    execute(onResult, outputEntities);
+                    onComplete();
+                }
             }
             
             function onQueryError(error:String, httpStatus:int):void
