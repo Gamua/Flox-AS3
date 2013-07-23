@@ -1,6 +1,12 @@
 Flox: Changelog
 ===============
 
+version 0.7.1 - 2013-07-23
+--------------------------
+
+* now updating 'createdAt' and 'updatedAt' on Entities with data from server
+* added some API documentation updates
+
 version 0.7 - 2013-06-26
 ------------------------
 
