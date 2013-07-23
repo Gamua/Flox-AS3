@@ -124,24 +124,16 @@ package com.gamua.flox
         
         public function makeDestructionTest(access:String, onComplete:Function):void
         {
-            var entity:CustomEntity = null;
-            Player.loginWithKey(KEY_1, onLoginPlayer1Complete, onError);
+            Player.logout(); // login new guest
             
-            function onLoginPlayer1Complete(player:Player):void
-            {
-                entity = new CustomEntity("Sauron", int(Math.random() * 1000));
-                entity.publicAccess = access;
-                entity.save(onEntitySaved, onError);
-            }
+            var entity:CustomEntity = new CustomEntity("Sauron", int(Math.random() * 1000));
+            entity.publicAccess = access;
+            entity.save(onEntitySaved, onError);
             
             function onEntitySaved(entity:CustomEntity):void
             {
-                Player.loginWithKey(KEY_2, onLoginPlayer2Complete, onError);
-            }
-            
-            function onLoginPlayer2Complete(player:Player):void
-            {
-                Entity.destroy(CustomEntity, entity.id, onDestroyComplete, onDestroyError); 
+                Player.logout(); // login new guest
+                Entity.destroy(CustomEntity, entity.id, onDestroyComplete, onDestroyError);
             }
             
             function onDestroyComplete():void
