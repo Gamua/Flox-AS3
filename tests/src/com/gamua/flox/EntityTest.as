@@ -291,6 +291,38 @@ package com.gamua.flox
             }
         }
         
+        public function testSaveDestroyLoad(onComplete:Function):void
+        {
+            Constants.initFlox();
+            Player.logout();
+            
+            var entity:CustomEntity = new CustomEntity("Garfield", 6);
+            entity.save(onSaveComplete, onError);
+            
+            function onSaveComplete():void
+            {
+                entity.destroy(onDestroyComplete, onError);
+            }
+            
+            function onDestroyComplete():void
+            {
+                Entity.load(CustomEntity, entity.id, onLoadComplete, onError);
+            }
+            
+            function onLoadComplete():void
+            {
+                fail("could load deleted entity");
+                Flox.shutdown();
+                onComplete();
+            }
+            
+            function onError(error:String, httpStatus:int, cachedEntity:Entity):void
+            {
+                Flox.shutdown();
+                onComplete();
+            }
+        }
+        
         public function testSaveQueued(onComplete:Function):void
         {
             Constants.initFlox();
