@@ -21,22 +21,22 @@ package com.gamua.flox
             Flox.shutdown();
         }
         
-        public function testAccessNone(onComplete:Function):void
+        public function testModificationWithAccessNone(onComplete:Function):void
         {
-            makeAccessTest(Access.NONE, onComplete);
+            makeModificationTest(Access.NONE, onComplete);
         }
         
-        public function testAccessReadOnly(onComplete:Function):void
+        public function testModificationWithAccessRead(onComplete:Function):void
         {
-            makeAccessTest(Access.READ, onComplete);
+            makeModificationTest(Access.READ, onComplete);
         }
         
-        public function testAccessReadWrite(onComplete:Function):void
+        public function testModificationWithAccessReadWrite(onComplete:Function):void
         {
-            makeAccessTest(Access.READ_WRITE, onComplete);
+            makeModificationTest(Access.READ_WRITE, onComplete);
         }
         
-        public function makeAccessTest(access:String, onComplete:Function):void
+        public function makeModificationTest(access:String, onComplete:Function):void
         {
             var entity:CustomEntity = null;
             Player.loginWithKey(KEY_1, onLoginPlayer1Complete, onError);
@@ -45,7 +45,7 @@ package com.gamua.flox
             {
                 assertEqual(AuthenticationType.KEY, player.authType);
                 
-                entity = new CustomEntity("Gandalf", 10001);
+                entity = new CustomEntity("Gandalf", int(Math.random() * 1000));
                 entity.publicAccess = access;
                 entity.save(onEntitySaved, onError);
             }
@@ -96,6 +96,66 @@ package com.gamua.flox
                     assertFalse(HttpStatus.isTransientError(httpStatus));
                 else
                     fail("Could not load entity with '" + access + "' access: " + error);
+                
+                onComplete();
+            }
+            
+            function onError(error:String, httpStatus:int):void
+            {
+                fail("Entity handling failed: " + error);
+                onComplete();
+            }
+        }
+        
+        public function testDestructionWithAccessNone(onComplete:Function):void
+        {
+            makeDestructionTest(Access.NONE, onComplete);
+        }
+        
+        public function testDestructionWithAccessRead(onComplete:Function):void
+        {
+            makeDestructionTest(Access.READ, onComplete);
+        }
+        
+        public function testDestructionWithAccessReadWrite(onComplete:Function):void
+        {
+            makeDestructionTest(Access.READ_WRITE, onComplete);
+        }
+        
+        public function makeDestructionTest(access:String, onComplete:Function):void
+        {
+            var entity:CustomEntity = null;
+            Player.loginWithKey(KEY_1, onLoginPlayer1Complete, onError);
+            
+            function onLoginPlayer1Complete(player:Player):void
+            {
+                entity = new CustomEntity("Sauron", int(Math.random() * 1000));
+                entity.publicAccess = access;
+                entity.save(onEntitySaved, onError);
+            }
+            
+            function onEntitySaved(entity:CustomEntity):void
+            {
+                Player.loginWithKey(KEY_2, onLoginPlayer2Complete, onError);
+            }
+            
+            function onLoginPlayer2Complete(player:Player):void
+            {
+                Entity.destroy(CustomEntity, entity.id, onDestroyComplete, onDestroyError); 
+            }
+            
+            function onDestroyComplete():void
+            {
+                if (access != Access.READ_WRITE)
+                    fail("could destroy entity even though access rights were " + access);
+                
+                onComplete();
+            }
+            
+            function onDestroyError(error:String, httpStatus:int):void
+            {
+                if (access == Access.READ_WRITE)
+                    fail("could not destroy entity even though access rights were " + access);
                 
                 onComplete();
             }
