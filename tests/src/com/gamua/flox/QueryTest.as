@@ -284,7 +284,7 @@ package com.gamua.flox
                 new Product("zeta",    Math.random() * 10)
                 ];
             
-            var query:Query = new Query(Product, "price > 8");
+            var query:Query = new Query(Product, "price < 8");
             var remainingTests:int;
             var expectedCount:int = 
                 products.filter(function(p:Product, ...r):Boolean { return p.price < 8; }).length;
@@ -389,7 +389,7 @@ package com.gamua.flox
                 }
                 if (results.length != expectedCount)
                 {
-                    if (++tries > retries)
+                    if (++tries < retries)
                     {
                         trace("  retrying (" + tries + "/" + retries + ") ...");
                         query.find(onQueryComplete, onError);
