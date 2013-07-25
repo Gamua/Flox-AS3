@@ -66,7 +66,7 @@ package com.gamua.flox
             var product:Product = new Product("tamagotchi", 42);
             var query:Query = new Query(Product);
             
-            makeQuery([product], query, 1, checkResult, onComplete);
+            makeQueryTest([product], query, 1, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
@@ -80,7 +80,7 @@ package com.gamua.flox
             var product:Product = new Product(name, 42);
             var query:Query = new Query(Product, "name == ?", name);
             
-            makeQuery([product], query, 1, checkResult, onComplete);
+            makeQueryTest([product], query, 1, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
@@ -95,7 +95,7 @@ package com.gamua.flox
             var product:Product = new Product(name, price);
             var query:Query = new Query(Product, "name == ? AND price == ?", name, price);
             
-            makeQuery([product], query, 1, checkResult, onComplete);
+            makeQueryTest([product], query, 1, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
@@ -116,7 +116,7 @@ package com.gamua.flox
             ];
             
             var query:Query = new Query(Product, "price >= ? AND price < ?", 1, 6);
-            makeQuery(products, query, 5, checkResult, onComplete);
+            makeQueryTest(products, query, 5, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
@@ -146,7 +146,7 @@ package com.gamua.flox
             query.limit = limit;
             assertEqual(limit, query.limit, "wrong limit");
             
-            makeQuery(products, query, limit, checkResult, onComplete);
+            makeQueryTest(products, query, limit, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
@@ -166,7 +166,7 @@ package com.gamua.flox
             ];
             
             var query:Query = new Query(Product, "name == ? OR price == 2", "bravo");
-            makeQuery(products, query, 2, checkResult, onComplete);
+            makeQueryTest(products, query, 2, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
@@ -186,7 +186,7 @@ package com.gamua.flox
             ];
             
             var query:Query = new Query(Product, "name > ? AND name < ?", "alfa", "delta");
-            makeQuery(products, query, 2, checkResult, onComplete);
+            makeQueryTest(products, query, 2, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
@@ -208,7 +208,7 @@ package com.gamua.flox
             var query:Query = new Query(Product, "date > ? AND date < ?", 
                                         products[0].date, products[3].date);
             
-            makeQuery(products, query, 2, checkResult, onComplete);
+            makeQueryTest(products, query, 2, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
@@ -226,7 +226,7 @@ package com.gamua.flox
             ];
 
             var query:Query = new Query(Product, "price != 1");
-            makeQuery(products, query, 1, checkResult, onComplete);
+            makeQueryTest(products, query, 1, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
@@ -246,7 +246,7 @@ package com.gamua.flox
             
             var query:Query = new Query(Product, 
                 "(name == ? OR name == ?) AND (price == 1)", "alfa", "bravo");
-            makeQuery(products, query, 2, checkResult, onComplete);
+            makeQueryTest(products, query, 2, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
@@ -263,7 +263,7 @@ package com.gamua.flox
             var product1:Product = new Product(name, 11);
             
             var query:Query = new Query(Product, "name == ?", name);
-            makeQuery([product0, product1], query, 1, checkResult, onComplete);
+            makeQueryTest([product0, product1], query, 1, checkResult, onComplete);
             
             function checkResult(entities:Array):void
             {
@@ -271,22 +271,87 @@ package com.gamua.flox
             }
         }
         
-        private function makeQuery(inputEntities:Array, query:Query, expectedCount:int,
-                                   onResult:Function, onComplete:Function):void
+        public function testOffsetReliability(onComplete:Function):void
         {
-            var tries:int = 10;
+            var abort:Boolean = false;
+            var firstResults:Array;
+            var products:Array = [
+                new Product("alpha",   Math.random() * 10),
+                new Product("beta",    Math.random() * 10),
+                new Product("gamma",   Math.random() * 10),
+                new Product("delta",   Math.random() * 10),
+                new Product("epsilon", Math.random() * 10),
+                new Product("zeta",    Math.random() * 10)
+                ];
+            
+            var query:Query = new Query(Product, "price > 8");
+            var remainingTests:int;
+            var expectedCount:int = 
+                products.filter(function(p:Product, ...r):Boolean { return p.price < 8; }).length;
+            
+            for each (var product:Product in products)
+                product.saveQueued();
+                
+            Flox.addEventListener(QueueEvent.QUEUE_PROCESSED, onProductsSaved);
+            
+            function onProductsSaved(event:*):void
+            {
+                Flox.removeEventListener(QueueEvent.QUEUE_PROCESSED, onProductsSaved);
+                executeQueryWithRetries(query, expectedCount, onFirstQueryComplete, onError);
+            }
+            
+            function onFirstQueryComplete(results:Array):void
+            {
+                remainingTests = results.length;
+                firstResults = results;
+                
+                for (var i:int=0; i<results.length; ++i)
+                    executeQueryWithLimitAndOffset(1, i, results[i]);
+            }
+            
+            function executeQueryWithLimitAndOffset(limit:int, offset:int, 
+                                                    expectedResult:Object):void
+            {
+                query.limit = limit;
+                query.offset = offset;
+                
+                query.find(function(results:Array):void
+                {
+                    if (!abort)
+                    {
+                        assertEqual(1, results.length);
+                        assertEqualObjects(results[0], expectedResult);
+                        if (--remainingTests == 0) onComplete();
+                    }
+                }, onError);
+            }
+            
+            function onError(error:String):void
+            {
+                if (!abort)
+                {
+                    abort = true;
+                    fail("could not execute query. Error: " + error);
+                    onComplete();
+                }
+            }
+        }
+        
+        private function makeQueryTest(inputEntities:Array, query:Query, expectedCount:int,
+                                       onResult:Function, onComplete:Function):void
+        {
             Flox.addEventListener(QueueEvent.QUEUE_PROCESSED, onProductsSaved);
             
             for each (var entity:Entity in inputEntities)
                 entity.saveQueued();
-                
+            
             function onProductsSaved(event:QueueEvent):void
             {
                 Flox.removeEventListener(QueueEvent.QUEUE_PROCESSED, onProductsSaved);
                 
                 if (event.success)
                 {
-                    query.find(onQueryComplete, onQueryError);
+                    executeQueryWithRetries(query, expectedCount, onQueryComplete, onQueryError);
                 }
                 else
                 {
@@ -297,36 +362,44 @@ package com.gamua.flox
             
             function onQueryComplete(outputEntities:Array):void
             {
-                if (outputEntities == null)
-                {
-                    fail("query returned result 'null'");
-                    onComplete();
-                }
-                else if (outputEntities.length != expectedCount)
-                {
-                    if (tries-- > 0)
-                    {
-                        trace("  retrying ...");
-                        query.find(onQueryComplete, onQueryError);
-                    }
-                    else
-                    {
-                        fail("wrong number of entities returned: " + outputEntities.length);
-                        onComplete();
-                    }
-                }
-                else
-                {
-                    assert(outputEntities is Array);
-                    execute(onResult, outputEntities);
-                    onComplete();
-                }
+                assert(outputEntities is Array);
+                execute(onResult, outputEntities);
+                onComplete();
             }
             
             function onQueryError(error:String, httpStatus:int):void
             {
                 fail("could not execute query. Error: " + error);
                 onComplete();
+            }
+        }
+        
+        private function executeQueryWithRetries(query:Query, expectedCount:int, 
+                                                 onComplete:Function, onError:Function,
+                                                 retries:int=10):void
+        {
+            var tries:int = 0;
+            query.find(onQueryComplete, onError);
+            
+            function onQueryComplete(results:Array):void
+            {
+                if (results == null)
+                {
+                    onError("query returned 'null' result");
+                }
+                if (results.length != expectedCount)
+                {
+                    if (++tries > retries)
+                    {
+                        trace("  retrying (" + tries + "/" + retries + ") ...");
+                        query.find(onQueryComplete, onError);
+                    }
+                    else
+                    {
+                        onError("wrong number of entities returned: " + results.length);
+                    }
+                }
+                else onComplete(results);
             }
         }
         
