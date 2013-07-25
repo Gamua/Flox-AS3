@@ -34,10 +34,16 @@ package starling.unit
         public function add(testClass:Class):void
         {
             var typeInfo:XML = describeType(testClass);
+            var methodNames:Array = [];
             
             for each (var method:XML in typeInfo.factory.method)
                 if (method.@name.toLowerCase().indexOf("test") == 0)
-                    mTests.push([testClass, method.@name.toString()]);
+                    methodNames.push(method.@name.toString());
+            
+            methodNames.sort();
+            
+            for each (var methodName:String in methodNames)
+                mTests.push([testClass, methodName]);
         }
         
         public function runNext():String
