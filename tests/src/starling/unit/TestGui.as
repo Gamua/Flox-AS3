@@ -19,7 +19,7 @@ package starling.unit
         private var mTestRunner:TestRunner;
         private var mWidth:int;
         private var mHeight:int;
-        
+        private var mLoop:Boolean;
         private var mTestCount:int;
         private var mSuccessCount:int;
         private var mLogLines:Sprite;
@@ -44,8 +44,9 @@ package starling.unit
             addChild(mLogLines);
         }
         
-        public function start():void
+        public function start(loop:Boolean=false):void
         {
+            mLoop = loop;
             mStartMoment = getTimer() / 1000;
             addEventListener(Event.ENTER_FRAME, onEnterFrame);
         }
@@ -53,6 +54,7 @@ package starling.unit
         public function stop():void
         {
             removeEventListener(Event.ENTER_FRAME, onEnterFrame);
+            mTestRunner.resetRun();
         }
         
         private function onEnterFrame(event:Event):void
@@ -66,6 +68,8 @@ package starling.unit
                 
                 log("Finished all tests!", Color.AQUA);
                 log("Duration: " + duration + " seconds.", Color.AQUA);
+                
+                if (mLoop) start(true);
             }
         }
         
