@@ -6,6 +6,8 @@ package com.gamua.flox
     import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.execute;
     
+    import flash.utils.setTimeout;
+    
     import starling.unit.UnitTest;
     
     use namespace flox_internal;
@@ -392,11 +394,11 @@ package com.gamua.flox
                     if (++tries < retries)
                     {
                         trace("  retrying (" + tries + "/" + retries + ") ...");
-                        query.find(onQueryComplete, onError);
+                        setTimeout(query.find, retries * 500, onQueryComplete, onError);
                     }
                     else
                     {
-                        onError("wrong number of entities returned: " + results.length);
+                        execute(onError, "wrong number of entities returned: " + results.length, 0);
                     }
                 }
                 else onComplete(results);
