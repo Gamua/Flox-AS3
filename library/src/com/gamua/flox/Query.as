@@ -33,10 +33,6 @@ package com.gamua.flox
      *  {
      *      trace("something went wrong: " + error);
      *  });</pre>
-     *  
-     *  <p>Beware that an entity that was just saved might not be available through a query
-     *  right away; it will take a moment before the index has been stored (the exact time
-     *  may vary depending on server load, but it's typically between 0.25 and 5.0 seconds).</p>
      */
     public class Query
     {
