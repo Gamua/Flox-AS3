@@ -31,7 +31,10 @@ package com.gamua.flox.utils
     {
         private static const BASE64_CHARS:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
         
-        public static const version:String = "1.0.0";
+        /** helper objects */
+        private static var sOutputBuilder:ByteArray    = new ByteArray();
+        private static var sDataBuffer:Vector.<uint>   = new <uint>[];
+        private static var sOutputBuffer:Vector.<uint> = new <uint>[]
         
         public static function encode(data:String):String 
         {
@@ -46,11 +49,7 @@ package com.gamua.flox.utils
         public static function encodeByteArray(data:ByteArray):String 
         {
             // Initialise output
-            var output:String = "";
-            
-            // Create data and output buffers
-            var dataBuffer:Array;
-            var outputBuffer:Array = new Array(4);
+            var output:String;
             
             // Rewind ByteArray
             data.position = 0;
@@ -58,30 +57,38 @@ package com.gamua.flox.utils
             // while there are still bytes to be processed
             while (data.bytesAvailable > 0) 
             {
+                var numBytes:int = data.bytesAvailable >= 3 ? 3: data.bytesAvailable;
+                
                 // Create new data buffer and populate next 3 bytes from data
-                dataBuffer = new Array();
-                for (var i:uint = 0; i < 3 && data.bytesAvailable > 0; i++) 
-                    dataBuffer[i] = data.readUnsignedByte();
+                for (var i:uint = 0; i < numBytes; ++i) 
+                    sDataBuffer[i] = data.readUnsignedByte();
                 
                 // Convert to data buffer Base64 character positions and 
                 // store in output buffer
-                outputBuffer[0] = (dataBuffer[0] & 0xfc) >> 2;
-                outputBuffer[1] = ((dataBuffer[0] & 0x03) << 4) | ((dataBuffer[1]) >> 4);
-                outputBuffer[2] = ((dataBuffer[1] & 0x0f) << 2) | ((dataBuffer[2]) >> 6);
-                outputBuffer[3] = dataBuffer[2] & 0x3f;
+                sOutputBuffer[0] = ( sDataBuffer[0] & 0xfc) >> 2;
+                sOutputBuffer[1] = ((sDataBuffer[0] & 0x03) << 4) | ((sDataBuffer[1]) >> 4);
+                sOutputBuffer[2] = ((sDataBuffer[1] & 0x0f) << 2) | ((sDataBuffer[2]) >> 6);
+                sOutputBuffer[3] =   sDataBuffer[2] & 0x3f;
                 
                 // If data buffer was short (i.e not 3 characters) then set
                 // end character indexes in data buffer to index of '=' symbol.
                 // This is necessary because Base64 data is always a multiple of
                 // 4 bytes and is basses with '=' symbols.
-                for (var j:uint = dataBuffer.length; j < 3; j++) 
-                    outputBuffer[j + 1] = 64;
+                for (var j:uint = numBytes; j < 3; j++) 
+                    sOutputBuffer[int(j + 1)] = 64;
                 
                 // Loop through output buffer and add Base64 characters to 
                 // encoded data string for each character.
-                for (var k:uint = 0; k < outputBuffer.length; k++)
-                    output += BASE64_CHARS.charAt(outputBuffer[k]);
+                for (var k:uint = 0; k < 4; k++)
+                    sOutputBuilder.writeUTFBytes(BASE64_CHARS.charAt(sOutputBuffer[k]));
             }
+            
+            // Read output string
+            sOutputBuilder.position = 0;
+            output = sOutputBuilder.readUTFBytes(sOutputBuilder.length);
+            
+            // Clear temporary buffers
+            sOutputBuilder.length = sOutputBuffer.length = sDataBuffer.length = 0;
             
             // Return encoded data
             return output;
@@ -98,37 +105,38 @@ package com.gamua.flox.utils
         
         public static function decodeToByteArray(data:String, output:ByteArray=null):ByteArray
         {
+            var dataLength:int = data.length;
+            
             // Initialise output ByteArray for decoded data
             if (output != null) output.length = 0;
             else output = new ByteArray();
             
-            // Create data and output buffers
-            var dataBuffer:Array = new Array(4);
-            var outputBuffer:Array = new Array(3);
-            
             // While there are data bytes left to be processed
-            for (var i:uint = 0; i < data.length; i += 4)
+            for (var i:uint = 0; i < dataLength; i += 4)
             {
                 // Populate data buffer with position of Base64 characters for
                 // next 4 bytes from encoded data
-                for (var j:uint = 0; j < 4 && i + j < data.length; j++)
-                    dataBuffer[j] = BASE64_CHARS.indexOf(data.charAt(i + j));
+                for (var j:uint = 0; j < 4 && i + j < dataLength; j++)
+                    sDataBuffer[j] = BASE64_CHARS.indexOf(data.charAt(i + j));
                 
                 // Decode data buffer back into bytes
-                outputBuffer[0] = (dataBuffer[0] << 2) + ((dataBuffer[1] & 0x30) >> 4);
-                outputBuffer[1] = ((dataBuffer[1] & 0x0f) << 4) + ((dataBuffer[2] & 0x3c) >> 2);		
-                outputBuffer[2] = ((dataBuffer[2] & 0x03) << 6) + dataBuffer[3];
+                sOutputBuffer[0] =  (sDataBuffer[0]         << 2) + ((sDataBuffer[1] & 0x30) >> 4);
+                sOutputBuffer[1] = ((sDataBuffer[1] & 0x0f) << 4) + ((sDataBuffer[2] & 0x3c) >> 2);		
+                sOutputBuffer[2] = ((sDataBuffer[2] & 0x03) << 6) +   sDataBuffer[3];
                 
                 // Add all non-padded bytes in output buffer to decoded data
-                for (var k:uint = 0; k < outputBuffer.length; k++) 
+                for (var k:uint = 0; k < 3; k++) 
                 {
-                    if (dataBuffer[k+1] == 64) break;
-                    output.writeByte(outputBuffer[k]);
+                    if (sDataBuffer[int(k+1)] == 64) break;
+                    output.writeByte(sOutputBuffer[k]);
                 }
             }
             
             // Rewind decoded data ByteArray
             output.position = 0;
+            
+            // Clear temporary buffers
+            sOutputBuffer.length = sDataBuffer.length = 0;
             
             // Return decoded data
             return output;
