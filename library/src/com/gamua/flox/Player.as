@@ -12,6 +12,7 @@ package com.gamua.flox
     import com.gamua.flox.utils.execute;
     
     import flash.errors.IllegalOperationError;
+    import flash.utils.setTimeout;
     
     /** An Entity that contains information about a Flox Player. The class also contains static
      *  methods for Player login and logout. */
@@ -160,6 +161,18 @@ package com.gamua.flox
                 throw new IllegalOperationError("Cannot change the authentication ID of a Player entity.");
             else
                 mAuthId = value; 
+        }
+        
+        /** @private */
+        public override function refresh(onComplete:Function, onError:Function):void
+        {
+            // a guest is not necessarily stored on the server; and even if it is, only the
+            // current installation can access it. Thus, it will always be in the correct state.
+            
+            if (mAuthType == AuthenticationType.GUEST)
+                setTimeout(execute, 0.001, onComplete, this, true);
+            else
+                super.refresh(onComplete, onError);
         }
         
         /** @private */
