@@ -4,6 +4,9 @@ package com.gamua.flox
     import com.gamua.flox.utils.cloneObject;
     import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.createURL;
+    import com.gamua.flox.utils.setTimeout;
+    
+    import flash.utils.getTimer;
     
     import starling.unit.UnitTest;
     
@@ -95,6 +98,23 @@ package com.gamua.flox
         {
             var uid:String = createUID();
             assertEqual(16, uid.length, "UID does not have the right length");
+        }
+        
+        public function testSetTimeout(onComplete:Function):void
+        {
+            var startMoment:int = getTimer();
+            setTimeout(onTimeout, 0.5, 1, "two", 3);
+            
+            function onTimeout(a:int, b:String, c:int):void
+            {
+                var endMoment:int = getTimer();
+                assertEquivalent(endMoment - startMoment, 500, "timeout executed after wrong time",
+                    100);
+                assertEqual(1, a);
+                assertEqual("two", b);
+                assertEqual(3, c);
+                onComplete();
+            }
         }
     }
 }
