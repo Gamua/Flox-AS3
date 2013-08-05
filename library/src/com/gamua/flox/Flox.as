@@ -10,6 +10,7 @@ package com.gamua.flox
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpMethod;
     import com.gamua.flox.utils.createUID;
+    import com.gamua.flox.utils.describeType;
     import com.gamua.flox.utils.execute;
     import com.gamua.flox.utils.formatString;
     import com.gamua.flox.utils.registerClassAlias;
@@ -473,10 +474,15 @@ package com.gamua.flox
         public static function get playerClass():Class { return sPlayerClass; }
         public static function set playerClass(value:Class):void
         {
+            var typeXml:XML = describeType(value);
+            var extendsPlayer:XMLList = typeXml.extendsClass.(@type == "com.gamua.flox::Player");
+            
             if (sInitialized) 
                 throw new Error("The Player class needs to be set BEFORE calling 'Flox.init'.");
             else if (value == null)
                 throw new Error("The Player class must not be 'null'");
+            else if (extendsPlayer.length() == 0)
+                throw new Error("The Player class must extend 'com.gamua.flox::Player'");
             else
             {
                 sPlayerClass = value;

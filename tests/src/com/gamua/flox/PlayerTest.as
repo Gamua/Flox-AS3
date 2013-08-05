@@ -52,6 +52,19 @@ package com.gamua.flox
             }
             catch (e:Error) {}
         }
+        
+        public function testPlayerClassMustExtendPlayer():void
+        {
+            var failed:Boolean = false;
+            Flox.shutdown();
+            
+            try
+            {
+                Flox.playerClass = Entity;
+                fail("Could assign non-Player class to Flox.playerClass");
+            }
+            catch (e:Error) {}
+        }
 
         public function testGuestLogin():void
         {
