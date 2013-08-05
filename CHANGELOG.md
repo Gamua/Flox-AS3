@@ -1,6 +1,13 @@
 Flox: Changelog
 ===============
 
+version 0.8 - 2013-08-05
+------------------------
+
+* now enforcing that 'Flox.playerClass' points to class that extends Player
+* refreshing guest players now works even if the guest has not yet been saved at the server
+* optimized overall performance and removed temporary object creations in Base64 class
+
 version 0.7.1 - 2013-07-23
 --------------------------
 
