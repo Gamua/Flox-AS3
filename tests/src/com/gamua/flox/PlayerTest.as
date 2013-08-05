@@ -144,8 +144,7 @@ package com.gamua.flox
             var guestID:String = Player.current.id;
             assert(oldPlayerID != guestID);
 
-            var emailUser:String = "flox-unit-test-" + createUID();
-            var email:String = emailUser + "@mailinator.com";
+            var email:String = createUID() + "@maildrop.cc";
             Player.loginWithEmail(email, onLogin1Complete, onLogin1Error);
             
             function onLogin1Complete(player:Player):void
@@ -199,7 +198,7 @@ package com.gamua.flox
             
             function onMailError(error:String, httpStatus:int):void
             {
-                fail("Could not access Mailinator mails");
+                fail("Could not access MailDrop mails");
                 onComplete();
             }
             
@@ -219,27 +218,40 @@ package com.gamua.flox
         private function activatePlayerThroughEmail(email:String, 
                                                     onComplete:Function, onError:Function):void
         {
+            var numTries:int = 15;
             var emailUser:String = email.split("@").shift();
-            var mailBoxUrl:String = "http://" + emailUser + ".mailinator.com";
+            var mailBoxUrl:String = "http://maildrop.cc/inbox/" + emailUser;
+            
             setTimeout(downloadTextResource, 2000, mailBoxUrl, onMailBoxComplete, onError);
             
             function onMailBoxComplete(htmlContents:String):void
             {
-                // open up mailinator mailbox, find link to email
-                var matches:Array = htmlContents.match(/<tr>.*?<a href=(.+?)>/);
+                // open up MailDrop mailbox, find link to email
+                var matches:Array = htmlContents.match(/<td class=subject><a href="(.+?)">/);
                 if (matches && matches.length == 2)
-                    downloadTextResource("http://www.mailinator.com" + matches[1], onMailComplete, onError);
+                    downloadTextResource("http://maildrop.cc" + matches[1] + "/raw", 
+                        onMailComplete, onError);
                 else
                 {
-                    fail("Error parsing Mailinator mailbox");
-                    onComplete();
+                    if (numTries-- > 0)
+                    {
+                        trace("  mail not yet arrived, trying again ...");
+                        setTimeout(downloadTextResource, 2000, mailBoxUrl, onMailBoxComplete, onError);
+                    }
+                    else
+                    {
+                        fail("Error parsing MailDrop mailbox");
+                        onComplete();
+                    }
                 }
             }
             
-            function onMailComplete(htmlContents:String):void
+            function onMailComplete(rawContents:String):void
             {
+                var contents:String = rawContents.replace(/=\r\n/g, "").replace(/=3D/g, "=");
+                
                 // find link to flox email, visit it.
-                var matches:Array = htmlContents.match(
+                var matches:Array = contents.match(
                     '<a href="(https://(?:www.)?flox.*/games/.+?/players/.+?/authorize.+?)"');
                 if (matches && matches.length == 2)
                     downloadTextResource(matches[1], onAuthorizeComplete, onError);
