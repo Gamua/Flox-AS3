@@ -103,13 +103,12 @@ package com.gamua.flox
         public function testSetTimeout(onComplete:Function):void
         {
             var startMoment:int = getTimer();
-            setTimeout(onTimeout, 0.5, 1, "two", 3);
+            setTimeout(onTimeout, 500, 1, "two", 3);
             
             function onTimeout(a:int, b:String, c:int):void
             {
                 var endMoment:int = getTimer();
-                assertEquivalent(endMoment - startMoment, 500, "timeout executed after wrong time",
-                    100);
+                assertEquivalent(endMoment - startMoment, 500, "wrong timeout duration", 100);
                 assertEqual(1, a);
                 assertEqual("two", b);
                 assertEqual(3, c);

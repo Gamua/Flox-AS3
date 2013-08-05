@@ -1,8 +1,8 @@
 package com.gamua.flox
 {
+    import com.gamua.flox.utils.setTimeout;
     
     import flash.net.SharedObject;
-    import flash.utils.setTimeout;
     
     import starling.unit.UnitTest;
     

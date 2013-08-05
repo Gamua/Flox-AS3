@@ -3,8 +3,7 @@ package com.gamua.flox
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.downloadTextResource;
-    
-    import flash.utils.setTimeout;
+    import com.gamua.flox.utils.setTimeout;
     
     import starling.unit.UnitTest;
     

@@ -170,7 +170,7 @@ package com.gamua.flox
             // current installation can access it. Thus, it will always be in the correct state.
             
             if (mAuthType == AuthenticationType.GUEST)
-                setTimeout(execute, 0.001, onComplete, this, true);
+                setTimeout(execute, 1, onComplete, this, true);
             else
                 super.refresh(onComplete, onError);
         }

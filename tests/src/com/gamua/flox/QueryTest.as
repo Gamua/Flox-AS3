@@ -6,8 +6,6 @@ package com.gamua.flox
     import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.execute;
     
-    import flash.utils.setTimeout;
-    
     import starling.unit.UnitTest;
     
     use namespace flox_internal;
