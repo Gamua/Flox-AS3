@@ -297,13 +297,8 @@ package com.gamua.flox
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
-                if (httpStatus == HttpStatus.NO_CONTENT)
-                    execute(onError, "Entity has been deleted", httpStatus);
-                else
-                {
-                    refreshEntity(entity, body);
-                    execute(onComplete, entity, httpStatus == HttpStatus.NOT_MODIFIED);
-                }
+                refreshEntity(entity, body);
+                execute(onComplete, entity, httpStatus == HttpStatus.NOT_MODIFIED);
             }
         }
         
