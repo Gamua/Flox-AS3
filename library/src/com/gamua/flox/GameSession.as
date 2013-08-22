@@ -27,11 +27,10 @@ package com.gamua.flox
         
         /** Do not call this constructor directly, but create sessions via the static 
          *  'start' method instead. */
-        public function GameSession(lastSession:GameSession=null, gameVersion:String="1.0")
+        public function GameSession(lastSession:GameSession=null)
         {
             mFirstStartTime = lastSession ? lastSession.firstStartTime : new Date();
             mStartTime = new Date();
-            mGameVersion = gameVersion;
             mDuration = 0;
             mLog = [];
             mNumErrors = 0;
@@ -41,15 +40,15 @@ package com.gamua.flox
         /** Starts a new session and closes the previous one. This will send the analytics of 
          *  both sessions to the server (including log entries of the last session). 
          *  @returns the new GameSession. */
-        public static function start(gameID:String, gameVersion:String,
-                                     lastSession:GameSession=null, 
-                                     reportAnalytics:Boolean=true):GameSession
+        public static function start(gameID:String, gameVersion:String, installationID:String,
+                                     reportAnalytics:Boolean, lastSession:GameSession=null):GameSession
         {
-            var newSession:GameSession = new GameSession(lastSession, gameVersion);
+            var newSession:GameSession = new GameSession(lastSession);
             var resolution:String = Capabilities.screenResolutionX + "x" + 
                                     Capabilities.screenResolutionY;
             
             var data:Object = {
+                installationId: installationID,
                 startTime: DateUtil.toString(newSession.mStartTime),
                 gameVersion: gameVersion,
                 languageCode: Capabilities.language,
@@ -130,10 +129,6 @@ package com.gamua.flox
         
         // properties 
         // since this class is saved in a SharedObject, everything has to be R/W!
-        
-        /** The version of the game as it was passed to the 'start' method. */
-        public function get gameVersion():String { return mGameVersion; }
-        public function set gameVersion(value:String):void { mGameVersion = value; }
         
         /** The exact time the session was started. */
         public function get startTime():Date { return mStartTime; }

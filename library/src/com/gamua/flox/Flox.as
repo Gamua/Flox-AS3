@@ -19,6 +19,7 @@ package com.gamua.flox
     import flash.events.EventDispatcher;
     import flash.net.SharedObject;
     import flash.utils.getDefinitionByName;
+    import flash.utils.getTimer;
     
     /** The main class used to interact with the Flox cloud service.
      * 
@@ -75,12 +76,16 @@ package com.gamua.flox
         /** The base URL of the Flox REST API. */
         public static const BASE_URL:String = "https://www.flox.cc/api";
         
+        /** The maximum time a session can be interrupted before it counts as a new session. */
+        private static const MAX_SESSION_INTERRUPTION_TIME:Number = 15 * 60;
+        
         private static var sGameID:String;
         private static var sGameKey:String;
         private static var sGameVersion:String;
         private static var sRestService:RestService;
         private static var sPersistentData:SharedObject;
         private static var sInitialized:Boolean = false;
+        private static var sDeactivatedAt:Number = 0.0;
         
         private static var sTraceLogs:Boolean = true;
         private static var sReportAnalytics:Boolean = true;
@@ -131,8 +136,9 @@ package com.gamua.flox
             if (Player.current == null) Player.login();
             
             sRestService.alwaysFail = false;
-            sPersistentData.data.session = 
-                GameSession.start(gameID, gameVersion, session, sReportAnalytics);
+            startNewGameSession();
+            
+            logInfo("Game started");
         }
         
         /** Stop the Flox session. You don't have to do this manually in most cases. */
@@ -150,6 +156,12 @@ package com.gamua.flox
             // those may be reused (useful mainly for unit tests)
             // sRestService = null;
             // sPersistentData = null;
+        }
+        
+        private static function startNewGameSession():void
+        {
+            sPersistentData.data.session = GameSession.start(
+                sGameID, sGameVersion, installationID, sReportAnalytics, session);
         }
         
         // leaderboards
@@ -365,14 +377,25 @@ package com.gamua.flox
         
         private static function onActivate(event:Event):void
         {
-            logInfo("Game activated");
-            session.start();
-            processQueue();
+            var interruptionLength:Number = (getTimer() - sDeactivatedAt) / 1000;
+            
+            if (interruptionLength > MAX_SESSION_INTERRUPTION_TIME)
+            {
+                startNewGameSession();
+                logInfo("Game activated (long interruption - starting new Flox session)");
+            }
+            else
+            {
+                processQueue();
+                session.start();
+                logInfo("Game activated (short interruption - continuing Flox session)");
+            }
         }
         
         private static function onDeactivate(event:Event):void
         {
             logInfo("Game deactivated");
+            sDeactivatedAt = getTimer();
             session.pause();
             flushLocalData();
         }
