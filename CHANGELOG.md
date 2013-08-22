@@ -1,6 +1,13 @@
 Flox: Changelog
 ===============
 
+version 0.9 - 2013-08-22
+------------------------
+
+* If a game is suspended for more than 15 minutes, a new session will be started when the
+  application is re-activated. This makes analytics much more accurate, especially on Android.
+* SWC file now contains ASDoc information
+
 version 0.8 - 2013-08-05
 ------------------------
 
