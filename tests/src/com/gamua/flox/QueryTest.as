@@ -350,7 +350,7 @@ package com.gamua.flox
         }
         
         private function makeQueryTest(inputEntities:Array, query:Query, 
-                                   onResult:Function, onComplete:Function):void
+                                       onResult:Function, onComplete:Function):void
         {
             Flox.addEventListener(QueueEvent.QUEUE_PROCESSED, onProductsSaved);
             
@@ -431,15 +431,12 @@ class Product extends Entity
         mDate = date;
     }
     
-    [Indexed]
     public function get name():String { return mName; }
     public function set name(value:String):void { mName = value; }
     
-    [Indexed]
     public function get price():Number { return mPrice; }
     public function set price(value:Number):void { mPrice = value; }
     
-    [Indexed]
     public function get date():Date { return mDate; }
     public function set date(value:Date):void { mDate = value; }
     
