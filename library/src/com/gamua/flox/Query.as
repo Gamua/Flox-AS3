@@ -39,7 +39,7 @@ package com.gamua.flox
         private var mClass:Class;
         private var mOffset:int;
         private var mLimit:int;
-        private var mWhere:String;
+        private var mConstraints:String;
         
         /** Create a new query that will search within the given Entity type. Optionally, you
          *  pass the constraints in the same way as in the "where" method. */
@@ -79,7 +79,7 @@ package com.gamua.flox
             var regEx:RegExp = /\?/g;
             var match:Object;
             var lastIndex:int = -1;
-            mWhere = "";
+            mConstraints = "";
             
             while ((match = regEx.exec(constraints)) != null)
             {
@@ -88,13 +88,13 @@ package com.gamua.flox
                 var arg:* = args.shift();
                 if (arg is Date) arg = DateUtil.toString(arg);
                 
-                mWhere += constraints.substr(lastIndex + 1, match.index - lastIndex - 1);
-                mWhere += JSON.stringify(arg);
+                mConstraints += constraints.substr(lastIndex + 1, match.index - lastIndex - 1);
+                mConstraints += JSON.stringify(arg);
                 lastIndex = match.index;
             }
             
-            mWhere += constraints.substr(lastIndex + 1);
-            return mWhere;
+            mConstraints += constraints.substr(lastIndex + 1);
+            return mConstraints;
         }
         
         /** Executes the query and passes the list of results to the "onComplete" callback. 
@@ -114,7 +114,7 @@ package com.gamua.flox
             var service:RestService = Flox.service;
             
             var path:String = createURL("entities", type);
-            var data:Object = { where: mWhere, offset: mOffset, limit: mLimit };
+            var data:Object = { where: mConstraints, offset: mOffset, limit: mLimit };
             
             Flox.service.request(HttpMethod.POST, path, data, onRequestComplete, onError);
             
@@ -165,6 +165,9 @@ package com.gamua.flox
         
         /** Indicates the entity type that is searched. */
         public function get type():String { return Entity.getType(mClass); }
+        
+        /** The current contraints that will be used as WHERE-clause by the 'find' method. */
+        public function get constraints():String { return mConstraints; }
         
         /** Indicates the offset of the results returned by the query, i.e. how many results 
          *  should be skipped from the beginning of the result list. * @default 0 */
