@@ -282,6 +282,83 @@ package com.gamua.flox
             }
         }
         
+        public function testMultipleOperators(onComplete:Function):void
+        {
+            var products:Array = [
+                new Product("one", 1, "a"),
+                new Product("one", 1, "b"),
+                new Product("one", 2, "a"),
+                new Product("one", 2, "b"),
+                new Product("two", 1, "a"),
+                new Product("two", 1, "b"),
+                new Product("two", 2, "a"),
+                new Product("two", 2, "b")
+            ];
+            
+            var operators:Array = [
+                ["=="], ["!="], [">"], ["<="],
+                ["==", "!="], ["==", ">"], ["==", "<="],
+                ["!=", "=="], [">", "=="], ["<=", "=="],
+                ["==", "==", "=="],
+                ["==", "==", "!="],
+                ["==", ">", "=="],
+                ["<=", "==", "=="],
+                ["==", "!=", "=="],
+                ["==", "==", "<="]
+            ];
+            
+            var queries:Array = [];
+            var currentQuery:Query = null;
+            
+            for each (var operator:Array in operators)
+            {
+                var constraints:String = "name " + operator[0] + " ?";
+                
+                if (operator.length > 1)
+                    constraints += " AND price " + operator[1] + " ?";
+                
+                if (operator.length > 2)
+                    constraints += " AND group " + operator[2] + " ?";
+                
+                var query:Query = new Query(Product, constraints, "one", 1, "a");
+                queries.push(query);
+            }
+            
+            for each (var product:Product in products)
+                product.saveQueued();
+                
+            Flox.addEventListener(QueueEvent.QUEUE_PROCESSED, onProductsSaved);
+            
+            function onProductsSaved(event:*):void
+            {
+                Flox.removeEventListener(QueueEvent.QUEUE_PROCESSED, onProductsSaved);
+                makeQuery();
+            }
+            
+            function makeQuery():void
+            {
+                if (queries.length == 0) onComplete();
+                else
+                {
+                    currentQuery = queries.shift() as Query;
+                    currentQuery.find(onQueryComplete, onQueryError);
+                }
+            }
+            
+            function onQueryComplete(products:Array):void
+            {
+                assert(products.length > 0);
+                makeQuery();
+            }
+            
+            function onQueryError(error:String):void
+            {
+                fail("error in query '" + currentQuery.constraints + "'");
+                trace(error);
+                onComplete();
+            }
+        }
+        
         public function testOffsetReliability(onComplete:Function):void
         {
             var abort:Boolean = false;
