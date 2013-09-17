@@ -256,12 +256,13 @@ package com.gamua.flox
         {
             if (!mProcessingQueue)
             {
-                if (mQueue.length > 0)
+                var auth:Authentication;
+                var element:Object = mQueue.peek();
+                
+                if (element != null)
                 {
                     mProcessingQueue = true;
-                    var element:Object = mQueue.peek();
-                    var auth:Authentication = element.authentication as Authentication;
-                    
+                    auth = element.authentication as Authentication;
                     requestWithAuthentication(element.method, element.path, element.data, 
                                               auth, onRequestComplete, onRequestError);
                 }
