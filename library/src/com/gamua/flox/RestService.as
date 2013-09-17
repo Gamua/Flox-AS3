@@ -118,7 +118,7 @@ package com.gamua.flox
                 
                 if (httpStatus != HttpStatus.OK)
                 {
-                    execute(onError, "Flox Server unreachable", null, httpStatus);
+                    execute(onError, "Flox Server unreachable", httpStatus, cachedResult);
                 }
                 else
                 {
@@ -132,7 +132,7 @@ package com.gamua.flox
                     catch (e:Error)
                     {
                         execute(onError, "Invalid response from Flox server: " + e.message,
-                                null, httpStatus);
+                                httpStatus, cachedResult);
                         return;
                     }
                     
@@ -168,10 +168,7 @@ package com.gamua.flox
                     else // error =(
                     {
                         var error:String = (body && body.message) ? body.message : "unknown";
-                        var cachedBody:Object = (method == HttpMethod.GET) ? 
-                            mCache.getObject(path) : null;
-                        
-                        execute(onError, error, status, cachedBody);
+                        execute(onError, error, status, cachedResult);
                     }
                 }
             }
@@ -179,8 +176,7 @@ package com.gamua.flox
             function onLoaderError(event:IOErrorEvent):void
             {
                 closeLoader();
-                execute(onError, "IO " + event.text, httpStatus,
-                    (method == HttpMethod.GET) ? mCache.getObject(path) : null);
+                execute(onError, "IO " + event.text, httpStatus, cachedResult);
             }
             
             function onLoaderHttpStatus(event:HTTPStatusEvent):void
@@ -209,7 +205,7 @@ package com.gamua.flox
          *  @param onComplete: a callback with the form: 
          *                     <pre>onComplete(body:Object, httpStatus:int):void;</pre>
          *  @param onError:    a callback with the form:
-         *                     <pre>onError(error:String, httpStatus:int):void;</pre>
+         *                     <pre>onError(error:String, httpStatus:int, cachedBody:Object):void;</pre>
          */
         public function request(method:String, path:String, data:Object, 
                                 onComplete:Function, onError:Function):void
@@ -229,7 +225,7 @@ package com.gamua.flox
                                                       onComplete, onError);
                         else
                             execute(onError, event.error, event.httpStatus,
-                                    method == HttpMethod.GET ? mCache.getObject(path) : null);
+                                    method == HttpMethod.GET ? getFromCache(path, data) : null);
                     });
             }
             else
@@ -328,10 +324,12 @@ package com.gamua.flox
         }
         
         /** Returns an object that was previously received with a GET method from the cache.
-         *  If an eTag is given, it must match the object's eTag; otherwise, 
+         *  If 'data' is given, it is URL-encoded and added to the path.
+         *  If 'eTag' is given, it must match the object's eTag; otherwise,
          *  the method returns null. */
-        public function getFromCache(path:String, eTag:String=null):Object
+        public function getFromCache(path:String, data:Object=null, eTag:String=null):Object
         {
+            if (data) path += "?" + encodeForUri(data);
             if (mCache.containsKey(path))
             {
                 var cachedObject:Object = mCache.getObject(path);

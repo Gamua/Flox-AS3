@@ -254,6 +254,7 @@ package com.gamua.flox
             checkInitialized();
             sPersistentData.flush(minDiskSpace);
             sRestService.flush();
+            SharedObjectPool.flush();
         }
         
         // logging

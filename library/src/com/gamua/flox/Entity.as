@@ -316,7 +316,9 @@ package com.gamua.flox
         {
             var entity:Entity;
             
-            if (type in sTypeCache)
+            if (data == null)
+                return null;
+            else if (type in sTypeCache)
                 entity = new (sTypeCache[type] as Class)();
             else
                 throw new Error("Entity type not recognized: " + type);
@@ -331,7 +333,7 @@ package com.gamua.flox
         internal static function fromCache(type:String, id:String, eTag:String=null):Entity
         {
             var path:String = createEntityURL(type, id);
-            var cachedObject:Object = Flox.service.getFromCache(path, eTag);
+            var cachedObject:Object = Flox.service.getFromCache(path, null, eTag);
             
             if (cachedObject) return fromObject(type, id, cachedObject);
             else              return null;

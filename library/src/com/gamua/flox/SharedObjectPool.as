@@ -74,6 +74,12 @@ package com.gamua.flox
             sPool = new Dictionary();
         }
         
+        public static function flush():void
+        {
+            for each (var so:SharedObject in sPool)
+                so.flush();
+        }
+        
         public static function contains(name:String):Boolean { return name in sPool; }
     }
 }

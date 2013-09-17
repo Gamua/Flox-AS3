@@ -473,6 +473,61 @@ package com.gamua.flox
             }
         }
         
+        public function testLoadFromCacheAfterErrorWithQueue(onComplete:Function):void
+        {
+            Constants.initFlox();
+            Flox.clearCache();
+            Flox.service.alwaysFail = true;
+            
+            var testEntity:CustomEntity = new CustomEntity("Luke Skywalker", 10);
+            testEntity.saveQueued();
+            
+            testEntity.age = 15;
+            testEntity.saveQueued();
+            
+            testEntity.age = 20;
+            testEntity.saveQueued();
+            
+            Entity.load(CustomEntity, testEntity.id, onLoadComplete, onLoadError);
+            
+            function onLoadComplete():void
+            {
+                Flox.shutdown();
+                fail("could load entity although 'alwaysFail' was enabled");
+                onComplete();
+            }
+            
+            function onLoadError(error:String, httpStatus:int, cachedEntity:Entity):void
+            {
+                assertNotNull(cachedEntity, "didn't received entity from cache");
+                assertEqualEntities(testEntity, cachedEntity, "wrong cache contents");
+                Flox.shutdown();
+                onComplete();
+            }
+        }
+        
+        public function testALoadNonExistingEntity(onComplete:Function):void
+        {
+            Constants.initFlox();
+            Flox.clearCache();
+            
+            Entity.load(CustomEntity, "nonexisting-virtual-friend", onLoadComplete, onLoadError);
+            
+            function onLoadComplete():void
+            {
+                Flox.shutdown();
+                fail("could load non-existing entity");
+                onComplete();
+            }
+            
+            function onLoadError(error:String, httpStatus:int, cachedEntity:Entity):void
+            {
+                Flox.shutdown();
+                assertNull(cachedEntity, "cache of non-existing entity was NOT null");
+                onComplete();
+            }
+        }
+        
         private function assertEqualEntities(entityA:Object, entityB:Object, 
                                              compareDates:Boolean=false):void
         {
