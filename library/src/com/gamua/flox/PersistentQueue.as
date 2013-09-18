@@ -26,18 +26,29 @@ package com.gamua.flox
             mName = name;
             mIndex = SharedObjectPool.getObject(mName);
             
-            if (!("keys" in mIndex.data)) mIndex.data.keys = [];
+            if (!("elements" in mIndex.data)) mIndex.data.elements = [];
+            
+            if ("keys" in mIndex.data)
+            {
+                // migrate to new index system (can be removed in a future version)
+                
+                for each (var key:String in mIndex.data.keys)
+                    mIndex.data.elements.push({ name: key, meta: null });
+                    
+                delete mIndex.data["keys"];
+            }
         }
         
-        /** Insert an object at the beginning of the queue. */
-        public function enqueue(object:Object):void
+        /** Insert an object at the beginning of the queue.
+         *  You can optionally add meta data that is stored in the index file. */
+        public function enqueue(object:Object, metaData:Object=null):void
         {
-            var key:String = createUID();
+            var name:String = createUID();
             
-            var sharedObject:SharedObject = SharedObjectPool.getObject(key);
+            var sharedObject:SharedObject = SharedObjectPool.getObject(name);
             sharedObject.data.value = object;
             
-            mIndex.data.keys.unshift(key);
+            mIndex.data.elements.unshift({ name: name, meta: metaData });
         }
         
         /** Remove the object at the head of the queue. 
@@ -66,26 +77,40 @@ package com.gamua.flox
             mIndex.flush();
         }
         
+        /** Executes a callback for each queue element. If the callback returns 'false',
+         *  the object will be removed from the queue. Callback definition:
+         *  <pre>function(index:int, metaData:Object):Boolean;</pre> */
+        public function filter(callback:Function):void
+        {
+            mIndex.data.elements = mIndex.data.elements.filter(
+                function (element:Object, index:int, array:Array):Boolean
+                {
+                    var keep:Boolean = callback(index, element.meta);
+                    if (!keep) SharedObjectPool.getObject(element.name).clear();
+                    return keep;
+                });
+        }
+        
         private function getHead(removeHead:Boolean):Object
         {
-            var keys:Array = mIndex.data.keys;
-            if (keys.length == 0) return null;
+            var elements:Array = mIndex.data.elements;
+            if (elements.length == 0) return null;
             
-            var key:String = keys[keys.length-1];
-            var sharedObject:SharedObject = SharedObjectPool.getObject(key);
+            var name:String = elements[elements.length-1].name;
+            var sharedObject:SharedObject = SharedObjectPool.getObject(name);
             var head:Object = sharedObject.data.value;
             
             if (head == null)
             {
                 // shared object was deleted! remove object and try again
-                keys.pop();
+                elements.pop();
                 head = getHead(removeHead);
             }
             else
             {
                 if (removeHead)
                 {
-                    keys.pop();
+                    elements.pop();
                     sharedObject.clear();
                 }
             }
@@ -94,7 +119,7 @@ package com.gamua.flox
         }
         
         /** Returns the number of elements in the queue. */
-        public function get length():int { return mIndex.data.keys.length; }
+        public function get length():int { return mIndex.data.elements.length; }
         
         /** Returns the name of the queue as it was provided in the constructor. */
         public function get name():String { return mName; }

@@ -66,5 +66,26 @@ package com.gamua.flox
             queue.clear();
             assertEqual(queue.length, 0);
         }
+        
+        public function testFilter():void
+        {
+            var queue:PersistentQueue = new PersistentQueue(QUEUE_NAME);
+            queue.clear();
+            
+            queue.enqueue(1, "a");
+            queue.enqueue(2, "b");
+            queue.enqueue(3, "a");
+            queue.enqueue(4, "b");
+            queue.enqueue(5, "a");
+            
+            queue.filter(function(i:int, metaData:String):Boolean
+            {
+                return metaData == "b";
+            });
+            
+            assert(queue.length == 2);
+            assertEqual(2, queue.dequeue());
+            assertEqual(4, queue.dequeue());
+        }
     }
 }

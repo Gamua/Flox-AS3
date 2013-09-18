@@ -239,12 +239,29 @@ package com.gamua.flox
          *  queue. */
         public function requestQueued(method:String, path:String, data:Object=null):void
         {
-            // To allow developers to use Flox offline, we're optimistic here:
-            // even though the operation might fail, we're saving the object in the cache.
-            if (method == HttpMethod.PUT) mCache.setObject(path, data);
+            var queueLength:int;
+            var metaData:String = null;
+            
+            if (method == HttpMethod.PUT)
+            {
+                // To allow developers to use Flox offline, we're optimistic here:
+                // even though the operation might fail, we're saving the object in the cache.
+                mCache.setObject(path, data);
+                
+                // if PUT is called repeatedly for the same resource (path),
+                // we only need to keep the newest one.
+                metaData = "PUT#" + path;
+                queueLength = mQueue.length;
+                
+                mQueue.filter(function(i:int, m:String):Boolean
+                {
+                    if (i == queueLength-1) return true; // last element might be processed already
+                    else return metaData != m;
+                });
+            }
             
             mQueue.enqueue({ method: method, path: path, data: data,
-                             authentication: Flox.authentication });
+                             authentication: Flox.authentication }, metaData);
             processQueue();
         }
         

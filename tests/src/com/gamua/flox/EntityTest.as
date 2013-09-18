@@ -506,7 +506,7 @@ package com.gamua.flox
             }
         }
         
-        public function testALoadNonExistingEntity(onComplete:Function):void
+        public function testLoadNonExistingEntity(onComplete:Function):void
         {
             Constants.initFlox();
             Flox.clearCache();
