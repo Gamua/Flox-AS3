@@ -1,32 +1,34 @@
 /**
- Base64 - 1.1.0
- 
- Copyright (c) 2006 Steve Webster
- 
- Permission is hereby granted, free of charge, to any person obtaining a copy of
- this software and associated documentation files (the "Software"), to deal in
- the Software without restriction, including without limitation the rights to
- use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- the Software, and to permit persons to whom the Software is furnished to do so,
- subject to the following conditions: 
- 
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
- 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * This is a modified version of the Base64 class from the AS3 Crypto Library:
+ * -> http://code.google.com/p/as3crypto/
+ * 
+ * 
+ * Base64 - 1.1.0
+ *
+ * Copyright (c) 2006 Steve Webster
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions: 
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package com.gamua.flox.utils 
 {
-    // This class is taken from the AS3 Crypto Library: http://code.google.com/p/as3crypto/
-    
     import flash.utils.ByteArray;
     
-    /** @private */
+    /** Utility class to encode and decode data from and to Base64 format. */
     public class Base64 
     {
         private static const BASE64_CHARS:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
@@ -36,6 +38,7 @@ package com.gamua.flox.utils
         private static var sDataBuffer:Vector.<uint>   = new <uint>[];
         private static var sOutputBuffer:Vector.<uint> = new <uint>[]
         
+        /** Encodes a given String in Base64 format. */
         public static function encode(data:String):String 
         {
             // Convert string to ByteArray
@@ -46,6 +49,7 @@ package com.gamua.flox.utils
             return encodeByteArray(bytes);
         }
         
+        /** Encodes a given ByteArray into a Base64 representation. */
         public static function encodeByteArray(data:ByteArray):String 
         {
             // Initialise output
@@ -94,6 +98,7 @@ package com.gamua.flox.utils
             return output;
         }
         
+        /** Decodes a given Base64-String into the String it was created from. */
         public static function decode(data:String):String
         {
             // Decode data to ByteArray
@@ -103,6 +108,8 @@ package com.gamua.flox.utils
             return bytes.readUTFBytes(bytes.length);
         }
         
+        /** Decodes a given Base64-String into the ByteArray it represents. If you pass an
+         *  'output' ByteArray to the function, the result will be saved into that. */
         public static function decodeToByteArray(data:String, output:ByteArray=null):ByteArray
         {
             var dataLength:int = data.length;
@@ -142,6 +149,7 @@ package com.gamua.flox.utils
             return output;
         }
         
+        /** @private */
         public function Base64() 
         {
             throw new Error("Base64 class is static container only");

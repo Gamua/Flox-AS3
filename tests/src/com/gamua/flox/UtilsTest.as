@@ -1,6 +1,7 @@
 package com.gamua.flox
 {
     import com.gamua.flox.utils.DateUtil;
+    import com.gamua.flox.utils.SHA256;
     import com.gamua.flox.utils.cloneObject;
     import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.createURL;
@@ -114,6 +115,23 @@ package com.gamua.flox
                 assertEqual(3, c);
                 onComplete();
             }
+        }
+        
+        public function testSHA256():void
+        {
+            var string1:String = "Victor";
+            var string2:String = "Victory";
+            
+            var sha1:String  = SHA256.hashString(string1);
+            var sha2:String  = SHA256.hashString(string2);
+            var sha1b:String = SHA256.hashString(string1);
+            var sha2b:String = SHA256.hashString(string2);
+            
+            assertEqual(sha1, "bADm/26mvMasEi7DFOsWdJyojwN2Ct+3Gp3mV1J8Y5Z=", "wrong SHA");
+            assertEqual(sha2, "LptaDE5q6wiRzCyONGv51Va9VZAydEG/2ij982/020P=", "wrong SHA");
+            
+            assertEqual(sha1, sha1b, "SHA produced different results from the same String");
+            assertEqual(sha2, sha2b, "SHA produced different results from the same String");
         }
     }
 }
