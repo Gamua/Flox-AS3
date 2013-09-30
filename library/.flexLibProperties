@@ -30,6 +30,7 @@
     <classEntry path="com.gamua.flox.utils.parseBool"/>
     <classEntry path="com.gamua.flox.utils.registerClassAlias"/>
     <classEntry path="com.gamua.flox.utils.setTimeout"/>
+    <classEntry path="com.gamua.flox.utils.SHA256"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>
