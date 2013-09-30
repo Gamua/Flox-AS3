@@ -178,7 +178,7 @@ package com.gamua.flox
         public function set orderBy(value:String):void { mOrderBy = value; }
         
         /** Indicates the offset of the results returned by the query, i.e. how many results 
-         *  should be skipped from the beginning of the result list. * @default 0 */
+         *  should be skipped from the beginning of the result list. @default 0 */
         public function get offset():int { return mOffset; }
         public function set offset(value:int):void { mOffset = value; }
         
