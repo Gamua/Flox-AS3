@@ -1,4 +1,4 @@
-/**
+/*
  * This is a modified version of the Base64 class from the AS3 Crypto Library:
  * -> http://code.google.com/p/as3crypto/
  * 
