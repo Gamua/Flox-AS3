@@ -40,6 +40,7 @@ package com.gamua.flox
         private var mOffset:int;
         private var mLimit:int;
         private var mConstraints:String;
+        private var mOrderBy:String;
         
         /** Create a new query that will search within the given Entity type. Optionally, you
          *  pass the constraints in the same way as in the "where" method. */
@@ -116,6 +117,8 @@ package com.gamua.flox
             var path:String = createURL("entities", type);
             var data:Object = { where: mConstraints, offset: mOffset, limit: mLimit };
             
+            if (mOrderBy) data.orderBy = mOrderBy;
+            
             Flox.service.request(HttpMethod.POST, path, data, onRequestComplete, onError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
@@ -168,6 +171,11 @@ package com.gamua.flox
         
         /** The current contraints that will be used as WHERE-clause by the 'find' method. */
         public function get constraints():String { return mConstraints; }
+        
+        /** Order the results by a certain property of your Entities. Set it to 'null' if you
+         *  don't care (which is also the default). Sample values: 'price ASC', 'name DESC'. */
+        public function get orderBy():String { return mOrderBy; }
+        public function set orderBy(value:String):void { mOrderBy = value; }
         
         /** Indicates the offset of the results returned by the query, i.e. how many results 
          *  should be skipped from the beginning of the result list. * @default 0 */
