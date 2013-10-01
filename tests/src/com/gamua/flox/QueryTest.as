@@ -162,6 +162,31 @@ package com.gamua.flox
             }
         }
         
+        public function testNormalQueryWithOrderBy(onComplete:Function):void
+        {
+            var products:Array = [
+                new Product("alfa", 6),
+                new Product("bravo", 4),
+                new Product("charlie", 2),
+                new Product("delta", 1),
+                new Product("echo", 3),
+                new Product("foxtrot", 5)
+            ];
+            
+            var query:Query = new Query(Product, "price > ?", 2);
+            query.orderBy = "price DESC";
+            makeQueryTest(products, query, checkResult, onComplete);
+            
+            function checkResult(entities:Array, count:int):void
+            {
+                assert(count == 4, "Wrong number of entities returned: " + count);
+                assertEqualEntities(entities[0], products[0]);
+                assertEqualEntities(entities[1], products[5]);
+                assertEqualEntities(entities[2], products[1]);
+                assertEqualEntities(entities[3], products[4]);
+            }
+        }
+        
         public function testOrQuery(onComplete:Function):void
         {
             var products:Array = [
@@ -282,7 +307,7 @@ package com.gamua.flox
             }
         }
         
-        public function testMultipleOperators(onComplete:Function):void
+        public function testLotsOfCombinations(onComplete:Function):void
         {
             var products:Array = [
                 new Product("one", 1, "a"),
@@ -295,9 +320,9 @@ package com.gamua.flox
                 new Product("two", 2, "b")
             ];
             
-            var operators:Array = [
+            var operators:Array = [ [],
                 ["=="], ["!="], [">"], ["<="],
-                ["==", "!="], ["==", ">"], ["==", "<="],
+                ["==", "=="], ["==", "!="], ["==", ">"], ["==", "<="],
                 ["!=", "=="], [">", "=="], ["<=", "=="],
                 ["==", "==", "=="],
                 ["==", "==", "!="],
@@ -307,27 +332,56 @@ package com.gamua.flox
                 ["==", "==", "<="]
             ];
             
+            var connectors:Array = ["AND", "OR"];
             var queries:Array = [];
             var currentQuery:Query = null;
-            
-            for each (var operator:Array in operators)
+
+            for each (var connector:String in connectors)
             {
-                var constraints:String = "name " + operator[0] + " ?";
-                
-                if (operator.length > 1)
-                    constraints += " AND price " + operator[1] + " ?";
-                
-                if (operator.length > 2)
-                    constraints += " AND group " + operator[2] + " ?";
-                
-                var query:Query = new Query(Product, constraints, "one", 1, "a");
-                queries.push(query);
+                for each (var operator:Array in operators)
+                {
+                    var constraints:String = "";
+                    
+                    if (operator.length > 0)
+                        constraints += "name " + operator[0] + " ?";
+                    if (operator.length > 1)
+                        constraints += " " + connector + " price " + operator[1] + " ?";
+                    if (operator.length > 2)
+                        constraints += " " + connector + " group " + operator[2] + " ?";
+                    
+                    // add normal query
+                    pushQuery(constraints);
+                    
+                    // add orderBy queries; we ignore the group (otherwise we'd need too many
+                    // indices) and avoid unsupported combinations.
+                    if (operator.length < 3)
+                    {
+                        if (operator[0] != "==")
+                        {
+                            pushQuery(constraints, "name ASC");
+                            pushQuery(constraints, "name DESC");
+                        }
+                        
+                        if (operator[1] != "==" && operator.length == 2)
+                        {
+                            pushQuery(constraints, "price ASC");
+                            pushQuery(constraints, "price DESC");
+                        }
+                    }
+                }
             }
             
             for each (var product:Product in products)
                 product.saveQueued();
                 
             Flox.addEventListener(QueueEvent.QUEUE_PROCESSED, onProductsSaved);
+            
+            function pushQuery(constraints:String, orderBy:String=null):void
+            {
+                var query:Query = new Query(Product, constraints, "one", 1, "a");
+                query.orderBy = orderBy;
+                queries.push(query);
+            }
             
             function onProductsSaved(event:*):void
             {
@@ -341,6 +395,7 @@ package com.gamua.flox
                 else
                 {
                     currentQuery = queries.shift() as Query;
+                    //trace("query: " + currentQuery.constraints, "orderBy:", currentQuery.orderBy);
                     currentQuery.find(onQueryComplete, onQueryError);
                 }
             }
@@ -358,6 +413,25 @@ package com.gamua.flox
                 onComplete();
             }
         }
+
+//        /* Currently not supported */
+//        
+//        public function testQueryByID(onComplete:Function):void
+//        {
+//            var products:Array = [
+//                new Product("alfa", 10),
+//                new Product("beta", 20)
+//            ];
+//            
+//            var query:Query = new Query(Product, "id == ?", products[1].id);
+//            makeQueryTest(products, query, checkResult, onComplete);
+//            
+//            function checkResult(entities:Array, count:int):void
+//            {
+//                assert(count == 1, "Wrong number of entities returned: " + count);
+//                assertEqualEntities(entities[0], products[1]);
+//            }
+//        }
         
         public function testOffsetReliability(onComplete:Function):void
         {
