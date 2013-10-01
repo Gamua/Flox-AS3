@@ -97,8 +97,23 @@ package com.gamua.flox
         
         public function testCreateUID():void
         {
-            var uid:String = createUID();
-            assertEqual(16, uid.length, "UID does not have the right length");
+            var length:int;
+            var uid:String;
+            var seed:String;
+            
+            for (length=0; length<43; ++length)
+            {
+                uid = createUID(length);
+                assertEqual(length, uid.length, "UID does not have the right length");
+            }
+            
+            for (length=0; length<43; ++length)
+            {
+                seed = Math.random().toString();
+                uid = createUID(length, seed);
+                assertEqual(length, uid.length, "UID does not have the right length");
+                assertEqual(uid, createUID(length, seed), "UIDs with identical seeds differ");
+            }
         }
         
         public function testSetTimeout(onComplete:Function):void
