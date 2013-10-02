@@ -57,6 +57,7 @@ package com.gamua.flox.utils
             
             // Rewind ByteArray
             data.position = 0;
+            sDataBuffer[2] = sDataBuffer[1] = sDataBuffer[0] = 0;
             
             // while there are still bytes to be processed
             while (data.bytesAvailable > 0) 
