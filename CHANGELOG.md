@@ -1,6 +1,17 @@
 Flox: Changelog
 ===============
 
+version 1.0 - 2013-10-02
+------------------------
+
+* added 'orderBy' property to Query
+* added 'constraints' property to Query
+* added 'SHA256' utility class
+* added optional 'length' and 'seed' arguments to 'createUID' function
+* made 'Base64' utility class public
+* made cache & queue more reliable by manually flushing shared objects in memory on DEACTIVATE
+* now trimming redundant put-requests from request queue
+
 version 0.9 - 2013-08-22
 ------------------------
 
