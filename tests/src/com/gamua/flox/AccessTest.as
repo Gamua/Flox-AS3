@@ -2,6 +2,7 @@ package com.gamua.flox
 {
     import com.gamua.flox.utils.CustomEntity;
     import com.gamua.flox.utils.HttpStatus;
+    import com.gamua.flox.utils.createUID;
     
     import starling.unit.UnitTest;
     
@@ -155,6 +156,38 @@ package com.gamua.flox
             function onError(error:String, httpStatus:int):void
             {
                 fail("Entity handling failed: " + error);
+                onComplete();
+            }
+        }
+        
+        public function testChangeOwnerShip(onComplete:Function):void
+        {
+            var name:String = createUID();
+            var entity:Entity = new CustomEntity(name, 32);
+            entity.publicAccess = Access.NONE;
+            entity.save(onSaveComplete, onError);
+            
+            function onSaveComplete():void
+            {
+                entity.ownerId = createUID();
+                entity.save(onSave2Complete, onError);
+            }
+            
+            function onSave2Complete():void
+            {
+                var query:Query = new Query(CustomEntity, "name == ?", name);
+                query.find(onQueryComplete, onError);
+            }
+            
+            function onQueryComplete(entities:Array):void
+            {
+                assertEqual(0, entities.length, "received result from query, but shouldn't");
+                onComplete();
+            }
+            
+            function onError(error:String):void
+            {
+                fail(error);
                 onComplete();
             }
         }
