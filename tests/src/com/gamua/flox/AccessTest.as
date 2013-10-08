@@ -160,7 +160,7 @@ package com.gamua.flox
             }
         }
         
-        public function testChangeOwnerShip(onComplete:Function):void
+        public function testChangeOwnership(onComplete:Function):void
         {
             var name:String = createUID();
             var entity:Entity = new CustomEntity(name, 32);
