@@ -5,6 +5,9 @@ package com.gamua.flox
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpStatus;
     import com.gamua.flox.utils.cloneObject;
+    import com.gamua.flox.utils.createUID;
+    
+    import flash.utils.ByteArray;
     
     import starling.unit.UnitTest;
     
@@ -524,6 +527,52 @@ package com.gamua.flox
             {
                 Flox.shutdown();
                 assertNull(cachedEntity, "cache of non-existing entity was NOT null");
+                onComplete();
+            }
+        }
+        
+        public function testSaveHugeEntity(onComplete:Function):void
+        {
+            Constants.initFlox();
+            
+            var size:int = 100000;
+            var bytes:ByteArray = new ByteArray();
+            var string:String = "This is one part of a very long String. ";
+            var numRepetitions:int = size / string.length;
+            
+            for (var i:int=0; i<numRepetitions; ++i)
+                bytes.writeUTFBytes(createUID(string.length));
+            
+            bytes.position = 0;
+            
+            var entity:CustomEntity = new CustomEntity();
+            entity.data = bytes.readUTFBytes(numRepetitions * string.length);
+            entity.save(onSaveComplete, onSaveError);
+            
+            bytes.clear();
+            
+            function onSaveComplete(entity:CustomEntity):void
+            {
+                entity.destroy(onDestroyComplete, onDestroyError);
+            }
+            
+            function onSaveError(error:String, httpStatus:int):void
+            {
+                fail("Could not save huge entity: " + error);
+                Flox.shutdown();
+                onComplete();
+            }
+            
+            function onDestroyComplete():void
+            {
+                Flox.shutdown();
+                onComplete();
+            }
+            
+            function onDestroyError(error:String):void
+            {
+                fail("Could not delete huge entity: " + error);
+                Flox.shutdown();
                 onComplete();
             }
         }
