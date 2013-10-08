@@ -1,6 +1,7 @@
 package com.gamua.flox
 {
     import com.gamua.flox.utils.DateUtil;
+    import com.gamua.flox.utils.HttpStatus;
     import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.downloadTextResource;
     import com.gamua.flox.utils.setTimeout;
@@ -193,7 +194,10 @@ package com.gamua.flox
             {
                 if (confirmationMailSent)
                 {
-                    activatePlayerThroughEmail(email, onPlayerActivated, onMailError);
+                    assertEqual(HttpStatus.FORBIDDEN, httpStatus, "wrong http status on re-login");
+                    
+                    // now try the login again BEFORE activating the mail
+                    Player.loginWithEmail(email, onPrematureLoginComplete, onPrematureLoginError);
                 }
                 else
                 {
@@ -202,10 +206,25 @@ package com.gamua.flox
                 }
             }
             
+            function onPrematureLoginComplete(player:Player):void
+            {
+                fail("login attempt before clicking activation link should have failed, but succeeded");
+                onComplete();
+            }
+            
+            function onPrematureLoginError(error:String, httpStatus:int, mailSent:Boolean):void
+            {
+                assertEqual(HttpStatus.TOO_MANY_REQUESTS, httpStatus);
+                assertFalse(mailSent);
+                
+                // now activate player
+                activatePlayerThroughEmail(email, onPlayerActivated, onMailError);
+            }
+            
             function onPlayerActivated():void
             {
                 // authentication url visited! Now we can log in.
-                Player.loginWithEmail(email, onLogin3Complete, onLogin3Error);
+                Player.loginWithEmail(email, onFinalLoginComplete, onFinalLoginError);
             }
             
             function onMailError(error:String, httpStatus:int):void
@@ -214,13 +233,13 @@ package com.gamua.flox
                 onComplete();
             }
             
-            function onLogin3Complete(player:Player):void
+            function onFinalLoginComplete(player:Player):void
             {
                 assertEqual(guestID, player.id);
                 onComplete();
             }
             
-            function onLogin3Error(error:String):void
+            function onFinalLoginError(error:String):void
             {
                 fail("Login after mail activation did not work!");
                 onComplete();
