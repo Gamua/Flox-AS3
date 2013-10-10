@@ -30,7 +30,7 @@ package com.gamua.flox
      *   <li>All constructor arguments must have default values.</li>
      *   <li>Properties always need to be readable and writable.</li>
      *   <li>Properties may have one of the following types:
-     *       <code>int, Number, Boolean, String, Object, Array.</code>
+     *       <code>int, Number, Boolean, String, Object, Array, Date.</code>
      *       Support for nested entities or complex data types may be added at a later time.</li>
      *   <li>The server type of the class is defined by its name. If you want to use a different
      *       name, you can provide "Type" MetaData (see sample below).</li>
