@@ -1,6 +1,12 @@
 Flox: Changelog
 ===============
 
+version 1.0.1 - 2013-10-11
+--------------------------
+
+* added missing 'keep-as3-metadata' options to SWC file
+* added information about 'Date'-type support into Entity API documentation
+
 version 1.0 - 2013-10-02
 ------------------------
 
