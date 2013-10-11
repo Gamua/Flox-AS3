@@ -13,6 +13,8 @@
     <mkdir dir="${deploy.dir}" />
     <compc output="${deploy.dir}/${ant.project.name}.swc">
       <include-sources dir="${src.dir}" includes="*" />
+      <keep-as3-metadata name="NonSerialized"/>
+      <keep-as3-metadata name="Type"/>
     </compc>
     <!-- call asdoc to generate dita xml files -->
     <asdoc output="${temp.dir}" lenient="true" failonerror="true" keep-xml="true" skip-xsl="true" fork="true">
