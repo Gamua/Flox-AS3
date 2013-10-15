@@ -21,6 +21,16 @@ package com.gamua.flox
                                        "https://flox-by-gamua-test.appspot.com/api";
         }
         
+        public static function get ENABLED_HERO_KEY():String
+        {
+            return PRODUCTION_SERVER ? "zjCXJefGy6Dzdm5W" : "B3Lkg2g1cy2Fh4zf";
+        }
+        
+        public static function get DISABLED_HERO_KEY():String
+        {
+            return PRODUCTION_SERVER ? "tz0H1RFjjp4Jmb3T" : "GYhcx9jw5g36nnMf";
+        }
+        
         public static function createGameUrl(...args):String
         {
             return createURL("games", GAME_ID, createURL(args)); 
