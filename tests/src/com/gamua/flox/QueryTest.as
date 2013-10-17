@@ -414,24 +414,22 @@ package com.gamua.flox
             }
         }
 
-//        /* Currently not supported */
-//        
-//        public function testQueryByID(onComplete:Function):void
-//        {
-//            var products:Array = [
-//                new Product("alfa", 10),
-//                new Product("beta", 20)
-//            ];
-//            
-//            var query:Query = new Query(Product, "id == ?", products[1].id);
-//            makeQueryTest(products, query, checkResult, onComplete);
-//            
-//            function checkResult(entities:Array, count:int):void
-//            {
-//                assert(count == 1, "Wrong number of entities returned: " + count);
-//                assertEqualEntities(entities[0], products[1]);
-//            }
-//        }
+        public function testQueryByID(onComplete:Function):void
+        {
+            var products:Array = [
+                new Product("alfa", 10),
+                new Product("beta", 20)
+            ];
+            
+            var query:Query = new Query(Product, "id == ?", products[1].id);
+            makeQueryTest(products, query, checkResult, onComplete);
+            
+            function checkResult(entities:Array, count:int):void
+            {
+                assert(count == 1, "Wrong number of entities returned: " + count);
+                assertEqualEntities(entities[0], products[1]);
+            }
+        }
         
         public function testOffsetReliability(onComplete:Function):void
         {
