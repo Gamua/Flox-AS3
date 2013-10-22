@@ -73,7 +73,7 @@ package com.gamua.flox
          *  
          *  <p>Use the 'IN'-operator to check for inclusion within a list of possible values:</p>
          *  <pre>
-         *  query.where("name IN ?", ["alfa", "bravo", "charlie"]);<pre>
+         *  query.where("name IN ?", ["alfa", "bravo", "charlie"]);</pre>
          *  
          *  <p>Note that subsequent calls to this method will replace preceding constraints.</p>
          *  
