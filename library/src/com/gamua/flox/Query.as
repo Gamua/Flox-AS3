@@ -71,6 +71,10 @@ package com.gamua.flox
          *  query.where("name == ? AND score > ?", "thomas", 500); 
          *  // -> 'name == "thomas" AND score > 500'</pre>
          *  
+         *  <p>Use the 'IN'-operator to check for inclusion within a list of possible values:</p>
+         *  <pre>
+         *  query.where("name IN ?", ["alfa", "bravo", "charlie"]);<pre>
+         *  
          *  <p>Note that subsequent calls to this method will replace preceding constraints.</p>
          *  
          *  @returns the final constraints-string that will be passed to the server.
