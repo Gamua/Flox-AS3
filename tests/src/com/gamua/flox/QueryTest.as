@@ -43,6 +43,9 @@ package com.gamua.flox
             assertEqual('enabled == true',
                 query.where("enabled == ?", true), "wrong bool replacement");
             
+            assertEqual('name IN ["test",2,true]',
+                query.where('name IN ?', ["test", 2, true]), "wrong array replacement");
+            
             var date:Date = new Date();
             var dateStr:String = DateUtil.toString(date);
             
@@ -288,6 +291,33 @@ package com.gamua.flox
                 assert(count == 2, "Wrong number of entities returned: " + count);
                 assertEqualEntities(entities[0], products[1]);
                 assertEqualEntities(entities[1], products[2]);
+            }
+        }
+        
+        public function testInQuery(onComplete:Function):void
+        {
+            var products:Array = [
+                new Product("alfa", 0),
+                new Product("bravo", 1),
+                new Product("charlie", 2),
+                new Product("delta", 3),
+                new Product("echo", 4)
+            ];
+            
+            var query:Query = new Query(Product,
+                "name IN ? OR price IN ?",
+                ["alfa", "bravo", "charlie", 4, "\\\","], [1, 2, 3, true, null]);
+            
+            makeQueryTest(products, query, checkResult, onComplete);
+            
+            function checkResult(entities:Array, count:int):void
+            {
+                entities.sortOn("name");
+                assert(count == 4, "Wrong number of entities returned: "  + count);
+                assertEqualEntities(entities[0], products[0]);
+                assertEqualEntities(entities[1], products[1]);
+                assertEqualEntities(entities[2], products[2]);
+                assertEqualEntities(entities[3], products[3]);
             }
         }
         
