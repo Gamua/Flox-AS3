@@ -223,7 +223,10 @@ package com.gamua.flox
         }
         
         /** Posts a score to a certain leaderboard. Beware that only the top score of a player 
-         *  (currently: a game installation) will appear on the leaderboard. */
+         *  (currently: a game installation) will appear on the leaderboard.
+         *   
+         *  <p>If the device is offline when you call this method, the score will be cached and
+         *  is sent the next time it is online.</p> */
         public static function postScore(leaderboardID:String, score:int, playerName:String):void
         {
             checkInitialized();
