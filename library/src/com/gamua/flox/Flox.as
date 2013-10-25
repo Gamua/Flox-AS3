@@ -60,7 +60,7 @@ package com.gamua.flox
      *      {
      *          trace("retrieved " + scores.length + " scores");
      *      },
-     *      function onError(error:String):void
+     *      function onError(error:String, cachedScores:Array):void
      *      {
      *          trace("error loading scores: " + error);
      *      });</pre>
