@@ -1,6 +1,12 @@
 Flox: Changelog
 ===============
 
+version 1.0.2 - 2013-11-04
+--------------------------
+
+* changed the maximum number of scores returned by 'Flox.loadScores' from 50 to 200
+* several updates of the API documentation
+
 version 1.0.1 - 2013-10-11
 --------------------------
 
