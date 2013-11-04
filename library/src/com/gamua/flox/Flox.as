@@ -167,8 +167,8 @@ package com.gamua.flox
         // leaderboards
         
         /** Loads the scores of a certain leaderboard from the server. At the moment, you get
-         *  a maximum of 50 scores per leaderboard and time scope. Each player (i.e. device
-         *  installation) will be in the list only once.
+         *  a maximum of 50 scores per leaderboard and time scope. Each player will be in the list
+         *  only once.
          *  
          *  <p>Note that when the server cannot be reached (e.g. because the player is offline)
          *  the 'onError' callback contains the scores that Flox cached from the last request
@@ -222,8 +222,8 @@ package com.gamua.flox
             }
         }
         
-        /** Posts a score to a certain leaderboard. Beware that only the top score of a player 
-         *  (currently: a game installation) will appear on the leaderboard.
+        /** Posts a score to a certain leaderboard. Beware that only the top score of a player will
+         *  appear on the leaderboard.
          *   
          *  <p>If the device is offline when you call this method, the score will be cached and
          *  is sent the next time it is online.</p> */
