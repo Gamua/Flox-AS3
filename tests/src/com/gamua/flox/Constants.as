@@ -45,7 +45,17 @@ package com.gamua.flox
         {
             Flox.traceLogs = false;
             Flox.reportAnalytics = reportAnalytics;
-            Flox.initWithBaseURL(GAME_ID, GAME_KEY, "1.0", BASE_URL);
+            Flox.initWithBaseURL(GAME_ID, GAME_KEY, Flox.VERSION, BASE_URL);
+        }
+        
+        public static function initFloxForGameOverQuota():void
+        {
+            const gameID:String  = PRODUCTION_SERVER ? "9LSCZS3yQlF1dGFr" : "ofBuqx6kqSsY9iqb";
+            const gameKey:String = PRODUCTION_SERVER ? "iamDM9f36SS3Uucp" : "rnuW98IDQNoEWLJu";
+            
+            Flox.traceLogs = false;
+            Flox.reportAnalytics = false;
+            Flox.initWithBaseURL(gameID, gameKey, Flox.VERSION, BASE_URL);
         }
     }
 }

@@ -2,6 +2,7 @@ package com.gamua.flox
 {
     import com.gamua.flox.events.QueueEvent;
     import com.gamua.flox.utils.HttpMethod;
+    import com.gamua.flox.utils.HttpStatus;
     
     import starling.unit.UnitTest;
 
@@ -73,5 +74,28 @@ package com.gamua.flox
                 onComplete();
             }
         }
+        
+        public function testGameOverQuota(onComplete:Function):void
+        {
+            Flox.shutdown();
+            Constants.initFloxForGameOverQuota();
+            
+            Player.current.save(onSaveComplete, onSaveError);
+            
+            function onSaveComplete(body:Object, httpStatus:int):void
+            {
+                fail("game that's over quota allowed to save entity");
+                onComplete();
+            }
+            
+            function onSaveError(error:String, httpStatus:int):void
+            {
+                assertEqual(HttpStatus.TOO_MANY_REQUESTS, httpStatus, 
+                    "wrong http status on over-quota game"); 
+                
+                onComplete();
+            }
+        }
+            
     }
 }
