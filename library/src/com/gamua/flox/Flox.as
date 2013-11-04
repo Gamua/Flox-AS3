@@ -167,7 +167,7 @@ package com.gamua.flox
         // leaderboards
         
         /** Loads the scores of a certain leaderboard from the server. At the moment, you get
-         *  a maximum of 50 scores per leaderboard and time scope. Each player will be in the list
+         *  a maximum of 200 scores per leaderboard and time scope. Each player will be in the list
          *  only once.
          *  
          *  <p>Note that when the server cannot be reached (e.g. because the player is offline)
@@ -190,8 +190,8 @@ package com.gamua.flox
             var query:Object = { 
                 leaderboardId: leaderboardID,
                 timeScope: timescope,
-                limit: 50,
-                offset: 0
+                limit: 200,
+                offset:  0
             };
             
             service.request(HttpMethod.GET, ".score", { q: JSON.stringify(query) },
