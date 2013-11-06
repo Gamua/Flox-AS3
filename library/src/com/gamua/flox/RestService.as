@@ -410,5 +410,16 @@ package com.gamua.flox
         
         /** The key that identifies the game. */
         public function get gameKey():String { return mGameKey; }
+        
+        /** Indicates if the connection should be encryped using SSL/TLS. */
+        public function get useSecureConnection():Boolean
+        {
+            return mUrl.toLowerCase().indexOf("https") == 0;
+        }
+        
+        public function set useSecureConnection(value:Boolean):void
+        {
+            mUrl = mUrl.replace(/^http[s]?/, value ? "https" : "http");
+        }
     }
 }

@@ -516,5 +516,16 @@ package com.gamua.flox
                 registerClassAlias(value);
             }
         }
+        
+        /** Indicates if the connection should be encryped using SSL/TLS. @default true */
+        public static function get useSecureConnection():Boolean
+        {
+            return service.useSecureConnection;
+        }
+        
+        public static function set useSecureConnection(value:Boolean):void
+        {
+            service.useSecureConnection = value;
+        }
     }
 }
