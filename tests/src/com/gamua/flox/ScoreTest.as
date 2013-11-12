@@ -120,6 +120,8 @@ package com.gamua.flox
                 assertEqual(highscore + 1, tony.value, "wrong score");
                 assertEqual(tony.playerName, "Tony", "wrong name");
                 assertEqual(tina.playerName, "Tina", "wrong name");
+                assertEqual(2, tina.country.length, "wrong country code");
+                assertEqual(2, tony.country.length, "wrong country code");
                 onComplete();
             }
             
@@ -146,6 +148,46 @@ package com.gamua.flox
             function onScoresError(error:String, cachedScores:Array):void
             {
                 assertNull(cachedScores);
+                onComplete();
+            }
+        }
+        
+        public function testLeaderboardOfFriends(onComplete:Function):void
+        {
+            var leaderboardID:String = Constants.LEADERBOARD_ID;
+            var playerIDs:Array = [];
+            var values:Array    = [100, 80, 60];
+            var names:Array     = ["first", "second", "third"];
+            
+            for (var i:int=0; i<values.length; ++i)
+            {
+                Player.logout();
+                Flox.postScore(leaderboardID, values[i], names[i]);
+                playerIDs.push(Player.current.id);
+            }
+            
+            Flox.loadScores(leaderboardID, playerIDs, onScoresLoaded, onScoresError);
+            
+            function onScoresLoaded(scores:Array):void
+            {
+                assertEqual(playerIDs.length, scores.length, "wrong number of scores returned");
+                
+                for (var i:int=0; i<playerIDs.length; ++i)
+                {
+                    assertEqual(playerIDs[i], scores[i].playerId,   "wrong player id");
+                    assertEqual(    names[i], scores[i].playerName, "wrong player name");
+                    assertEqual(   values[i], scores[i].value,      "wrong score");
+                    
+                    assertEqual(2, scores[i].country.length, "wrong country code");
+                    assertEqual(scores[i].date.fullYearUTC, new Date().fullYearUTC, "wrong year");
+                }
+                
+                onComplete();
+            }
+            
+            function onScoresError(error:String, cachedScores:Array):void
+            {
+                fail("could not load friend scores! " + error);
                 onComplete();
             }
         }

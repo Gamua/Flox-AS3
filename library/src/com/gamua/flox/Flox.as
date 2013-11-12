@@ -176,20 +176,28 @@ package com.gamua.flox
          *  (if available, otherwise the parameter is null).</p>
          *  
          *  @param leaderboardID: the leaderboard ID you have defined in the Flox online interface.
-         *  @param timescope:  the time range the leaderboard contains. The corresponding string
-         *                     constants are defined in the "TimeScope" class. 
+         *  @param scope:      either a "TimeScope" (one of the constants defined in that class),
+         *                     or a list of playerIDs.
          *  @param onComplete: a callback containing an Array of 'Score' instances: 
          *                     <pre>onComplete(scores:Array):void;</pre>
          *  @param onError:    a callback with the form:
          *                     <pre>onError(error:String, cachedScores:Array):void;</pre>
          */
-        public static function loadScores(leaderboardID:String, timescope:String,
+        public static function loadScores(leaderboardID:String, scope:*,
                                           onComplete:Function, onError:Function):void
         {
             checkInitialized();
             
             var path:String = createURL("leaderboards", leaderboardID);
-            var args:Object = { t: timescope };
+            var args:Object = {};
+            
+            if (scope is String)
+                args.t = scope; // timescope
+            else if (scope is Array)
+                args.p = scope; // list of players
+            else
+                throw new ArgumentError("Invalid scope: must be 'TimeScope' String or " +
+                                        "Array of PlayerIDs");
             
             service.request(HttpMethod.GET, path, args, onRequestComplete, onRequestError);
             
@@ -212,7 +220,7 @@ package com.gamua.flox
                     for each (var rawScore:Object in rawScores)
                         scores.push(new Score(
                             rawScore.playerId, rawScore.playerName, parseInt(rawScore.value),
-                            DateUtil.parse(rawScore.createdAt), rawScore.countryCode));
+                            DateUtil.parse(rawScore.createdAt), rawScore.country));
                     return scores;
                 }
             }
