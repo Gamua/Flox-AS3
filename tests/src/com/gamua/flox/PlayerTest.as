@@ -157,7 +157,7 @@ package com.gamua.flox
             var guestID:String = Player.current.id;
             assert(oldPlayerID != guestID);
 
-            var email:String = createUID() + "@maildrop.cc";
+            var email:String = createUID().toLowerCase() + "@incognitek.com";
             Player.loginWithEmail(email, onLogin1Complete, onLogin1Error);
             
             function onLogin1Complete(player:Player):void
@@ -229,7 +229,7 @@ package com.gamua.flox
             
             function onMailError(error:String, httpStatus:int):void
             {
-                fail("Could not access MailDrop mails");
+                fail("Could not access mail server: " + error);
                 onComplete();
             }
             
@@ -249,47 +249,41 @@ package com.gamua.flox
         private function activatePlayerThroughEmail(email:String, 
                                                     onComplete:Function, onError:Function):void
         {
-            var numTries:int = 5;
-            var delay:int = 3000;
+            // We use Gamua's own mail server to get those activation mails.
+            
+            var numTries:int = 10;
+            var delay:int = 1000;
             var emailUser:String = email.split("@").shift();
-            var mailBoxUrl:String = "http://maildrop.cc/inbox/" + emailUser;
+            var mailDumpUrl:String = "http://www.incognitek.com/maildump/" + emailUser + ".txt";
             
-            setTimeout(downloadTextResource, delay, mailBoxUrl, onMailBoxComplete, onError);
+            setTimeout(downloadTextResource, delay, mailDumpUrl, onMailLoaded, onMailError);
             
-            function onMailBoxComplete(htmlContents:String):void
+            function onMailLoaded(rawContents:String):void
             {
-                // open up MailDrop mailbox, find link to email
-                var matches:Array = htmlContents.match(/<td class=subject><a href="(.+?)">/);
-                if (matches && matches.length == 2)
-                    downloadTextResource("http://maildrop.cc" + matches[1] + "/raw", 
-                        onMailComplete, onError);
-                else
-                {
-                    if (numTries-- > 0)
-                    {
-                        trace("  mail not yet arrived, trying again ...");
-                        setTimeout(downloadTextResource, delay, mailBoxUrl, onMailBoxComplete, onError);
-                    }
-                    else
-                    {
-                        fail("Error parsing MailDrop mailbox");
-                        onComplete();
-                    }
-                }
-            }
-            
-            function onMailComplete(rawContents:String):void
-            {
-                var contents:String = rawContents.replace(/=\r\n/g, "").replace(/=3D/g, "=");
+                var contents:String = rawContents.replace(/=[\r\n]+/g, "").replace(/=3D/g, "=");
                 
                 // find link to flox email, visit it.
                 var matches:Array = contents.match(
-                    '<a href="(https://(?:www.)?flox.*/games/.+?/players/.+?/authorize.+?)"');
+                    '<a href="(https?://(?:www.)?flox.*/games/.+?/players/.+?/authorize.+?)"');
                 if (matches && matches.length == 2)
                     downloadTextResource(matches[1], onAuthorizeComplete, onError);
                 else
                 {
                     fail("Could not find Flox link in mail");
+                    onComplete();
+                }
+            }
+            
+            function onMailError(error:String, httpStatus:int):void
+            {
+                if (numTries-- > 0)
+                {
+                    trace("  mail not yet arrived, trying again ...");
+                    setTimeout(downloadTextResource, delay, mailDumpUrl, onMailLoaded, onMailError);
+                }
+                else
+                {
+                    fail("Error fetching mail");
                     onComplete();
                 }
             }
