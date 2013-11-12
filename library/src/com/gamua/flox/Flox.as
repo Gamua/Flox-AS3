@@ -10,6 +10,7 @@ package com.gamua.flox
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpMethod;
     import com.gamua.flox.utils.createUID;
+    import com.gamua.flox.utils.createURL;
     import com.gamua.flox.utils.describeType;
     import com.gamua.flox.utils.execute;
     import com.gamua.flox.utils.formatString;
@@ -187,15 +188,10 @@ package com.gamua.flox
         {
             checkInitialized();
             
-            var query:Object = { 
-                leaderboardId: leaderboardID,
-                timeScope: timescope,
-                limit: 200,
-                offset:  0
-            };
+            var path:String = createURL("leaderboards", leaderboardID);
+            var args:Object = { t: timescope };
             
-            service.request(HttpMethod.GET, ".score", { q: JSON.stringify(query) },
-                            onRequestComplete, onRequestError);
+            service.request(HttpMethod.GET, path, args, onRequestComplete, onRequestError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
@@ -231,8 +227,10 @@ package com.gamua.flox
         {
             checkInitialized();
             
-            var data:Object = { leaderboardId: leaderboardID, playerName: playerName, value:score };
-            service.requestQueued(HttpMethod.POST, ".score", data);
+            var path:String = createURL("leaderboards", leaderboardID);
+            var data:Object = { playerName: playerName, value:score };
+            
+            service.requestQueued(HttpMethod.POST, path, data);
         }
         
         // misc
