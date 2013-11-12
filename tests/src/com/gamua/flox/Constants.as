@@ -4,31 +4,35 @@ package com.gamua.flox
 
     public class Constants
     {
-        public static const PRODUCTION_SERVER:Boolean = true;
+        [Embed(source="../../../../config/live-server.xml", mimeType="application/octet-stream")]
+        private static const server_config:Class;
+        private static const ServerConfig:XML = XML(new server_config());
         
-        public static const GAME_ID:String = "gamua-unit-tests";
         public static const LEADERBOARD_ID:String = "default";
+        
+        public static function get GAME_ID():String
+        {
+            return ServerConfig.Game.(@status == "enabled").ID;
+        }
         
         public static function get GAME_KEY():String
         {
-            return PRODUCTION_SERVER ? "150a1bb6-b33d-4eb3-8848-23051f200359" :
-                                       "58d92a16-a0ba-4c70-8539-2ef6bf6fa6ed";
+            return ServerConfig.Game.(@status == "enabled").Key;
         }
         
         public static function get BASE_URL():String
         {
-            return PRODUCTION_SERVER ? "https://www.flox.cc/api" :
-                                       "https://flox-by-gamua-test.appspot.com/api";
+            return ServerConfig.BaseURL;
         }
         
         public static function get ENABLED_HERO_KEY():String
         {
-            return PRODUCTION_SERVER ? "zjCXJefGy6Dzdm5W" : "B3Lkg2g1cy2Fh4zf";
+            return ServerConfig.Hero.(@status == "enabled").Key;
         }
         
         public static function get DISABLED_HERO_KEY():String
         {
-            return PRODUCTION_SERVER ? "tz0H1RFjjp4Jmb3T" : "GYhcx9jw5g36nnMf";
+            return ServerConfig.Hero.(@status == "disabled").Key;
         }
         
         public static function createGameUrl(...args):String
@@ -50,8 +54,8 @@ package com.gamua.flox
         
         public static function initFloxForGameOverQuota():void
         {
-            const gameID:String  = PRODUCTION_SERVER ? "9LSCZS3yQlF1dGFr" : "ofBuqx6kqSsY9iqb";
-            const gameKey:String = PRODUCTION_SERVER ? "iamDM9f36SS3Uucp" : "rnuW98IDQNoEWLJu";
+            const gameID:String  = ServerConfig.Game.(@status == "overQuota").ID;
+            const gameKey:String = ServerConfig.Game.(@status == "overQuota").Key;
             
             Flox.traceLogs = false;
             Flox.reportAnalytics = false;

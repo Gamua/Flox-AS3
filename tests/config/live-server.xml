@@ -1,0 +1,21 @@
+<ServerData>
+
+  <BaseURL>https://www.flox.cc/api</BaseURL>
+  
+  <Hero status="enabled">
+    <Key>zjCXJefGy6Dzdm5W</Key>
+  </Hero>
+  <Hero status="disabled">
+    <Key>tz0H1RFjjp4Jmb3T</Key>
+  </Hero>
+
+  <Game status="enabled">
+    <ID>gamua-unit-tests</ID>
+    <Key>150a1bb6-b33d-4eb3-8848-23051f200359</Key>
+  </Game>
+  <Game status="overQuota">
+    <ID>9LSCZS3yQlF1dGFr</ID>
+    <Key>iamDM9f36SS3Uucp</Key>
+  </Game>
+
+</ServerData>
