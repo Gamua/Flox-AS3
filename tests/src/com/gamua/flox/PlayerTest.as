@@ -249,11 +249,12 @@ package com.gamua.flox
         private function activatePlayerThroughEmail(email:String, 
                                                     onComplete:Function, onError:Function):void
         {
-            var numTries:int = 15;
+            var numTries:int = 5;
+            var delay:int = 3000;
             var emailUser:String = email.split("@").shift();
             var mailBoxUrl:String = "http://maildrop.cc/inbox/" + emailUser;
             
-            setTimeout(downloadTextResource, 2000, mailBoxUrl, onMailBoxComplete, onError);
+            setTimeout(downloadTextResource, delay, mailBoxUrl, onMailBoxComplete, onError);
             
             function onMailBoxComplete(htmlContents:String):void
             {
@@ -267,7 +268,7 @@ package com.gamua.flox
                     if (numTries-- > 0)
                     {
                         trace("  mail not yet arrived, trying again ...");
-                        setTimeout(downloadTextResource, 2000, mailBoxUrl, onMailBoxComplete, onError);
+                        setTimeout(downloadTextResource, delay, mailBoxUrl, onMailBoxComplete, onError);
                     }
                     else
                     {
