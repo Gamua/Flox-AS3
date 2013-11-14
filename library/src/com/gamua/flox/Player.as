@@ -79,7 +79,6 @@ package com.gamua.flox
             {
                 var id:String = body.id;
                 var type:String = getType(Flox.playerClass);
-                var eTag:String = body.eTag;
                 var player:Player = Entity.fromObject(type, id, body.entity) as Player;
                 onAuthenticated(player);
             }
