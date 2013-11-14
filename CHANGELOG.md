@@ -1,6 +1,13 @@
 Flox: Changelog
 ===============
 
+version 1.1 - 2013-11-14
+------------------------
+
+* added 'friends' scope for leaderboards (just pass the playerIDs you're interested in)
+* added 'Flox.useSecureConnection' property
+* changed leaderboard REST API
+
 version 1.0.2 - 2013-11-04
 --------------------------
 
