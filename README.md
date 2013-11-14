@@ -34,6 +34,8 @@ To **send and retrieve scores**, first set up a leaderboard in the web interface
         {
             trace("error loading scores: " + error);
         });
+
+This is just the tip of the iceberg, though! Use Flox to store **custom Entities** and **query** them, make **Player Logins** via a simple **e-mail verification** or a **social network**, browse your game's **logs**, assign **custom permissions**, and much more.
         
 Where to go from here:
 ----------------------
