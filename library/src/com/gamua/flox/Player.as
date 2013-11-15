@@ -15,7 +15,24 @@ package com.gamua.flox
     import flash.utils.setTimeout;
     
     /** An Entity that contains information about a Flox Player. The class also contains static
-     *  methods for Player login and logout. */
+     *  methods for Player login and logout. 
+     *
+     *  <p>Do not create player instances yourself; instead, always use the player objects returned
+     *  by 'Player.current'. A guest player is created automatically for your on first start
+     *  (as a guest player).</p>
+     *
+     *  <p>The current player is automatically persisted, i.e. when you close and restart your game,
+     *  the same player will be logged in automatically.</p>
+     *
+     *  <p>In many games, you'll want to use a custom player subclass, so that you can add custom
+     *  properties. To do that, register your player class before starting Flox.</p>
+     *  <pre>
+     *  Flox.playerClass = CustomPlayer;</pre>
+     *
+     *  <p>When you've done that, you can get your player anytime with this code:</p>
+     *  <pre>
+     *  var player:CustomPlayer = Player.current as CustomPlayer;</pre>
+     */
     [Type(".player")]
     public class Player extends Entity
     {
