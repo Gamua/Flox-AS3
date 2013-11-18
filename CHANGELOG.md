@@ -1,6 +1,14 @@
 Flox: Changelog
 ===============
 
+version 1.1.1. - 2013-11-18
+---------------------------
+
+* now preventing any service requests while a login is in progress
+  (which is a bad practice and may lead to request errors in some cases)
+* added additional null-reference check in Entity handling
+  (could cause exception in special cases)
+
 version 1.1 - 2013-11-14
 ------------------------
 
