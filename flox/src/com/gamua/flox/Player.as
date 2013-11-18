@@ -69,6 +69,7 @@ package com.gamua.flox
             onComplete:Function=null, onError:Function=null):void
         {
             Flox.checkInitialized();
+            var previousAuthentication:Authentication = Flox.authentication;
             
             if (authId    == null) authId    = "";
             if (authToken == null) authToken = "";
@@ -89,7 +90,9 @@ package com.gamua.flox
                     authData.id = current.id; 
                 
                 Flox.service.request(HttpMethod.POST, "authenticate", authData, 
-                                     onRequestComplete, onError);
+                                     onRequestComplete, onRequestError);
+
+                Flox.authentication = null; // prevent any new requests while login is in process!
             }
             
             function onRequestComplete(body:Object, httpStatus:int):void
@@ -98,6 +101,12 @@ package com.gamua.flox
                 var type:String = getType(Flox.playerClass);
                 var player:Player = Entity.fromObject(type, id, body.entity) as Player;
                 onAuthenticated(player);
+            }
+            
+            function onRequestError(error:String, httpStatus:int):void
+            {
+                Flox.authentication = previousAuthentication;
+                execute(onError, error, httpStatus);
             }
             
             function onAuthenticated(player:Player):void

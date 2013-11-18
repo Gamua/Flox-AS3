@@ -1,5 +1,6 @@
 package com.gamua.flox
 {
+    import com.gamua.flox.utils.CustomEntity;
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpStatus;
     import com.gamua.flox.utils.createUID;
@@ -323,6 +324,32 @@ package com.gamua.flox
             function onSaveError(error:String):void
             {
                 // that's fine, it's supposed to fail.
+                onComplete();
+            }
+        }
+        
+        public function testAPostScoreWhileLoggingIn(onComplete:Function):void
+        {
+            Flox.clearQueue();
+            Player.loginWithKey(createUID(), onComplete, onLoginError);
+            
+            var entity:Entity = new CustomEntity();
+            var threwException:Boolean = false;
+            
+            try { entity.saveQueued(); }
+            catch (error) { threwException = true; }
+            
+            assert(threwException, "could make request while login was in progress");
+            threwException = false;
+            
+            try { entity.save(null, null); }
+            catch (error) { threwException = true; }
+            
+            assert(threwException, "could make request while login was in progress");
+            
+            function onLoginError(error:String):void
+            {
+                fail("Could not make key login");
                 onComplete();
             }
         }

@@ -65,7 +65,7 @@ package com.gamua.flox
             }
             
             if (authentication == null)
-                authentication = Flox.authentication;
+                throw new Error("authentication must not be null");
             
             var cachedResult:Object = null;
             var headers:Object = {};
@@ -210,11 +210,11 @@ package com.gamua.flox
         public function request(method:String, path:String, data:Object, 
                                 onComplete:Function, onError:Function):void
         {
+            var auth:Authentication = Flox.authentication;
+            if (auth == null) throw new Error("Cannot make request while login is in process");
+            
             if (processQueue())
             {
-                // might change before we're in the event handler!
-                var auth:Authentication = Flox.authentication;
-                
                 addEventListener(QueueEvent.QUEUE_PROCESSED, 
                     function onQueueProcessed(event:QueueEvent):void
                     {
@@ -230,8 +230,7 @@ package com.gamua.flox
             }
             else
             {
-                requestWithAuthentication(method, path, data, Flox.authentication,
-                                          onComplete, onError);
+                requestWithAuthentication(method, path, data, auth, onComplete, onError);
             }
         }
         
@@ -239,6 +238,9 @@ package com.gamua.flox
          *  queue. */
         public function requestQueued(method:String, path:String, data:Object=null):void
         {
+            var auth:Authentication = Flox.authentication;
+            if (auth == null) throw new Error("Cannot make request while login is in process");
+            
             var queueLength:int;
             var metaData:String = null;
             
@@ -260,8 +262,8 @@ package com.gamua.flox
                 });
             }
             
-            mQueue.enqueue({ method: method, path: path, data: data,
-                             authentication: Flox.authentication }, metaData);
+            var request:Object = { method: method, path: path, data: data, authentication: auth };
+            mQueue.enqueue(request, metaData);
             processQueue();
         }
         
