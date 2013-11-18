@@ -285,8 +285,11 @@ package com.gamua.flox
                     
                     // createdAt and updatedAt are always set by server, thus we update them here.
                     var cachedObject:Object = Flox.service.getFromCache(path);
-                    entity.createdAt = DateUtil.parse(cachedObject.createdAt);
-                    entity.updatedAt = DateUtil.parse(cachedObject.updatedAt);
+                    if (cachedObject)
+                    {
+                        entity.createdAt = DateUtil.parse(cachedObject.createdAt);
+                        entity.updatedAt = DateUtil.parse(cachedObject.updatedAt);
+                    }
                 });
         }
         
