@@ -2,7 +2,7 @@
 bin/
 bin-debug/
 bin-release/
-library/doc/html/
+flox/doc/html/
 
 # Project property files
 .settings/
