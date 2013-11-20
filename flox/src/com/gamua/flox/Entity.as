@@ -130,13 +130,11 @@ package com.gamua.flox
          *  It is guaranteed that one (and only one) of the provided callbacks will be executed;
          *  all callback arguments are optional.
          * 
-         *  <p>The 'fromCache' argument indicates that the entity hasn't changed since you last
-         *  received it from the server. In case of an error, use the method  
-         *  'HttpStatus.isTransientError(httpStatus)' to find out if it's just temporary (e.g. the 
-         *  server was not reachable).</p> 
+         *  <p>In case of an error, use the method 'HttpStatus.isTransientError(httpStatus)'
+         *  to find out if it's just temporary (e.g. the server was not reachable).</p>
          *  
          *  @param onComplete: executed when the operation is successful; function signature:
-         *                     <pre>onComplete(entity:Entity, fromCache:Boolean):void;</pre>
+         *                     <pre>onComplete(entity:Entity):void;</pre>
          *  @param onError:    executed when the operation was not successful; function signature:
          *                     <pre>onError(error:String, httpStatus:int):void;</pre>         
          */
@@ -181,9 +179,6 @@ package com.gamua.flox
          *  It is guaranteed that one (and only one) of the provided callbacks will be executed;
          *  all callback arguments are optional.
          *  
-         *  <p>The 'fromCache' argument indicates if the entity has changed since you last 
-         *  received it from the server.</p>
-         *  
          *  <p>Note that the 'onError' callback may give you a cached version of the entity. This
          *  is possible if you have received the Entity already in the past. This might allow you
          *  to work with the entity even though the player has lost the connection to the Flox
@@ -195,7 +190,7 @@ package com.gamua.flox
          *  @param entityClass: the class of the entity to load.
          *  @param id:          the id of the entity to load.
          *  @param onComplete:  executed when the operation is successful; function signature:
-         *                      <pre>onComplete(entity:Entity, fromCache:Boolean):void;</pre>
+         *                      <pre>onComplete(entity:Entity):void;</pre>
          *  @param onError:     executed when the operation was not successful; function signature:
          *                      <pre>onError(error:String, httpStatus:int, cachedEntity:Entity):void;</pre>
          */
