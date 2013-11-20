@@ -33,7 +33,13 @@ package com.gamua.flox
         public function setObject(key:String, value:Object, metaData:Object=null):void
         {
             var info:Object = mIndex.data[key];
-            var name:String = info ? info.name : createUID();
+            var name:String = createUID();
+            
+            // If the object already exists we delete it and save 'value' under a new name.
+            // This avoids problems if only one of the two SharedObjects can be saved.
+            
+            if (info && info.name)
+                SharedObjectPool.clearObject(info.name);
             
             info = metaData ? cloneObject(metaData) : {};
             info.name = name;

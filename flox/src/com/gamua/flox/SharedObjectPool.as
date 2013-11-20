@@ -69,6 +69,14 @@ package com.gamua.flox
             return so;
         }
         
+        public static function clearObject(name:String):void
+        {
+            var so:SharedObject = getObject(name);
+            so.clear();
+            
+            delete sPool[name];
+        }
+        
         public static function purgePool():void
         {
             sPool = new Dictionary();
