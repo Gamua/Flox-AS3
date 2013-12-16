@@ -1,5 +1,7 @@
 package com.gamua.flox
 {
+    import com.gamua.flox.events.QueueEvent;
+    
     import starling.unit.UnitTest;
 
     public class AnalyticsTest extends UnitTest
@@ -8,7 +10,7 @@ package com.gamua.flox
         // data and can't retrieve it from the server. This test is solely an easy way to
         // step through the code.
         
-        public function testLogTypes():void
+        public function testLogTypes(onComplete:Function):void
         {
             var strings:Array = ["hugo", "berti", "sepp"];
             var booleans:Array = [false, true];
@@ -33,12 +35,16 @@ package com.gamua.flox
             Flox.logInfo("This is the last info log");
             Flox.shutdown();
             
-            submitEmptySession();
+            submitEmptySession(onComplete);
         }
         
-        public function testLongLog():void
+        public function testLongLog(onComplete:Function):void
         {
-            return; // we don't want to spam the server -- activate on demand
+            if (true) // we don't want to spam the server -- activate on demand
+            {
+                onComplete();
+                return;
+            }
             
             var count:int = 10000;
             
@@ -51,12 +57,16 @@ package com.gamua.flox
             Flox.logInfo("Last log line");
             Flox.shutdown();
             
-            submitEmptySession();
+            submitEmptySession(onComplete);
         }
         
-        public function testSendMultipleLogs():void
+        public function testSendMultipleLogs(onComplete:Function):void
         {
-            return; // we don't want to spam the server -- activate on demand
+            if (true) // we don't want to spam the server -- activate on demand
+            {
+                onComplete();
+                return;
+            }
             
             var sessionCount:int = 10;
             var logCount:int = 10;
@@ -72,13 +82,19 @@ package com.gamua.flox
                 Flox.shutdown();
             }
             
-            submitEmptySession();
+            submitEmptySession(onComplete);
         }
         
-        private static function submitEmptySession():void
+        private static function submitEmptySession(onComplete:Function):void
         {
             Constants.initFlox(true);
-            Flox.shutdown();
+            
+            Flox.addEventListener(QueueEvent.QUEUE_PROCESSED, function onQueueProcessed():void
+            {
+                Flox.removeEventListener(QueueEvent.QUEUE_PROCESSED, onQueueProcessed);
+                Flox.shutdown();
+                onComplete();
+            });
         }
     }
 }
