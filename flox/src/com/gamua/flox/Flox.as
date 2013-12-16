@@ -112,6 +112,9 @@ package com.gamua.flox
             if (sInitialized)
                 throw new Error("Flox is already initialized!");
             
+            if (!gameID || !gameKey || !gameVersion || !baseURL)
+                throw new ArgumentError("All arguments must have a value");
+            
             if ("preventBackup" in SharedObject)
                 SharedObject["preventBackup"] = true;
             
