@@ -69,11 +69,12 @@ package com.gamua.flox
          *  Strings with quotations marks). Here is an example:</p>
          *  <pre>
          *  query.where("name == ? AND score > ?", "thomas", 500); 
-         *  // -> 'name == "thomas" AND score > 500'</pre>
+         *  // -> name == "thomas" AND score > 500</pre>
          *  
          *  <p>Use the 'IN'-operator to check for inclusion within a list of possible values:</p>
          *  <pre>
-         *  query.where("name IN ?", ["alfa", "bravo", "charlie"]);</pre>
+         *  query.where("name IN ?", ["alfa", "bravo", "charlie"]);
+         *  // -> name IN ["alfa", "bravo", "charlie"]</pre>
          *  
          *  <p>Note that subsequent calls to this method will replace preceding constraints.</p>
          *  
