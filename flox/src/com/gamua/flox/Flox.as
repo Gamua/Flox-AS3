@@ -137,7 +137,8 @@ package com.gamua.flox
                 sPersistentData = SharedObject.getLocal("Flox." + gameID);
             }
             
-            if (Player.current == null) Player.login();
+            if (Player.current == null || Flox.authentication == null)
+                Player.login();
             
             sRestService.alwaysFail = false;
             startNewGameSession();

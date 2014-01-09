@@ -1,5 +1,6 @@
 package com.gamua.flox
 {
+    import com.gamua.flox.events.QueueEvent;
     import com.gamua.flox.utils.CustomEntity;
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpStatus;
@@ -328,29 +329,44 @@ package com.gamua.flox
             }
         }
         
-        public function testPostScoreWhileLoggingIn(onComplete:Function):void
+        public function testMakeRequestWhileLoggingIn(onComplete:Function):void
         {
             Flox.clearQueue();
-            Player.loginWithKey(createUID(), onComplete, onLoginError);
+            Player.loginWithKey(createUID(), onLoginComplete, onLoginError);
             
+            var completeCount:int = 0;
             var entity:Entity = new CustomEntity();
-            var threwException:Boolean = false;
+            entity.save(onSaveComplete, onSaveError);
             
-            try { entity.saveQueued(); }
-            catch (error) { threwException = true; }
+            // this should also happen with "saveQueued", but that can't be tested right now. :|
             
-            assert(threwException, "could make request while login was in progress");
-            threwException = false;
+            function onSaveComplete():void
+            {
+                fail("Could save entity while logging in");
+                requestComplete();
+            }
             
-            try { entity.save(null, null); }
-            catch (error) { threwException = true; }
+            function onSaveError(error:String, httpStatus:int):void
+            {
+                assertEqual(HttpStatus.FORBIDDEN, httpStatus, "wrong http status");
+                requestComplete();
+            }
             
-            assert(threwException, "could make request while login was in progress");
+            function onLoginComplete():void
+            {
+                requestComplete();
+            }
             
             function onLoginError(error:String):void
             {
                 fail("Could not make key login");
-                onComplete();
+                requestComplete();
+            }
+            
+            function requestComplete():void
+            {
+                if (++completeCount == 2)
+                    onComplete();
             }
         }
     }

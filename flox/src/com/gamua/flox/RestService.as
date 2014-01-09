@@ -15,6 +15,7 @@ package com.gamua.flox
     import com.gamua.flox.utils.cloneObject;
     import com.gamua.flox.utils.createURL;
     import com.gamua.flox.utils.execute;
+    import com.gamua.flox.utils.setTimeout;
     
     import flash.events.Event;
     import flash.events.EventDispatcher;
@@ -58,14 +59,22 @@ package com.gamua.flox
                                                    authentication:Authentication,
                                                    onComplete:Function, onError:Function):void
         {
+            if (authentication == null)
+            {
+                // This is only null while a login is in process. To avoid problems with player
+                // authentication, we do not allow that to happen. The error callback is executed
+                // with a delay so that the method acts the same way as if this was a server error.
+                
+                setTimeout(execute, 1, onError, "Cannot make request while login is in process",
+                                       HttpStatus.FORBIDDEN);
+                return;
+            }
+            
             if (method == HttpMethod.GET && data)
             {
                 path += "?" + encodeForUri(data);
                 data = null;
             }
-            
-            if (authentication == null)
-                throw new Error("authentication must not be null");
             
             var cachedResult:Object = null;
             var headers:Object = {};
@@ -210,8 +219,8 @@ package com.gamua.flox
         public function request(method:String, path:String, data:Object, 
                                 onComplete:Function, onError:Function):void
         {
+            // might change before we're in the event handler!
             var auth:Authentication = Flox.authentication;
-            if (auth == null) throw new Error("Cannot make request while login is in process");
             
             if (processQueue())
             {
@@ -238,9 +247,6 @@ package com.gamua.flox
          *  queue. */
         public function requestQueued(method:String, path:String, data:Object=null):void
         {
-            var auth:Authentication = Flox.authentication;
-            if (auth == null) throw new Error("Cannot make request while login is in process");
-            
             var queueLength:int;
             var metaData:String = null;
             
@@ -261,7 +267,8 @@ package com.gamua.flox
                     else return metaData != m;
                 });
             }
-            
+
+            var auth:Authentication = Flox.authentication;
             var request:Object = { method: method, path: path, data: data, authentication: auth };
             mQueue.enqueue(request, metaData);
             processQueue();
