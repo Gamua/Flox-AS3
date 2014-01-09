@@ -328,7 +328,7 @@ package com.gamua.flox
             }
         }
         
-        public function testAPostScoreWhileLoggingIn(onComplete:Function):void
+        public function testPostScoreWhileLoggingIn(onComplete:Function):void
         {
             Flox.clearQueue();
             Player.loginWithKey(createUID(), onComplete, onLoginError);
