@@ -1,8 +1,18 @@
 Flox: Changelog
 ===============
 
-version 1.1.1. - 2013-11-18
----------------------------
+version 1.1.2 - 2014-01-09
+--------------------------
+
+* added 'Flox.getTime' method which fetches the current server time
+* added checks for 'Flox.init' method arguments
+* now avoiding problems in cache when index SO is saved succesfully, but actual data is not.
+  (In that case, the cache returned an old object. Now, it returns 'null', which is safer.)
+* making a request while a login is in process now ends up in 'onError'
+  (previously, this threw an exception)
+
+version 1.1.1 - 2013-11-18
+--------------------------
 
 * now preventing any service requests while a login is in progress
   (which is a bad practice and may lead to request errors in some cases)
