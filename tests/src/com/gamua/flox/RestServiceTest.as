@@ -44,7 +44,7 @@ package com.gamua.flox
         
         public function testGetNonExistingEntity(onComplete:Function):void
         {
-            requestNonExistingPath("entities/.player/.does-not-exist", onComplete);
+            requestNonExistingPath("entities/.player/does-not-exist", onComplete);
         }
         
         private function requestNonExistingPath(path:String, onComplete:Function):void
@@ -59,6 +59,7 @@ package com.gamua.flox
             
             function onRequestError(error:String, httpStatus:int):void
             {
+                assertEqual(HttpStatus.NOT_FOUND, httpStatus, "wrong http status");
                 onComplete();
             }
         }
@@ -96,6 +97,23 @@ package com.gamua.flox
                 onComplete();
             }
         }
+        
+        public function testServerTime(onComplete:Function):void
+        {
+            Flox.getTime(onRequestComplete, onRequestError);
             
+            function onRequestComplete(time:Date):void
+            {
+                var diff:Number = Math.abs(new Date().time - time.time);
+                assert(diff < 10000, "there's something wrong with the server time");
+                onComplete();
+            }
+            
+            function onRequestError(error:String):void
+            {
+                fail("Could not fetch server time: " + error);
+                onComplete();
+            }
+        }
     }
 }

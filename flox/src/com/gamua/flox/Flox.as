@@ -246,6 +246,24 @@ package com.gamua.flox
         
         // misc
         
+        /** Fetches the current server time.
+         *  
+         *  @param onComplete: a callback with the form:
+         *                     <pre>onComplete(time:Date):void;</pre>
+         *  @param onError:    a callback with the form:
+         *                     <pre>onError(error:String, httpStatus:int):void;</pre>
+         */
+        public static function getTime(onComplete:Function, onError:Function):void
+        {
+            checkInitialized();
+            service.request(HttpMethod.GET, "time", null, onRequestComplete, onError);
+            
+            function onRequestComplete(body:Object, httpStatus:int):void
+            {
+                execute(onComplete, DateUtil.parse(body.time));
+            }
+        }
+        
         /** Clears the request queue. */
         public static function clearQueue():void
         {
