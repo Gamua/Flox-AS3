@@ -109,7 +109,7 @@ package com.gamua.flox
             loader.addEventListener(HTTPStatusEvent.HTTP_STATUS, onLoaderHttpStatus);
             
             var httpStatus:int = -1;
-            var url:String = createURL("/api", (mGameID ? "games/" + mGameID : ""), path);
+            var url:String = createURL("api/games", mGameID, path);
             var wrapperUrl:String = mAlwaysFail ? "https://www.invalid-flox.com/api" : mUrl;
             var request:URLRequest = new URLRequest(wrapperUrl);
             var requestData:Object = { 
