@@ -401,7 +401,7 @@ package com.gamua.flox
                 else
                 {
                     nativeApp.removeEventListener(Event.ACTIVATE, onActivate);
-                    nativeApp.removeEventListener(Event.ACTIVATE, onDeactivate);
+                    nativeApp.removeEventListener(Event.DEACTIVATE, onDeactivate);
                 }
             }
             catch (e:Error) {} // we're not running in AIR
