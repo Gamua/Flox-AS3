@@ -136,7 +136,7 @@ package com.gamua.flox
                         var response:Object = JSON.parse(loader.data);
                         var status:int = parseInt(response.status);
                         var headers:Object = response.headers;
-                        var body:Object = decode(response.body);
+                        var body:Object = getBodyFromResponse(response);
                     }
                     catch (e:Error)
                     {
@@ -390,7 +390,8 @@ package com.gamua.flox
             return encodedData;
         }
         
-        /** Decodes an object from JSON format, compressed in a Base64-encoded, zlib-compressed String. */ 
+        /** Decodes an object from JSON format, compressed in a Base64-encoded, zlib-compressed
+         *  String. */
         private static function decode(string:String):Object
         {
             if (string == null || string == "") return null;
@@ -402,6 +403,30 @@ package com.gamua.flox
             sBuffer.length = 0;
             
             return JSON.parse(json);
+        }
+        
+        /** Retrieves the body from the server response, optionally decompressing its
+         *  JSON contents (if suggested by header). */
+        private static function getBodyFromResponse(response:Object):Object
+        {
+            var body:Object = null;
+            var headers:Object = response.headers;
+            var compression:String = "none";
+            
+            if (headers)
+            {
+                if ("X-Content-Encoding" in headers)  compression = headers["X-Content-Encoding"];
+                else if ("Content-Encoding" in headers) compression = headers["Content-Encoding"];
+            }
+            
+            if (compression == "zlib")
+                body = decode(response.body);
+            else if (compression == "none")
+                body = response.body;
+            else
+                throw new Error("Invalid body compression: " + compression);
+            
+            return body;
         }
         
         // properties
