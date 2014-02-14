@@ -1,6 +1,5 @@
 package com.gamua.flox
 {
-    import com.gamua.flox.events.QueueEvent;
     import com.gamua.flox.utils.CustomEntity;
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpStatus;
@@ -33,13 +32,6 @@ package com.gamua.flox
         public function testChangeInhibitedPlayerProperties():void
         {
             var player:CustomPlayer = Player.current as CustomPlayer;
-            
-            try
-            {
-                player.authId = "4";
-                fail("Changing auth ID did not fail");
-            } 
-            catch (e:Error) {}
             
             try
             {

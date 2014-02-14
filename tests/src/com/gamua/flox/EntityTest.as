@@ -25,7 +25,6 @@ package com.gamua.flox
             assertEqualObjects(Access.READ, player.publicAccess);
             assertEqual(player.id, player.ownerId);
             assertEqual(player.authType, null);
-            assertEqual(player.authId, null);
             assertEqual(player.type, playerType);
             assert(player.createdAt is Date);
             assert(player.updatedAt is Date);

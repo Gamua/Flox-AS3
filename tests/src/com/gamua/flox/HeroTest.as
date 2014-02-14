@@ -32,7 +32,6 @@ package com.gamua.flox
             
             function onLoginComplete(hero:Player):void
             {
-                assertEqual(Constants.ENABLED_HERO_KEY, hero.authId);
                 Entity.load(CustomEntity, entity.id, onLoadComplete, onError);
             }
             

@@ -37,16 +37,12 @@ package com.gamua.flox
     public class Player extends Entity
     {
         private var mAuthType:String;
-        private var mAuthId:String;
         
         /** Don't call this method directly; use the 'Player.login' methods instead. */
         public function Player()
         {
             super.ownerId = this.id;
             super.publicAccess = Access.READ;
-            
-            mAuthType = null;
-            mAuthId   = null;
         }
         
         /** Log in a player with the given authentication information. If you pass no
@@ -71,13 +67,9 @@ package com.gamua.flox
             Flox.checkInitialized();
             var previousAuthentication:Authentication = Flox.authentication;
             
-            if (authId    == null) authId    = "";
-            if (authToken == null) authToken = "";
-            
             if (authType == AuthenticationType.GUEST)
             {
                 var player:Player = new Flox.playerClass();
-                player.authId = authId;
                 player.authType = authType;
                 
                 onAuthenticated(player);
@@ -176,16 +168,6 @@ package com.gamua.flox
                 throw new IllegalOperationError("Cannot change the authentication type of a Player entity.");
             else
                 mAuthType = value; 
-        }
-        
-        /** The main identifier of the player's authentication system. */
-        public function get authId():String { return mAuthId; }
-        public function set authId(value:String):void 
-        { 
-            if (mAuthId != null && mAuthId != value)
-                throw new IllegalOperationError("Cannot change the authentication ID of a Player entity.");
-            else
-                mAuthId = value; 
         }
         
         /** @private */
