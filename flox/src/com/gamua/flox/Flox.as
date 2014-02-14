@@ -283,9 +283,14 @@ package com.gamua.flox
         public static function flushLocalData(minDiskSpace:int=0):void
         {
             checkInitialized();
-            sPersistentData.flush(minDiskSpace);
-            sRestService.flush();
-            SharedObjectPool.flush();
+            
+            try
+            {
+                sPersistentData.flush(minDiskSpace);
+                sRestService.flush();
+                SharedObjectPool.flush();
+            }
+            catch (e:Error) {}
         }
         
         // logging
