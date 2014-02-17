@@ -59,7 +59,7 @@ package com.gamua.flox
             
             function onRequestError(error:String, httpStatus:int):void
             {
-                assertEqual(HttpStatus.NOT_FOUND, httpStatus, "wrong http status");
+                assertEqual(HttpStatus.NOT_FOUND, httpStatus, "wrong http status: " + httpStatus);
                 onComplete();
             }
         }
