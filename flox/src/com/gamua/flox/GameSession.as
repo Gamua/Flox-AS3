@@ -70,7 +70,7 @@ package com.gamua.flox
             }
             
             if (reportAnalytics)
-                Flox.service.requestQueued(HttpMethod.POST, ".analytics", data);
+                Flox.service.requestQueued(HttpMethod.POST, "logs", data);
             
             newSession.start();
             return newSession;
