@@ -69,7 +69,7 @@ package
             testGui.x = testGui.y = padding;
             addChild(testGui);
             
-            testGui.log("Running on " + Constants.BASE_URL);
+            testGui.log("--> Running on " + Constants.BASE_URL);
             testGui.start();
         }
         
