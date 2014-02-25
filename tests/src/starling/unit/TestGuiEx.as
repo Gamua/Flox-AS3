@@ -1,51 +1,57 @@
 package starling.unit
 {
+    import flash.external.ExternalInterface;
     import flash.utils.getTimer;
     
     import starling.display.Sprite;
     import starling.events.Event;
+    import starling.events.Touch;
+    import starling.events.TouchEvent;
+    import starling.events.TouchPhase;
     import starling.text.TextField;
     import starling.utils.Color;
-    import starling.utils.HAlign;
     import starling.utils.formatString;
     
-    public class TestGui extends Sprite
+    public class TestGuiEx extends Sprite
     {
-        private static const LINE_HEIGHT:int = 10;
+        private static const LINE_HEIGHT:int = 20;
         private static const FONT_NAME:String = "mini";
-        private static const FONT_SIZE:int = -1;
+        private static const FONT_SIZE:int = -2;
         
+        private var mID:String;
         private var mTestRunner:TestRunner;
-        private var mWidth:int;
-        private var mHeight:int;
-        private var mLoop:Boolean;
         private var mTestCount:int;
         private var mSuccessCount:int;
-        private var mLogLines:Sprite;
-        private var mNumLogLines:int;
-        private var mStatusInfo:TextField;
+        private var mHeader:TextField;
+        private var mStatus:TextField;
+        private var mFooter:TextField;
         private var mStartMoment:Number;
         
-        public function TestGui(testRunner:TestRunner, width:int, height:int)
+        public function TestGuiEx(testRunner:TestRunner, width:int, id:String)
         {
+            mID = id;
+            
             mTestRunner = testRunner;
             mTestRunner.logFunction    = log;
             mTestRunner.assertFunction = assert;
             
-            mWidth = width;
-            mHeight = height;
+            mHeader = new TextField(width, LINE_HEIGHT, id, FONT_NAME, FONT_SIZE, Color.WHITE);
+            addChild(mHeader);
             
-            mStatusInfo = new TextField(width, LINE_HEIGHT, "", FONT_NAME, FONT_SIZE, Color.WHITE);
-            mStatusInfo.hAlign = HAlign.RIGHT;
-            addChild(mStatusInfo);
+            mStatus = new TextField(width, LINE_HEIGHT, "0 / 0", FONT_NAME, FONT_SIZE, Color.WHITE);
+            mStatus.y = LINE_HEIGHT;
+            addChild(mStatus);
             
-            mLogLines = new Sprite();
-            addChild(mLogLines);
+            mFooter = new TextField(width, LINE_HEIGHT, "", FONT_NAME, FONT_SIZE, Color.WHITE);
+            mFooter.y = 2 * LINE_HEIGHT;
+            addChild(mFooter);
+            
+            addEventListener(TouchEvent.TOUCH, onTouch);
         }
         
-        public function start(loop:Boolean=false):void
+        public function start():void
         {
-            mLoop = loop;
+            mTestCount = mSuccessCount = 0;
             mStartMoment = getTimer() / 1000;
             addEventListener(Event.ENTER_FRAME, onEnterFrame);
         }
@@ -54,6 +60,7 @@ package starling.unit
         {
             removeEventListener(Event.ENTER_FRAME, onEnterFrame);
             mTestRunner.resetRun();
+            mStartMoment = -1;
         }
         
         private function onEnterFrame(event:Event):void
@@ -68,7 +75,17 @@ package starling.unit
                 log("Finished all tests!", Color.AQUA);
                 log("Duration: " + duration + " seconds.", Color.AQUA);
                 
-                if (mLoop) start(true);
+                mFooter.text = "restart";
+            }
+        }
+        
+        private function onTouch(event:TouchEvent):void
+        {
+            var touch:Touch = event.getTouch(this, TouchPhase.ENDED);
+            if (touch && !isStarted)
+            {
+                mFooter.text = "";
+                start();
             }
         }
         
@@ -76,18 +93,8 @@ package starling.unit
         {
             trace(message);
             
-            var logLine:TextField = new TextField(mWidth, LINE_HEIGHT, message, 
-                                                  FONT_NAME, FONT_SIZE, color);
-            logLine.hAlign = HAlign.LEFT;
-            logLine.y = mNumLogLines * LINE_HEIGHT;
-            mLogLines.addChild(logLine);
-            mNumLogLines++;
-            
-            if (mNumLogLines * LINE_HEIGHT > mHeight)
-            {
-                mLogLines.removeChildAt(0);
-                mLogLines.y -= LINE_HEIGHT;
-            }
+            if (ExternalInterface.available)
+                ExternalInterface.call("addLog", mID, message, color);
         }
         
         public function assert(success:Boolean, message:String=null):void
@@ -104,8 +111,13 @@ package starling.unit
                 log(" " + message, Color.RED);
             }
             
-            mStatusInfo.text = formatString("Passed {0} of {1} tests", mSuccessCount, mTestCount);
-            mStatusInfo.color = (mSuccessCount == mTestCount) ? Color.GREEN : Color.RED;
+            mStatus.text = formatString("{0} / {1}", mSuccessCount, mTestCount);
+            mStatus.color = (mSuccessCount == mTestCount) ? Color.GREEN : Color.RED;
+        }
+        
+        public function get isStarted():Boolean
+        {
+            return mStartMoment >= 0;
         }
     }
 }
