@@ -1,7 +1,6 @@
 package com.gamua.flox
 {
     import com.gamua.flox.utils.CustomEntity;
-    import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpStatus;
     import com.gamua.flox.utils.createUID;
     import com.gamua.flox.utils.downloadTextResource;
@@ -111,7 +110,7 @@ package com.gamua.flox
         public function testLoginWithKey(onComplete:Function):void
         {
             var guest:CustomPlayer = Player.current as CustomPlayer;
-            var key:String = "SECRET - " + DateUtil.toString(new Date());
+            var key:String = "SECRET#" + createUID();
             var guestID:String = guest.id;
             
             Player.loginWithKey(key, onLoginComplete, onError);
@@ -139,6 +138,41 @@ package com.gamua.flox
             function onError(error:String, httpStatus:int):void
             {
                 fail("login with key did not work. Error: " + error);
+                onComplete();
+            }
+        }
+        
+        public function testLoginWithKeyAndSavePlayer(onComplete:Function):void
+        {
+            var name:String = "Picard"
+            var guest:CustomPlayer = Player.current as CustomPlayer;
+            var key:String = "SECRET#" + createUID();
+            var guestID:String = guest.id;
+            
+            Player.loginWithKey(key, onLoginComplete, onLoginError);
+            
+            function onLoginComplete(player:CustomPlayer):void
+            {
+                player.lastName = name;
+                player.save(onSaveComplete, onSaveError);
+            }
+            
+            function onLoginError(error:String, httpStatus:int):void
+            {
+                fail("login with key did not work. Error: " + error);
+                onComplete();
+            }
+            
+            function onSaveComplete(player:CustomPlayer):void
+            {
+                assertEqual(name, player.lastName, "name not saved");
+                assertEqual(player.id, guestID);
+                onComplete();
+            }
+            
+            function onSaveError(error:String):void
+            {
+                fail("Error on save: " + error);
                 onComplete();
             }
         }
