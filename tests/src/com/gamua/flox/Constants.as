@@ -4,11 +4,13 @@ package com.gamua.flox
 
     public class Constants
     {
-        [Embed(source="../../../../config/live-server.xml", mimeType="application/octet-stream")]
-        private static const server_config:Class;
-        private static const ServerConfig:XML = XML(new server_config());
+        public  static const LEADERBOARD_ID:String = "default";
+        private static var   ServerConfig:XML;
         
-        public static const LEADERBOARD_ID:String = "default";
+        public static function initWithXML(xml:XML):void
+        {
+            ServerConfig = xml;
+        }
         
         public static function get GAME_ID():String
         {

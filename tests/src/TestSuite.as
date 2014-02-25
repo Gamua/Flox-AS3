@@ -13,20 +13,27 @@ package
     import com.gamua.flox.ScoreTest;
     import com.gamua.flox.SharedObjectPoolTest;
     import com.gamua.flox.UtilsTest;
+    import com.gamua.flox.utils.downloadTextResource;
     
+    import flash.external.ExternalInterface;
+    
+    import starling.core.Starling;
     import starling.display.Sprite;
-    import starling.events.Event;
+    import starling.display.Stage;
     import starling.unit.TestGui;
     import starling.unit.TestRunner;
     
     public class TestSuite extends Sprite
     {
+        [Embed(source="../config/live-server.xml", mimeType="application/octet-stream")]
+        private static var serverConfig:Class;
+        
         public function TestSuite()
         {
-            addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+            loadConfig(start);
         }
         
-        private function onAddedToStage(event:Event):void
+        private function start():void
         {
             var testRunner:TestRunner = new TestRunner();
             
@@ -54,6 +61,7 @@ package
             // ---
             
             var padding:int = 10;
+            var stage:Stage = Starling.current.stage;
             var width:int   = stage.stageWidth  - 2*padding;
             var height:int  = stage.stageHeight - 2*padding;
             
@@ -61,7 +69,33 @@ package
             testGui.x = testGui.y = padding;
             addChild(testGui);
             
+            testGui.log("Running on " + Constants.BASE_URL);
             testGui.start();
+        }
+        
+        private function loadConfig(onComplete:Function):void
+        {
+            var flashVars:Object = Starling.current.nativeStage.loaderInfo.parameters;
+            
+            if ("config" in flashVars)
+                downloadTextResource(flashVars["config"], onDownloadComplete, onDownloadError);
+            else
+            {
+                Constants.initWithXML(XML(new serverConfig()));
+                onComplete();
+            }
+            
+            function onDownloadComplete(config:String):void
+            {
+                Constants.initWithXML(XML(config));
+                onComplete();
+            }
+            
+            function onDownloadError(error:String):void
+            {
+                if (ExternalInterface.available)
+                    ExternalInterface.call("alert", "Could not load config file");
+            }
         }
     }
 }

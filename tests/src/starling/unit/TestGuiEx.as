@@ -3,6 +3,7 @@ package starling.unit
     import flash.external.ExternalInterface;
     import flash.utils.getTimer;
     
+    import starling.core.Starling;
     import starling.display.Sprite;
     import starling.events.Event;
     import starling.events.Touch;
@@ -18,7 +19,6 @@ package starling.unit
         private static const FONT_NAME:String = "mini";
         private static const FONT_SIZE:int = -2;
         
-        private var mID:String;
         private var mTestRunner:TestRunner;
         private var mTestCount:int;
         private var mSuccessCount:int;
@@ -26,16 +26,15 @@ package starling.unit
         private var mStatus:TextField;
         private var mFooter:TextField;
         private var mStartMoment:Number;
+        private var mIsPaused:Boolean;
         
-        public function TestGuiEx(testRunner:TestRunner, width:int, id:String)
+        public function TestGuiEx(testRunner:TestRunner, width:int, header:String)
         {
-            mID = id;
-            
             mTestRunner = testRunner;
             mTestRunner.logFunction    = log;
             mTestRunner.assertFunction = assert;
             
-            mHeader = new TextField(width, LINE_HEIGHT, id, FONT_NAME, FONT_SIZE, Color.WHITE);
+            mHeader = new TextField(width, LINE_HEIGHT, header, FONT_NAME, FONT_SIZE, Color.WHITE);
             addChild(mHeader);
             
             mStatus = new TextField(width, LINE_HEIGHT, "0 / 0", FONT_NAME, FONT_SIZE, Color.WHITE);
@@ -51,6 +50,7 @@ package starling.unit
         
         public function start():void
         {
+            mIsPaused = false;
             mTestCount = mSuccessCount = 0;
             mStartMoment = getTimer() / 1000;
             addEventListener(Event.ENTER_FRAME, onEnterFrame);
@@ -65,6 +65,8 @@ package starling.unit
         
         private function onEnterFrame(event:Event):void
         {
+            if (mIsPaused) return;
+            
             var status:String = mTestRunner.runNext();
             
             if (status == TestRunner.STATUS_FINISHED)
@@ -75,26 +77,25 @@ package starling.unit
                 log("Finished all tests!", Color.AQUA);
                 log("Duration: " + duration + " seconds.", Color.AQUA);
                 
-                mFooter.text = "restart";
+                mFooter.text = "Done";
+                callExternalInterface("startNextTest");
             }
         }
         
         private function onTouch(event:TouchEvent):void
         {
             var touch:Touch = event.getTouch(this, TouchPhase.ENDED);
-            if (touch && !isStarted)
+            if (touch && isStarted)
             {
-                mFooter.text = "";
-                start();
+                mIsPaused   = !mIsPaused;
+                mFooter.text = mIsPaused ? "paused" : "";
             }
         }
         
         public function log(message:String, color:uint=0xffffff):void
         {
             trace(message);
-            
-            if (ExternalInterface.available)
-                ExternalInterface.call("addLog", mID, message, color);
+            callExternalInterface("addLog", message, color);
         }
         
         public function assert(success:Boolean, message:String=null):void
@@ -115,9 +116,20 @@ package starling.unit
             mStatus.color = (mSuccessCount == mTestCount) ? Color.GREEN : Color.RED;
         }
         
-        public function get isStarted():Boolean
+        private function get isStarted():Boolean
         {
             return mStartMoment >= 0;
+        }
+        
+        private function callExternalInterface(method, ...args):void
+        {
+            if (ExternalInterface.available)
+            {
+                var url:String = Starling.current.nativeStage.loaderInfo.url;
+                var swfName:String = url.split("/").pop().slice(0, -4);
+                args.unshift(method, swfName);
+                ExternalInterface.call.apply(null, args);
+            }
         }
     }
 }
