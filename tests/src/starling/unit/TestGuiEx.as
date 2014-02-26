@@ -126,7 +126,7 @@ package starling.unit
             if (ExternalInterface.available)
             {
                 var url:String = Starling.current.nativeStage.loaderInfo.url;
-                var swfName:String = url.split("/").pop().slice(0, -4);
+                var swfName:String = url.split("/").pop().replace(/\?.*$/, "").slice(0, -4);
                 args.unshift(method, swfName);
                 ExternalInterface.call.apply(null, args);
             }
