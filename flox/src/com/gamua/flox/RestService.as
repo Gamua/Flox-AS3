@@ -103,6 +103,12 @@ package com.gamua.flox
                 if (cachedResult) headers["If-None-Match"] = mCache.getMetaData(path, "eTag");
             }
             
+            if (mAlwaysFail)
+            {
+                setTimeout(execute, 1, onError, "forced failure", 0, cachedResult);
+                return;
+            }
+
             var loader:URLLoader = new URLLoader();
             loader.addEventListener(Event.COMPLETE, onLoaderComplete);
             loader.addEventListener(IOErrorEvent.IO_ERROR, onLoaderError);
@@ -110,8 +116,7 @@ package com.gamua.flox
             
             var httpStatus:int = -1;
             var url:String = createURL("/api/games", mGameID, path);
-            var wrapperUrl:String = mAlwaysFail ? "https://www.invalid-flox.com/api" : mUrl;
-            var request:URLRequest = new URLRequest(wrapperUrl);
+            var request:URLRequest = new URLRequest(mUrl);
             var requestData:Object = { 
                 method: method, url: url, headers: headers, body: encode(data) 
             };
