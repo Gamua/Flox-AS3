@@ -395,6 +395,29 @@ package com.gamua.flox
                     onComplete();
             }
         }
+        
+        public function testSavePlayerWithAuthId(onComplete:Function):void
+        {
+            Flox.shutdown();
+            Flox.playerClass = CustomPlayerWithAuthId;
+            Constants.initFlox();
+            
+            var guest:CustomPlayerWithAuthId = Player.current as CustomPlayerWithAuthId;
+            guest.authId = "not allowed";
+            guest.save(onSaveComplete, onSaveError);
+            
+            function onSaveComplete():void
+            {
+                fail("could save player with 'authId' property");
+                onComplete();
+            }
+            
+            function onSaveError(error:String):void
+            {
+                // that's supposed to happen.
+                onComplete();
+            }
+        }
     }
 }
 
@@ -411,4 +434,9 @@ class CustomPlayer extends Player
     
     public function get lastName():String { return mLastName; }
     public function set lastName(value:String):void { mLastName = value; }
+}
+
+class CustomPlayerWithAuthId extends Player
+{
+    public var authId:String;
 }
