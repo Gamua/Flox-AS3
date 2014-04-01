@@ -7,21 +7,19 @@
 
 package com.gamua.flox.utils
 {
-    /** Executes a method with the number of accepted parameters. */
+    /** Executes a function with the specified arguments. If the argument count does not match
+     *  the function, the argument list is cropped / filled up with <code>null</code> values. */
     public function execute(func:Function, ...args):void
     {
         if (func != null)
         {
-            while (args.length < func.length)
-                args.push(null);
-            
-            if      (func.length == 0) func();
-            else if (func.length == 1) func(args[0]);
-            else if (func.length == 2) func(args[0], args[1]);
-            else if (func.length == 3) func(args[0], args[1], args[2]);
-            else if (func.length == 4) func(args[0], args[1], args[2], args[3]);
-            else if (func.length == 5) func(args[0], args[1], args[2], args[3], args[4]);
-            else throw new ArgumentError("This method is limited to 5 parameters.");
+            var i:int;
+            var maxNumArgs:int = func.length;
+
+            for (i=args.length; i<maxNumArgs; ++i)
+                args[i] = null;
+
+            func.apply(null, args.slice(0, maxNumArgs));
         }
     }
 }
