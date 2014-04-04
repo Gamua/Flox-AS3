@@ -528,6 +528,32 @@ package com.gamua.flox
             }
         }
         
+        public function testQueryWithHero(onComplete:Function):void
+        {
+            var price:int = new Date().time * 1000;
+            var products:Array = [ new Product("dix", price)];
+            
+            Player.loginWithKey(Constants.ENABLED_HERO_KEY, onLoginComplete, onLoginError);
+            
+            function onLoginComplete():void
+            {
+                var query:Query = new Query(Product, "price == ?", price);
+                makeQueryTest(products, query, checkResult, onComplete);
+            }
+            
+            function onLoginError(error:String):void
+            {
+                fail("Could not login hero: " + error);
+                onComplete();
+            }
+            
+            function checkResult(entities:Array, count:int):void
+            {
+                assert(count == 1, "Wrong number of entities returned: " + count);
+                assertEqualEntities(entities[0], products[0]);
+            }
+        }
+        
         private function makeQueryTest(inputEntities:Array, query:Query, 
                                        onResult:Function, onComplete:Function):void
         {
