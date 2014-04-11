@@ -1,6 +1,16 @@
 Flox: Changelog
 ===============
 
+version 1.2 - 2014-04-11
+------------------------
+
+* updated some REST API calls for updated url schemes
+* optimized and simplified 'execute' utility function
+* removed 'Player.authId' for security reasons
+* now logging warning when flushing of shared objects fails
+* fixed body compression detection in some error responses
+* fixed wrong event listener removal (thanks to Abogadro!)
+
 version 1.1.2 - 2014-01-09
 --------------------------
 
