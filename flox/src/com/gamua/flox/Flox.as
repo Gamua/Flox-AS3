@@ -290,7 +290,10 @@ package com.gamua.flox
                 sRestService.flush();
                 SharedObjectPool.flush();
             }
-            catch (e:Error) {}
+            catch (e:Error)
+            {
+                logWarning("Could not flush shared objects (" + e.message + ")");
+            }
         }
         
         // logging
