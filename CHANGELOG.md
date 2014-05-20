@@ -1,6 +1,11 @@
 Flox: Changelog
 ===============
 
+version 1.2.1 - 2014-05-20
+--------------------------
+
+* removed special handling of guest player refresh (caused problems when using a hero)
+
 version 1.2 - 2014-04-11
 ------------------------
 
