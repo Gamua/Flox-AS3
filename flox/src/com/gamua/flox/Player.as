@@ -171,18 +171,6 @@ package com.gamua.flox
         }
         
         /** @private */
-        public override function refresh(onComplete:Function, onError:Function):void
-        {
-            // a guest is not necessarily stored on the server; and even if it is, only the
-            // current installation can access it. Thus, it will always be in the correct state.
-            
-            if (mAuthType == AuthenticationType.GUEST)
-                setTimeout(execute, 1, onComplete, this, true);
-            else
-                super.refresh(onComplete, onError);
-        }
-        
-        /** @private */
         public override function set publicAccess(value:String):void
         {
             if (value != Access.READ)

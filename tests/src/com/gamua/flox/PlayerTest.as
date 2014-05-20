@@ -74,23 +74,6 @@ package com.gamua.flox
             assert(defaultGuest.id != newGuest.id);
         }
         
-        public function testGuestRefresh(onComplete:Function):void
-        {
-            Player.current.refresh(onRefreshComplete, onError);
-            
-            function onRefreshComplete(player:Player):void
-            {
-                assertEqual(player, Player.current);
-                onComplete();
-            }
-            
-            function onError(error:String):void
-            {
-                fail("error refreshing player: " + error);
-                onComplete();
-            }
-        }
-        
         public function testLoginCustomPlayer():void
         {
             var player:CustomPlayer = Player.current as CustomPlayer;
