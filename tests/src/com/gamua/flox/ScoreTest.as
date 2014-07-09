@@ -170,19 +170,25 @@ package com.gamua.flox
             
             function onScoresLoaded(scores:Array):void
             {
-                assertEqual(playerIDs.length, scores.length, "wrong number of scores returned");
-                
-                for (var i:int=0; i<playerIDs.length; ++i)
+                if (playerIDs.length != scores.length)
                 {
-                    assertEqual(playerIDs[i], scores[i].playerId,   "wrong player id");
-                    assertEqual(    names[i], scores[i].playerName, "wrong player name");
-                    assertEqual(   values[i], scores[i].value,      "wrong score");
-                    
-                    assertEqual(2, scores[i].country.length, "wrong country code");
-                    assertEqual(scores[i].date.fullYearUTC, new Date().fullYearUTC, "wrong year");
+                    fail("wrong number of scores returned: " + scores.length);
+                    onComplete();
                 }
-                
-                onComplete();
+                else
+                {
+                    for (var i:int=0; i<playerIDs.length; ++i)
+                    {
+                        assertEqual(playerIDs[i], scores[i].playerId,   "wrong player id");
+                        assertEqual(    names[i], scores[i].playerName, "wrong player name");
+                        assertEqual(   values[i], scores[i].value,      "wrong score");
+                        
+                        assertEqual(2, scores[i].country.length, "wrong country code");
+                        assertEqual(scores[i].date.fullYearUTC, new Date().fullYearUTC, "wrong year");
+                    }
+                    
+                    onComplete();
+                }
             }
             
             function onScoresError(error:String, cachedScores:Array):void
