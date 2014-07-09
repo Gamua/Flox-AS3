@@ -37,6 +37,9 @@ package com.gamua.flox.utils
         /** The requested resource is not available. */
         public static const NOT_FOUND:int = 404;
         
+        /** The request timed out. */
+        public static const REQUEST_TIMEOUT:int = 408;
+
         /** An If-Match precondition failed in a PUT/POST request. */
         public static const PRECONDITION_FAILED:int = 412;
         
@@ -62,7 +65,7 @@ package com.gamua.flox.utils
          *  was not reachable or there was a network error). */
         public static function isTransientError(status:int):Boolean
         {
-            return status == UNKNOWN || status == SERVICE_UNAVAILABLE;
+            return status == UNKNOWN || status == SERVICE_UNAVAILABLE || status == REQUEST_TIMEOUT;
         }
     }
 }
