@@ -173,6 +173,14 @@ package com.gamua.flox
             Entity.destroyQueued(getClass(this), mId);
         }
 
+        /** This method is called during a save operation when the server indicates that the entity
+         *  has been modified since this client last loaded it. Handle any conflicts by updating
+         *  the local object to the desired state. This state will then be stored on the server. */
+        protected function mergeConflict(remoteEntity:Entity):void
+        {
+            // override in subclasses
+        }
+
         // static methods
         
         /** Loads an entity with the given type and ID from the server.
@@ -255,7 +263,7 @@ package com.gamua.flox
         {
             var path:String = createEntityURL(entity.type, entity.id);
             Flox.service.request(HttpMethod.PUT, path, entity.toObject(), 
-                                 onRequestComplete, onError);
+                                 onRequestComplete, onRequestError);
             
             function onRequestComplete(body:Object, httpStatus:int):void
             {
@@ -264,6 +272,23 @@ package com.gamua.flox
                 entity.updatedAt = DateUtil.parse(body.updatedAt);
                 
                 execute(onComplete, entity);
+            }
+
+            function onRequestError(error:String, httpStatus:int, cachedBody:Object):void
+            {
+                // If the entity was modified since we last fetched it,
+                // we load the latest version and handle the conflict.
+
+                if (httpStatus == HttpStatus.PRECONDITION_FAILED)
+                    Entity.load(Object(entity).constructor, entity.id, onLoadComplete, onError);
+                else
+                    execute(onError, error, httpStatus, cachedBody);
+            }
+
+            function onLoadComplete(remoteEntity:Entity):void
+            {
+                entity.mergeConflict(remoteEntity);
+                Entity.save(entity, onComplete, onError);
             }
         }
         

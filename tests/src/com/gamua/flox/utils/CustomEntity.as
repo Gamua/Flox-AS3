@@ -20,6 +20,12 @@ package com.gamua.flox.utils
             publicMember = "undefined";
         }
         
+        protected override function mergeConflict(remoteEntity:Entity):void
+        {
+            var that:CustomEntity = remoteEntity as CustomEntity;
+            this.age = Math.max(this.age, that.age);
+        }
+        
         public function get name():String { return mName; }
         public function set name(value:String):void { mName = value; }
         

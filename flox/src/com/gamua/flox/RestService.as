@@ -76,6 +76,7 @@ package com.gamua.flox
                 data = null;
             }
             
+            var eTag:String;
             var cachedResult:Object = null;
             var headers:Object = {};
             var xFloxHeader:Object = {
@@ -97,10 +98,16 @@ package com.gamua.flox
             headers["Content-Type"] = "application/json";
             headers["X-Flox"] = xFloxHeader;
             
-            if (method == HttpMethod.GET && mCache.containsKey(path))
+            if (mCache.containsKey(path) && (method == HttpMethod.GET || method == HttpMethod.PUT))
             {
+                eTag = mCache.getMetaData(path, "eTag") as String;
                 cachedResult = mCache.getObject(path);
-                if (cachedResult) headers["If-None-Match"] = mCache.getMetaData(path, "eTag");
+
+                if (cachedResult)
+                {
+                    if (method == HttpMethod.GET) headers["If-None-Match"] = eTag;
+                    else if (method == HttpMethod.PUT) headers["If-Match"] = eTag;
+                }
             }
             
             if (mAlwaysFail)

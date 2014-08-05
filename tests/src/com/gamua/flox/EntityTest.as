@@ -3,10 +3,18 @@ package com.gamua.flox
     import com.gamua.flox.events.QueueEvent;
     import com.gamua.flox.utils.CustomEntity;
     import com.gamua.flox.utils.DateUtil;
+    import com.gamua.flox.utils.HttpMethod;
     import com.gamua.flox.utils.HttpStatus;
     import com.gamua.flox.utils.cloneObject;
     import com.gamua.flox.utils.createUID;
+    import com.gamua.flox.utils.createURL;
+    import com.gamua.flox.utils.execute;
     
+    import flash.events.Event;
+    import flash.events.IOErrorEvent;
+    import flash.net.URLLoader;
+    import flash.net.URLRequest;
+    import flash.net.URLRequestMethod;
     import flash.utils.ByteArray;
     
     import starling.unit.UnitTest;
@@ -576,6 +584,67 @@ package com.gamua.flox
             }
         }
         
+        public function testConflictHandling(onComplete:Function):void
+        {
+            var heroID:String;
+            var entity:CustomEntity;
+            
+            Constants.initFlox();
+            Player.loginWithKey(Constants.ENABLED_HERO_KEY, onHeroLoginComplete, onError);
+            
+            function onHeroLoginComplete(hero:Player):void
+            {
+                // we just need the hero to get its player id.
+                heroID = hero.id;
+                Player.logout();
+
+                // now we use a guest to create a new entity
+                entity = new CustomEntity("berta", 99);
+                entity.publicAccess = Access.READ_WRITE;
+                entity.save(onSaveComplete, onError);
+            }
+            
+            function onSaveComplete():void
+            {
+                var modifiedEntity:Object = entity.toObject();
+                modifiedEntity["age"] = 101;
+                modifiedEntity["name"] = "alpha";
+                
+                makeDetachedRequest(heroID, Constants.ENABLED_HERO_KEY, HttpMethod.PUT,
+                    createURL("entities", entity.type, entity.id), modifiedEntity,
+                    onDetachedSaveComplete, onDetachedSaveError);
+            }
+            
+            function onDetachedSaveComplete(httpStatus:int):void
+            {
+                entity.age = 100;
+                entity.save(onSave2Complete, onError);
+            }
+            
+            function onDetachedSaveError(httpStatus:int):void
+            {
+                onError("unknown", httpStatus);
+            }
+            
+            function onSave2Complete(savedEntity:CustomEntity):void
+            {
+                // the merge method keeps the name, but picks the highest age.
+                
+                assertEqual("berta", savedEntity.name, "conflict merging did not work");
+                assertEqual(101, savedEntity.age, "conflict merging did not work");
+                
+                Flox.shutdown();
+                onComplete();
+            }
+            
+            function onError(error:String, httpStatus:int):void
+            {
+                fail(error);
+                Flox.shutdown();
+                onComplete();
+            }
+        }
+        
         private function assertEqualEntities(entityA:Object, entityB:Object, 
                                              compareDates:Boolean=false):void
         {
@@ -598,6 +667,53 @@ package com.gamua.flox
                 }
                 
                 assertEqualObjects(objectA, objectB);
+            }
+        }
+        
+        private function makeDetachedRequest(heroID:String, heroKey:String,
+                                             method:String, path:String, data:Object,
+                                             onComplete:Function, onError:Function):void
+        {
+            var headers:Object = {};
+            var xFloxHeader:Object = {
+                sdk: { type: "as3", version: Flox.VERSION },
+                player: { id: heroID, authType: AuthenticationType.KEY, authId: heroKey },
+                gameKey: Constants.GAME_KEY,
+                dispatchTime: DateUtil.toString(new Date())
+            };
+            
+            headers["Content-Type"] = "application/json";
+            headers["X-Flox"] = xFloxHeader;
+            
+            var loader:URLLoader = new URLLoader();
+            loader.addEventListener(Event.COMPLETE, onLoaderComplete);
+            loader.addEventListener(IOErrorEvent.IO_ERROR, onLoaderError);
+            
+            var url:String = createURL("/api/games", Constants.GAME_ID, path);
+            var request:URLRequest = new URLRequest(Constants.BASE_URL);
+            var requestData:Object = { 
+                method: method, url: url, headers: headers, body: JSON.stringify(data, null, 0)
+            };
+            
+            request.method = URLRequestMethod.POST;
+            request.data = JSON.stringify(requestData);
+            
+            loader.load(request);
+            
+            function onLoaderComplete(event:Event):void
+            {
+                var response:Object = JSON.parse(loader.data);
+                var status:int = parseInt(response.status);
+                
+                if (status < 400) // success =)
+                    execute(onComplete, status);
+                else
+                    execute(onError, status);
+            }
+            
+            function onLoaderError(event:IOErrorEvent):void
+            {
+                execute(onError, 0);
             }
         }
     }
