@@ -20,7 +20,7 @@ package com.gamua.flox.utils
             publicMember = "undefined";
         }
         
-        protected override function mergeConflict(remoteEntity:Entity):void
+        protected override function onConflict(remoteEntity:Entity):void
         {
             var that:CustomEntity = remoteEntity as CustomEntity;
             this.age = Math.max(this.age, that.age);

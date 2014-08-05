@@ -176,7 +176,7 @@ package com.gamua.flox
         /** This method is called during a save operation when the server indicates that the entity
          *  has been modified since this client last loaded it. Handle any conflicts by updating
          *  the local object to the desired state. This state will then be stored on the server. */
-        protected function mergeConflict(remoteEntity:Entity):void
+        protected function onConflict(remoteEntity:Entity):void
         {
             // override in subclasses
         }
@@ -287,7 +287,7 @@ package com.gamua.flox
 
             function onLoadComplete(remoteEntity:Entity):void
             {
-                entity.mergeConflict(remoteEntity);
+                entity.onConflict(remoteEntity);
                 Entity.save(entity, onComplete, onError);
             }
         }
