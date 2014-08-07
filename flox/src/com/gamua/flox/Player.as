@@ -191,7 +191,7 @@ package com.gamua.flox
          *                     If false, an e-mail address that was used for the first time will
          *                     trigger a confirmation e-mail.
          *  @param onComplete: function onComplete(currentPlayer:Player):void;
-         *  @param onError:    function onError(error:String, httpStatus:int):void;
+         *  @param onError:    function onError(error:String, httpStatus:int, confirmationMailSent:Boolean):void;
          */
         public static function loginWithEmailAndPassword(
             email:String, password:String, loginOnly:Boolean,
