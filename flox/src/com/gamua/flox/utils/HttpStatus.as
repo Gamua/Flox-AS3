@@ -31,6 +31,10 @@ package com.gamua.flox.utils
         /** The request is missing information, e.g. parameters. */
         public static const BAD_REQUEST:int = 400;
         
+        /** Used by 'Player.loginWithEmailAndPassword' to indicate that a confirmation mail
+         *  has been sent to the player. */
+        public static const UNAUTHORIZED:int = 401;
+
         /** An authentication error occured. */
         public static const FORBIDDEN:int = 403;
         

@@ -27,6 +27,9 @@ package com.gamua.flox
         /** The user proves to have access to a certain e-mail address. */
         public static const EMAIL:String = "email";
         
+        /** The user has registered an e-mail + password combination. */
+        public static const EMAIL_AND_PASSWORD:String = "emailPwd";
+
         // public static const FACEBOOK:String = "facebook";
         // public static const TWITTER:String  = "twitter";
         // public static const GAMUA:String    = "gamua";

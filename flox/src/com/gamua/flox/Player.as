@@ -12,7 +12,6 @@ package com.gamua.flox
     import com.gamua.flox.utils.execute;
     
     import flash.errors.IllegalOperationError;
-    import flash.utils.setTimeout;
     
     /** An Entity that contains information about a Flox Player. The class also contains static
      *  methods for Player login and logout. 
@@ -64,48 +63,58 @@ package com.gamua.flox
             authType:String="guest", authId:String=null, authToken:String=null,
             onComplete:Function=null, onError:Function=null):void
         {
+            var authData:Object = { authType: authType, authId: authId, authToken: authToken };
+            loginWithAuthData(authData, onComplete, onError);
+        }
+
+        private static function loginWithAuthData(authData:Object, onComplete:Function=null,
+                                                  onError:Function=null):void
+        {
             Flox.checkInitialized();
             var previousAuthentication:Authentication = Flox.authentication;
             
-            if (authType == AuthenticationType.GUEST)
+            if (authData.authType == AuthenticationType.GUEST)
             {
                 var player:Player = new Flox.playerClass();
-                player.authType = authType;
+                player.authType = AuthenticationType.GUEST;
                 
                 onAuthenticated(player);
             }
             else
             {
-                var authData:Object = { authType: authType, authId: authId, authToken: authToken };
-                
                 if (current.authType == AuthenticationType.GUEST) 
                     authData.id = current.id; 
                 
                 Flox.service.request(HttpMethod.POST, "authenticate", authData, 
-                                     onRequestComplete, onRequestError);
+                    onRequestComplete, onRequestError);
 
                 Flox.authentication = null; // prevent any new requests while login is in process!
             }
-            
+
             function onRequestComplete(body:Object, httpStatus:int):void
             {
+                // authToken may be overridden (e.g. so that password is not stored locally)
+                if (body.authToken) authData.authToken = body.authToken;
+
                 var id:String = body.id;
                 var type:String = getType(Flox.playerClass);
                 var player:Player = Entity.fromObject(type, id, body.entity) as Player;
                 onAuthenticated(player);
             }
-            
+
             function onRequestError(error:String, httpStatus:int):void
             {
                 Flox.authentication = previousAuthentication;
                 execute(onError, error, httpStatus);
             }
-            
+
             function onAuthenticated(player:Player):void
             {
                 Flox.clearCache();
-                Flox.authentication = new Authentication(player.id, authType, authId, authToken);
                 Flox.currentPlayer = player;
+                Flox.authentication = new Authentication(player.id,
+                    authData.authType, authData.authId, authData.authToken);
+
                 execute(onComplete, player);
             }
         }
@@ -120,9 +129,17 @@ package com.gamua.flox
             login();
         }
         
-        /** Log in a player with his email address. 
+        /** Log in a player with just a single 'key' string. The typical use-case of this
+         *  authentication is to combine Flox with other APIs that have their own user database
+         *  (e.g. Mochi, Kongregate, GameCenter, etc). */
+        public static function loginWithKey(key:String, onComplete:Function, onError:Function):void
+        {
+            login(AuthenticationType.KEY, key, null, onComplete, onError);
+        }
+
+        /** Log in a player with his e-mail address.
          *  
-         *  <ul><li>If this is the first time this email address is used, the current guest player 
+         *  <ul><li>If this is the first time this e-mail address is used, the current guest player
          *  will be converted into a player with auth-type "EMAIL".</li>
          *  <li>When the player tries to log in with the same address on another device,
          *  he will get an e-mail with a confirmation link, and the login will fail until the
@@ -146,12 +163,67 @@ package com.gamua.flox
             }
         }
         
-        /** Log in a player with just a single 'key' string. The typical use-case of this
-         *  authentication is to combine Flox with other APIs that have their own user database 
-         *  (e.g. Mochi, Kongregate, GameCenter, etc). */
-        public static function loginWithKey(key:String, onComplete:Function, onError:Function):void
+        /** Log in a player with his e-mail address and a password.
+         *
+         *  <p>Depending on the 'loginOnly' parameter, this method can also be used to sign up
+         *  a previously unknown player. Once an e-mail address is confirmed, a login will only
+         *  work with the correct password.</p>
+         *
+         *  <ul>
+         *  <li>If the e-mail + password combination is correct, the player will be logged in —
+         *      regardless of the 'loginOnly' setting.</li>
+         *  <li>If 'loginOnly = true' and the mail address is unknown or the password is wrong,
+         *      the method will yield an error with HttpStatus.FORBIDDEN.</li>
+         *  <li>If 'loginOnly = false' and the mail address is used for the first time, the player
+         *      receives a confirmation mail and the method yields an error with
+         *      HttpStatus.UNAUTHORIZED.</li>
+         *  <li>If 'loginOnly = false' and the mail address was not yet confirmed, or if the
+         *      mail adress was already registered with a different password, the method will
+         *      yield an error with HttpStatus.FORBIDDEN.</li>
+         *  </ul>
+         *
+         *  <p>If the player forgets the password, you can let him acquire a new one with the
+         *  'resetEmailPassword' method.</p>
+         *
+         *  @param email:      The e-mail address of the player trying to log in or sign up.
+         *  @param password:   The password of the player trying to log in or sign up.
+         *  @param loginOnly:  If true, the email/password combination must already exist.
+         *                     If false, an e-mail address that was used for the first time will
+         *                     trigger a confirmation e-mail.
+         *  @param onComplete: function onComplete(currentPlayer:Player):void;
+         *  @param onError:    function onError(error:String, httpStatus:int):void;
+         */
+        public static function loginWithEmailAndPassword(
+            email:String, password:String, loginOnly:Boolean,
+            onComplete:Function, onError:Function):void
         {
-            login(AuthenticationType.KEY, key, null, onComplete, onError); 
+            var authData:Object =
+            {
+                authType:  AuthenticationType.EMAIL_AND_PASSWORD,
+                authId:    email,
+                authToken: password,
+                loginOnly: loginOnly
+            };
+
+            loginWithAuthData(authData, onComplete, onLoginError);
+
+            function onLoginError(error:String, httpStatus:int):void
+            {
+                execute(onError, error, httpStatus, httpStatus == HttpStatus.UNAUTHORIZED);
+            }
+        }
+
+        /** Causes the server to send a password-reset e-mail to the player's e-mail address. If
+         *  that address is unknown to the server, it will yield an error with HttpStatus.NOT_FOUND.
+         *
+         *  @param onComplete: function onComplete():void;
+         *  @param onError:    function onError(error:String, httpStatus:int):void;
+         */
+        public static function resetEmailPassword(email:String, onComplete:Function,
+                                                  onError:Function):void
+        {
+            Flox.service.request(HttpMethod.POST, "resetPassword", { email: email },
+                                 onComplete, onError);
         }
         
         /** The current local player. */

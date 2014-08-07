@@ -257,8 +257,7 @@ package com.gamua.flox
             }
         }
         
-        private function activatePlayerThroughEmail(email:String, 
-                                                    onComplete:Function, onError:Function):void
+        private function fetchEmail(email:String, onComplete:Function, onError:Function):void
         {
             // We use Gamua's own mail server to get those activation mails.
             
@@ -267,41 +266,81 @@ package com.gamua.flox
             var emailUser:String = email.split("@").shift();
             var mailDumpUrl:String = "http://www.incognitek.com/maildump/" + emailUser + ".txt";
             
-            setTimeout(downloadTextResource, delay, mailDumpUrl, onMailLoaded, onMailError);
+            setTimeout(downloadTextResource, delay, mailDumpUrl, onDownloadComplete, onDownloadError);
             
-            function onMailLoaded(rawContents:String):void
+            function onDownloadComplete(rawContents:String):void
             {
-                var contents:String = rawContents.replace(/=[\r\n]+/g, "").replace(/=3D/g, "=");
-                
+                onComplete(rawContents.replace(/=[\r\n]+/g, "").replace(/=3D/g, "="));
+            }
+            
+            function onDownloadError(error:String, httpStatus:int):void
+            {
+                if (numTries-- > 0)
+                {
+                    trace("  mail not yet arrived, trying again ...");
+                    setTimeout(downloadTextResource, delay, mailDumpUrl, 
+                               onDownloadComplete, onDownloadError);
+                }
+                else
+                {
+                    onError("Error fetching mail", httpStatus);
+                }
+            }
+        }
+        
+        private function activatePlayerThroughEmail(email:String, 
+                                                    onComplete:Function, onError:Function):void
+        {
+            fetchEmail(email, onDownloadComplete, onError);
+            
+            function onDownloadComplete(contents:String):void
+            {
                 // find link to flox email, visit it.
                 var matches:Array = contents.match(
                     '<a href="(https?://(?:www.)?flox.*/games/.+?/players/.+?/authorize.+?)"');
                 if (matches && matches.length == 2)
                     downloadTextResource(matches[1], onAuthorizeComplete, onError);
                 else
-                {
-                    fail("Could not find Flox link in mail");
-                    onComplete();
-                }
-            }
-            
-            function onMailError(error:String, httpStatus:int):void
-            {
-                if (numTries-- > 0)
-                {
-                    trace("  mail not yet arrived, trying again ...");
-                    setTimeout(downloadTextResource, delay, mailDumpUrl, onMailLoaded, onMailError);
-                }
-                else
-                {
-                    fail("Error fetching mail");
-                    onComplete();
-                }
+                    onError("Could not find Flox link in mail");
             }
             
             function onAuthorizeComplete(htmlContents:String):void
             {
                 onComplete();
+            }
+        }
+        
+        private function fetchNewEmailPassword(email:String, onComplete:Function, onError:Function):void
+        {
+            // if the mail has not arrived in time, we'll still find the confirmation mail instead
+            // of the one to reset the password. So we have to retry several times.
+            
+            var numTries:int = 10;
+            fetchEmail(email, onDownloadComplete, onError);
+            
+            function onDownloadComplete(contents:String):void
+            {
+                // find link to flox email, visit it and fetch new password.
+                var matches:Array = contents.match(
+                    '<a href="(https?://(?:www.)?flox.*/games/.+?/players/.+?/resetPassword.+?)"');
+                if (matches && matches.length == 2)
+                    downloadTextResource(matches[1], onNewPasswordDownloadComplete, onError);
+                else
+                {
+                    if (numTries-- > 0)
+                        fetchEmail(email, onDownloadComplete, onError);
+                    else
+                        onError("Could not find Flox link in mail");
+                }
+            }
+            
+            function onNewPasswordDownloadComplete(rawContents:String):void
+            {
+                var matches:Array = rawContents.match(/\<h1\>([a-zA-Z0-9]{6,})\<\/h1\>/);
+                if (matches && matches.length == 2)
+                    onComplete(matches[1]);
+                else
+                    onError("Could not find password in web page");
             }
         }
         
@@ -398,6 +437,181 @@ package com.gamua.flox
             function onSaveError(error:String):void
             {
                 // that's supposed to happen.
+                onComplete();
+            }
+        }
+        
+        public function testLoginWithEmailAndPassword(onComplete:Function):void
+        {
+            var guestID:String = Player.current.id;
+            var email:String = createUID().toLowerCase() + "@incognitek.com";
+            var password:String = createUID();
+            
+            // first, try to login only — should fail.
+            
+            Player.loginWithEmailAndPassword(email, password, true, onLoginOnlyComplete,
+                onLoginOnlyError);
+            
+            function onLoginOnlyComplete():void
+            {
+                fail("could login player that was used the first time");
+                onComplete();
+            }
+            
+            function onLoginOnlyError(error:String, httpStatus:int):void
+            {
+                assertEqual(HttpStatus.FORBIDDEN, httpStatus, "wrong http status: " + httpStatus);
+                
+                // now sign up the user
+                
+                Player.loginWithEmailAndPassword(email, password, false, onSignUpComplete,
+                    onSignUpError);
+            }
+            
+            function onSignUpComplete(signedUpPlayer:CustomPlayer):void
+            {
+                fail("Sign up worked, but should have sent confirmation mail instead");
+                onComplete();
+            }
+            
+            function onSignUpError(error:String, httpStatus:int):void
+            {
+                assertEqual(HttpStatus.UNAUTHORIZED, httpStatus, "wrong http status: " + httpStatus);
+                
+                // confirmation mail was sent. We must not be able to login yet, so let's try that.
+                
+                Player.logout();
+                Player.loginWithEmailAndPassword(email, password, true, 
+                    onLoginBeforeConfirmationComplete, onLoginBeforeConfirmationError);
+            }
+            
+            function onLoginBeforeConfirmationComplete():void
+            {
+                fail("Could login before clicking on confirmation link");
+                onComplete();
+            }
+            
+            function onLoginBeforeConfirmationError(error:String, httpStatus:int):void
+            {
+                assertEqual(HttpStatus.FORBIDDEN, httpStatus, "wrong http status: " + httpStatus);
+                
+                // now click that damned link, alright.
+                activatePlayerThroughEmail(email, onConfirmationComplete, onConfirmationError);
+            }
+            
+            function onConfirmationComplete():void
+            {
+                Player.loginWithEmailAndPassword(email, password, true, 
+                    onLoginComplete, onLoginError);
+            }
+            
+            function onConfirmationError(error:String):void
+            {
+                fail("Could not activate email/password player via mail: " + error);
+                onComplete();
+            }
+            
+            function onLoginComplete(signedUpPlayer:CustomPlayer):void
+            {
+                assertEqual(signedUpPlayer.id, guestID, "sign up did not yield correct player");
+                assertEqual(signedUpPlayer.authType, AuthenticationType.EMAIL_AND_PASSWORD,
+                    "wrong auth type");
+                
+                // now try the wrong password
+                Player.logout();
+                Player.loginWithEmailAndPassword(email, "incorrect-password", true, 
+                    onWrongPasswordComplete, onWrongPasswordError);
+            }
+            
+            function onLoginError(error:String, httpStatus:int):void
+            {
+                fail("Could not log in email/password user — " + error);
+                onComplete();
+            }
+            
+            function onWrongPasswordComplete(signedUpPlayer:CustomPlayer):void
+            {
+                fail("user could login with incorrect password!");
+                onComplete();
+            }
+            
+            function onWrongPasswordError(error:String, httpStatus:int):void
+            {
+                assertEqual(HttpStatus.FORBIDDEN, httpStatus, "wrong http status: " + httpStatus);
+                onComplete();
+            }
+        }
+        
+        public function testResetEmailPassword(onComplete:Function):void
+        {
+            var guestID:String = Player.current.id;
+            var email:String = createUID().toLowerCase() + "@incognitek.com";
+            var password:String = createUID();
+            
+            // first, we register the new user.
+            
+            Player.loginWithEmailAndPassword(email, password, false, onRegisterComplete,
+                onRegisterError);
+            
+            function onRegisterComplete():void
+            {
+                fail("could register new player without confirmation mail");
+                onComplete();
+            }
+            
+            function onRegisterError(error:String, httpStatus:int):void
+            {
+                activatePlayerThroughEmail(email, onConfirmationComplete, onConfirmationError);
+            }
+            
+            function onConfirmationComplete():void
+            {
+                Player.resetEmailPassword(email, onResetComplete, onResetError);
+            }
+            
+            function onResetComplete():void
+            {
+                fetchNewEmailPassword(email, onFetchPasswordComplete, onFetchPasswordError);
+            }
+            
+            function onResetError(error:String, httpStatus:int):void
+            {
+                fail("Could not reset email password: " + error);
+                onComplete();
+            }
+            
+            function onConfirmationError(error:String):void
+            {
+                fail("Could not activate email/password player via mail: " + error);
+                onComplete();
+            }
+                
+            function onFetchPasswordComplete(newPassword:String):void
+            {
+                // now login with new password
+                Player.logout()
+                Player.loginWithEmailAndPassword(email, newPassword, true, onLoginComplete,
+                    onLoginError);
+            }
+            
+            function onFetchPasswordError(error:String):void
+            {
+                fail("Could not reset password: " + error);
+                onComplete();
+            }
+            
+            function onLoginComplete(player:CustomPlayer):void
+            {
+                assertEqual(player.id, guestID, "login did not yield correct player");
+                assertEqual(player.authType, AuthenticationType.EMAIL_AND_PASSWORD, 
+                    "wrong auth type");
+                
+                onComplete();
+            }
+            
+            function onLoginError(error:String, httpStatus:int):void
+            {
+                fail("Could not login player: " + error);
                 onComplete();
             }
         }
