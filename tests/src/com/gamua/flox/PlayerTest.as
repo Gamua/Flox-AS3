@@ -615,6 +615,56 @@ package com.gamua.flox
                 onComplete();
             }
         }
+        
+        public function testLoginWithEmailAndPasswordThenSave(onComplete:Function):void
+        {
+            var guestID:String = Player.current.id;
+            var email:String = createUID().toLowerCase() + "@incognitek.com";
+            var password:String = createUID();
+            
+            Player.loginWithEmailAndPassword(email, password, false, onSignUpComplete,
+                onSignUpError);
+            
+            function onSignUpComplete():void
+            {
+                fail("Sign up worked, but should have sent confirmation mail instead");
+                onComplete();
+            }
+            
+            function onSignUpError(error:String, httpStatus:int):void
+            {
+                // confirmation mail was sent. Now activate player.
+                activatePlayerThroughEmail(email, onConfirmationComplete, onConfirmationError);
+            }
+            
+            function onConfirmationComplete():void
+            {
+                Player.loginWithEmailAndPassword(email, password, true, onLoginComplete, onError);
+            }
+            
+            function onConfirmationError(error:String):void
+            {
+                fail("Could not activate email/password player via mail: " + error);
+                onComplete();
+            }
+            
+            function onLoginComplete(signedUpPlayer:CustomPlayer):void
+            {
+                // now try to store the player (a specific server version failed here)
+                signedUpPlayer.save(onSaveComplete, onError);
+            }
+            
+            function onSaveComplete():void
+            {
+                onComplete();
+            }
+            
+            function onError(error:String, httpStatus:int):void
+            {
+                fail(error);
+                onComplete();
+            }
+        }
     }
 }
 
