@@ -60,6 +60,8 @@ package com.gamua.flox
      *      function onComplete(scores:Array):void
      *      {
      *          trace("retrieved " + scores.length + " scores");
+     *          for each (var score:Score in scores)
+     *              trace(score.playerName, score.value);
      *      },
      *      function onError(error:String, cachedScores:Array):void
      *      {
