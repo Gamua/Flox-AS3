@@ -106,9 +106,9 @@ package com.gamua.flox
         /** Executes the query and passes the list of results to the "onComplete" callback. 
          *  Don't forget to create appropriate indices for your queries!
          *  
-         *  @param onComplete: a callback with the form: 
+         *  @param onComplete  a callback with the form:
          *                     <pre>onComplete(entities:Array):void;</pre>
-         *  @param onError:    a callback with the form:
+         *  @param onError     a callback with the form:
          *                     <pre>onError(error:String, httpStatus:int):void;</pre>
          */
         public function find(onComplete:Function, onError:Function):void

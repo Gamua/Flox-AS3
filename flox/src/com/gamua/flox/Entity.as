@@ -108,9 +108,9 @@ package com.gamua.flox
          *  <p>In case of an error, use the method 'HttpStatus.isTransientError(httpStatus)'
          *  to find out if the error is just temporary (e.g. the server was not reachable).</p> 
          *  
-         *  @param onComplete: executed when the operation is successful; function signature:
+         *  @param onComplete  executed when the operation is successful; function signature:
          *                     <pre>onComplete(entity:Entity):void;</pre>
-         *  @param onError:    executed when the operation was not successful; function signature:
+         *  @param onError     executed when the operation was not successful; function signature:
          *                     <pre>onError(error:String, httpStatus:int):void;</pre>         
          */
         public function save(onComplete:Function, onError:Function):void
@@ -133,9 +133,9 @@ package com.gamua.flox
          *  <p>In case of an error, use the method 'HttpStatus.isTransientError(httpStatus)'
          *  to find out if it's just temporary (e.g. the server was not reachable).</p>
          *  
-         *  @param onComplete: executed when the operation is successful; function signature:
+         *  @param onComplete  executed when the operation is successful; function signature:
          *                     <pre>onComplete(entity:Entity):void;</pre>
-         *  @param onError:    executed when the operation was not successful; function signature:
+         *  @param onError     executed when the operation was not successful; function signature:
          *                     <pre>onError(error:String, httpStatus:int):void;</pre>         
          */
         public function refresh(onComplete:Function, onError:Function):void
@@ -149,9 +149,9 @@ package com.gamua.flox
          *  <p>In case of an error, use the method 'HttpStatus.isTransientError(httpStatus)' 
          *  to find out if the error is just temporary (e.g. the server was not reachable).</p> 
          *  
-         *  @param onComplete:  executed when the operation is successful; function signature:
+         *  @param onComplete   executed when the operation is successful; function signature:
          *                      <pre>onComplete(entity:Entity):void;</pre>
-         *  @param onError:     executed when the operation was not successful; function signature:
+         *  @param onError      executed when the operation was not successful; function signature:
          *                      <pre>onError(error:String, httpStatus:int):void;</pre>         
          */
         public function destroy(onComplete:Function, onError:Function):void
@@ -195,11 +195,11 @@ package com.gamua.flox
          *  <p>If there is no Entity with this type and ID stored on the server, the 'httpStatus'
          *  of the 'onError' callback will be 'HttpStatus.NOT_FOUND'.</p>
          *  
-         *  @param entityClass: the class of the entity to load.
-         *  @param id:          the id of the entity to load.
-         *  @param onComplete:  executed when the operation is successful; function signature:
+         *  @param entityClass  the class of the entity to load.
+         *  @param id           the id of the entity to load.
+         *  @param onComplete   executed when the operation is successful; function signature:
          *                      <pre>onComplete(entity:Entity):void;</pre>
-         *  @param onError:     executed when the operation was not successful; function signature:
+         *  @param onError      executed when the operation was not successful; function signature:
          *                      <pre>onError(error:String, httpStatus:int, cachedEntity:Entity):void;</pre>
          */
         public static function load(entityClass:Class, id:String, 
@@ -231,11 +231,11 @@ package com.gamua.flox
          *  <p>In case of an error, use the method 'HttpStatus.isTransientError(httpStatus)' to 
          *  find out if the error is just temporary (e.g. the server was not reachable).</p> 
          *  
-         *  @param entityClass: the class of the entity that will be destroyed.
-         *  @param id:          the ID of the entity that will be destroyed.
-         *  @param onComplete:  executed when the operation is successful; function signature:
+         *  @param entityClass  the class of the entity that will be destroyed.
+         *  @param id           the ID of the entity that will be destroyed.
+         *  @param onComplete   executed when the operation is successful; function signature:
          *                      <pre>onComplete():void;</pre>
-         *  @param onError:     executed when the operation was not successful; function signature:
+         *  @param onError      executed when the operation was not successful; function signature:
          *                      <pre>onError(error:String, httpStatus:int):void;</pre>         
          */
         public static function destroy(entityClass:Class, id:String, 

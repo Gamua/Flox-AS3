@@ -219,13 +219,13 @@ package com.gamua.flox
          *  will fail as well. The method will always execute exactly one of the provided callback
          *  functions.
          *  
-         *  @param method: one of the constants provided by the 'HttpMethod' class.
-         *  @param path: the path of the resource relative to the root of the game (!).
-         *  @param data: the data that will be sent as JSON-encoded body or as URL parameters
+         *  @param method  one of the constants provided by the 'HttpMethod' class.
+         *  @param path  the path of the resource relative to the root of the game (!).
+         *  @param data  the data that will be sent as JSON-encoded body or as URL parameters
          *               (depending on the http method).
-         *  @param onComplete: a callback with the form: 
+         *  @param onComplete  a callback with the form:
          *                     <pre>onComplete(body:Object, httpStatus:int):void;</pre>
-         *  @param onError:    a callback with the form:
+         *  @param onError     a callback with the form:
          *                     <pre>onError(error:String, httpStatus:int, cachedBody:Object):void;</pre>
          */
         public function request(method:String, path:String, data:Object, 

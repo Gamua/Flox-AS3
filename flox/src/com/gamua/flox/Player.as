@@ -53,11 +53,11 @@ package com.gamua.flox
          *  'login' again (without arguments). The previous player will then be replaced 
          *  by a new guest.</p> 
          *  
-         *  @param authType:    The type of authentication you want to use.
-         *  @param authID:      The id of the player in its authentication system.
-         *  @param authToken:   The token you received from the player's authentication system.  
-         *  @param onComplete:  function onComplete(currentPlayer:Player):void;
-         *  @param onError:     function onError(error:String, httpStatus:int):void;
+         *  @param authType     The type of authentication you want to use.
+         *  @param authId       The id of the player in its authentication system.
+         *  @param authToken    The token you received from the player's authentication system.
+         *  @param onComplete   function onComplete(currentPlayer:Player):void;
+         *  @param onError      function onError(error:String, httpStatus:int):void;
          */
         public static function login(
             authType:String="guest", authId:String=null, authToken:String=null,
@@ -149,9 +149,9 @@ package com.gamua.flox
          *  "HttpStatus.FORBIDDEN" means that the mail was sent; "HttpStatus.TOO_MANY_REQUESTS"
          *  means that a mail has already been sent within the last 15 minutes.</p>
          *  
-         *  @param email:      The e-mail address of the player trying to log in.  
-         *  @param onComplete: function onComplete(currentPlayer:Player):void;
-         *  @param onError:    function onError(error:String, httpStatus:int, confirmationMailSent:Boolean):void;*/ 
+         *  @param email       The e-mail address of the player trying to log in.
+         *  @param onComplete  function onComplete(currentPlayer:Player):void;
+         *  @param onError     function onError(error:String, httpStatus:int, confirmationMailSent:Boolean):void;*/
         public static function loginWithEmail(email:String, 
                                               onComplete:Function, onError:Function):void
         {
@@ -185,13 +185,13 @@ package com.gamua.flox
          *  <p>If the player forgets the password, you can let him acquire a new one with the
          *  'resetEmailPassword' method.</p>
          *
-         *  @param email:      The e-mail address of the player trying to log in or sign up.
-         *  @param password:   The password of the player trying to log in or sign up.
-         *  @param loginOnly:  If true, the email/password combination must already exist.
+         *  @param email       The e-mail address of the player trying to log in or sign up.
+         *  @param password    The password of the player trying to log in or sign up.
+         *  @param loginOnly   If true, the email/password combination must already exist.
          *                     If false, an e-mail address that was used for the first time will
          *                     trigger a confirmation e-mail.
-         *  @param onComplete: function onComplete(currentPlayer:Player):void;
-         *  @param onError:    function onError(error:String, httpStatus:int, confirmationMailSent:Boolean):void;
+         *  @param onComplete  function onComplete(currentPlayer:Player):void;
+         *  @param onError     function onError(error:String, httpStatus:int, confirmationMailSent:Boolean):void;
          */
         public static function loginWithEmailAndPassword(
             email:String, password:String, loginOnly:Boolean,
@@ -216,8 +216,8 @@ package com.gamua.flox
         /** Causes the server to send a password-reset e-mail to the player's e-mail address. If
          *  that address is unknown to the server, it will yield an error with HttpStatus.NOT_FOUND.
          *
-         *  @param onComplete: function onComplete():void;
-         *  @param onError:    function onError(error:String, httpStatus:int):void;
+         *  @param onComplete  function onComplete():void;
+         *  @param onError     function onError(error:String, httpStatus:int):void;
          */
         public static function resetEmailPassword(email:String, onComplete:Function,
                                                   onError:Function):void

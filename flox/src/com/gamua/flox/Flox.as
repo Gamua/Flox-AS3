@@ -179,12 +179,12 @@ package com.gamua.flox
          *  the 'onError' callback contains the scores that Flox cached from the last request
          *  (if available, otherwise the parameter is null).</p>
          *  
-         *  @param leaderboardID: the leaderboard ID you have defined in the Flox online interface.
-         *  @param scope:      either a "TimeScope" (one of the constants defined in that class),
+         *  @param leaderboardID  the leaderboard ID you have defined in the Flox online interface.
+         *  @param scope       either a "TimeScope" (one of the constants defined in that class),
          *                     or a list of playerIDs.
-         *  @param onComplete: a callback containing an Array of 'Score' instances: 
+         *  @param onComplete  a callback containing an Array of 'Score' instances:
          *                     <pre>onComplete(scores:Array):void;</pre>
-         *  @param onError:    a callback with the form:
+         *  @param onError     a callback with the form:
          *                     <pre>onError(error:String, cachedScores:Array):void;</pre>
          */
         public static function loadScores(leaderboardID:String, scope:*,
@@ -249,9 +249,9 @@ package com.gamua.flox
         
         /** Fetches the current server time.
          *  
-         *  @param onComplete: a callback with the form:
+         *  @param onComplete  a callback with the form:
          *                     <pre>onComplete(time:Date):void;</pre>
-         *  @param onError:    a callback with the form:
+         *  @param onError     a callback with the form:
          *                     <pre>onError(error:String, httpStatus:int):void;</pre>
          */
         public static function getTime(onComplete:Function, onError:Function):void
@@ -349,9 +349,10 @@ package com.gamua.flox
         }
         
         /** Add a log of type 'event'. Events are displayed separately in the online interface.
-         *  Limit yourself to a predefined set of strings!
-         *  
-         *  @param properties: An optional dictionary with additional information about the event.
+         *  Limit yourself to a predefined set of names!
+         *
+         *  @param name        The primary identifier of the event.
+         *  @param properties  An optional dictionary with additional information about the event.
          *                     Again, use only a small set of different values, otherwise the 
          *                     visualization of the data will become useless quickly. */
         public static function logEvent(name:String, properties:Object=null):void
