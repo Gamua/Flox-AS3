@@ -4,10 +4,17 @@ bin-debug/
 bin-release/
 flox/doc/html/
 
-# Project property files
+# Flash Builder
 .settings/
 .flexProperties
 .FlexUnitSettings
 
+# IntelliJ IDEA
+*.iws
+**/.idea/workspace.xml
+**/.idea/tasks.xml
+**/.idea/dictionaries
+
 # OS X folders
 .DS_Store
+
