@@ -13,16 +13,17 @@ package
     import com.gamua.flox.ScoreTest;
     import com.gamua.flox.SharedObjectPoolTest;
     import com.gamua.flox.UtilsTest;
-    import com.gamua.flox.utils.downloadTextResource;
-    
+    import com.gamua.flox.utils.HttpMethod;
+    import com.gamua.flox.utils.makeHttpRequest;
+
     import flash.external.ExternalInterface;
-    
+
     import starling.core.Starling;
     import starling.display.Sprite;
     import starling.display.Stage;
     import starling.unit.TestGui;
     import starling.unit.TestRunner;
-    
+
     public class TestSuite extends Sprite
     {
         [Embed(source="../config/live-server.xml", mimeType="application/octet-stream")]
@@ -47,7 +48,7 @@ package
             testRunner.add(PersistentStoreTest);
             testRunner.add(PersistentQueueTest);
             testRunner.add(UtilsTest);
-            
+
             // online tests
             testRunner.add(RestServiceTest);
             testRunner.add(AnalyticsTest);
@@ -78,7 +79,10 @@ package
             var flashVars:Object = Starling.current.nativeStage.loaderInfo.parameters;
             
             if ("config" in flashVars)
-                downloadTextResource(flashVars["config"], onDownloadComplete, onDownloadError);
+            {
+                makeHttpRequest(HttpMethod.GET, flashVars["config"], null,
+                        onDownloadComplete, onDownloadError);
+            }
             else
             {
                 Constants.initWithXML(XML(new serverConfig()));
