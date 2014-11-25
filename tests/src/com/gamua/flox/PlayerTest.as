@@ -320,7 +320,6 @@ package com.gamua.flox
             
             var numTries:int = 10;
             var url:String = null;
-            var token:String = null;
             var newPassword:String = createUID(8);
 
             fetchEmail(email, onDownloadComplete, onError);
@@ -333,8 +332,6 @@ package com.gamua.flox
                 if (matches && matches.length == 2)
                 {
                     url = matches[1];
-                    token = url.match(/token=(.+)/)[1];
-
                     downloadTextResource(url, onResetPasswordFormDownloaded, onError);
                 }
                 else
