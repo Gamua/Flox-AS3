@@ -74,8 +74,7 @@ package com.gamua.flox
         private var mPublicAccess:String;
         
         private static const sTypeCache:Dictionary = new Dictionary();
-        private static const sIndices:Dictionary = new Dictionary();
-        
+
         /** Abstract class constructor. Call this via 'super' from your subclass, passing your
          *  custom type string. */
         public function Entity()
