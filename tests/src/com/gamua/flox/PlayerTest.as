@@ -1,13 +1,16 @@
 package com.gamua.flox
 {
     import com.gamua.flox.utils.CustomEntity;
+    import com.gamua.flox.utils.HttpMethod;
     import com.gamua.flox.utils.HttpStatus;
     import com.gamua.flox.utils.createUID;
-    import com.gamua.flox.utils.downloadTextResource;
+    import com.gamua.flox.utils.makeHttpRequest;
     import com.gamua.flox.utils.setTimeout;
-    
+
+    import flash.net.URLVariables;
+
     import starling.unit.UnitTest;
-    
+
     public class PlayerTest extends UnitTest
     {
         public override function setUp():void
@@ -127,7 +130,7 @@ package com.gamua.flox
         
         public function testLoginWithKeyAndSavePlayer(onComplete:Function):void
         {
-            var name:String = "Picard"
+            var name:String = "Picard";
             var guest:CustomPlayer = Player.current as CustomPlayer;
             var key:String = "SECRET#" + createUID();
             var guestID:String = guest.id;
@@ -316,6 +319,10 @@ package com.gamua.flox
             // of the one to reset the password. So we have to retry several times.
             
             var numTries:int = 10;
+            var url:String = null;
+            var token:String = null;
+            var newPassword:String = createUID(8);
+
             fetchEmail(email, onDownloadComplete, onError);
             
             function onDownloadComplete(contents:String):void
@@ -324,7 +331,12 @@ package com.gamua.flox
                 var matches:Array = contents.match(
                     '<a href="(https?://(?:www.)?flox.*/games/.+?/players/.+?/resetPassword.+?)"');
                 if (matches && matches.length == 2)
-                    downloadTextResource(matches[1], onNewPasswordDownloadComplete, onError);
+                {
+                    url = matches[1];
+                    token = url.match(/token=(.+)/)[1];
+
+                    downloadTextResource(url, onResetPasswordFormDownloaded, onError);
+                }
                 else
                 {
                     if (numTries-- > 0)
@@ -334,13 +346,32 @@ package com.gamua.flox
                 }
             }
             
-            function onNewPasswordDownloadComplete(rawContents:String):void
+            function onResetPasswordFormDownloaded(rawContents:String):void
             {
-                var matches:Array = rawContents.match(/\<h1\>([a-zA-Z0-9]{6,})\<\/h1\>/);
-                if (matches && matches.length == 2)
-                    onComplete(matches[1]);
+                // get values of form
+
+                var matches:Array = rawContents.match(/\<input.*\/\>/g);
+                if (matches && matches.length == 4)
+                {
+                    var data:URLVariables = new URLVariables();
+
+                    for each (var match:String in matches)
+                    {
+                        var inputXML:XML = new XML(match);
+                        var isHidden:Boolean = inputXML.@type.toLowerCase() == "hidden";
+                        data[inputXML.@name.toString()] = isHidden ? inputXML.@value.toString() : newPassword;
+                    }
+
+                    makeHttpRequest(HttpMethod.POST, url, data, onNewPasswordPosted, onError);
+                }
                 else
-                    onError("Could not find password in web page");
+                    onError("Unexpected password reset form");
+            }
+
+            function onNewPasswordPosted(rawContents:String):void
+            {
+                trace(rawContents);
+                onComplete(newPassword);
             }
         }
         
@@ -542,7 +573,7 @@ package com.gamua.flox
             }
         }
         
-        public function testResetEmailPassword(onComplete:Function):void
+        public function test_ResetEmailPassword(onComplete:Function):void
         {
             var guestID:String = Player.current.id;
             var email:String = createUID().toLowerCase() + "@incognitek.com";
@@ -664,6 +695,11 @@ package com.gamua.flox
                 fail(error);
                 onComplete();
             }
+        }
+
+        private function downloadTextResource(url:String, onComplete:Function, onError:Function):void
+        {
+            makeHttpRequest(HttpMethod.GET, url, null, onComplete, onError);
         }
     }
 }
