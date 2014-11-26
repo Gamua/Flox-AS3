@@ -1,6 +1,5 @@
 package
 {
-
     import com.gamua.flox.Flox;
 
     import flash.display.Sprite;
@@ -18,10 +17,10 @@ package
         public function Startup()
         {
             loaderInfo.uncaughtErrorEvents.addEventListener (
-                    UncaughtErrorEvent.UNCAUGHT_ERROR, function(event:UncaughtErrorEvent):void
-                    {
-                        Flox.logError(event.error, "Uncaught Error: " + event.error.message);
-                    }
+                UncaughtErrorEvent.UNCAUGHT_ERROR, function(event:UncaughtErrorEvent):void
+                {
+                    Flox.logError(event.error, "Uncaught Error: " + event.error.message);
+                }
             );
 
             stage.scaleMode = StageScaleMode.NO_SCALE;

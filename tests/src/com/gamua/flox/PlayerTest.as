@@ -570,7 +570,7 @@ package com.gamua.flox
             }
         }
         
-        public function test_ResetEmailPassword(onComplete:Function):void
+        public function testResetEmailPassword(onComplete:Function):void
         {
             var guestID:String = Player.current.id;
             var email:String = createUID().toLowerCase() + "@incognitek.com";
