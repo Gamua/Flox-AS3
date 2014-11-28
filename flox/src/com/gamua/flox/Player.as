@@ -178,7 +178,7 @@ package com.gamua.flox
          *      receives a confirmation mail and the method yields an error with
          *      HttpStatus.UNAUTHORIZED.</li>
          *  <li>If 'loginOnly = false' and the mail address was not yet confirmed, or if the
-         *      mail adress was already registered with a different password, the method will
+         *      mail address was already registered with a different password, the method will
          *      yield an error with HttpStatus.FORBIDDEN.</li>
          *  </ul>
          *
