@@ -1,6 +1,15 @@
 Flox: Changelog
 ===============
 
+version 1.3 - 2014-11-28
+------------------------
+
+* added 'EMAIL_AND_PASSWORD' authentication
+* added Entity conflict handling (via 'onConflict' method)
+* added IntelliJ IDEA modules and project file
+* optimized internally used 'execute' method by avoiding any allocations
+* fixed: time-out status code is now regarded as 'transient' error
+
 version 1.2.1 - 2014-05-20
 --------------------------
 
