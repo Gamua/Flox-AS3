@@ -4,7 +4,7 @@ Flox: Changelog
 version 1.3 - 2014-11-28
 ------------------------
 
-* added 'EMAIL_AND_PASSWORD' authentication
+* added 'EMAIL-AND-PASSWORD' authentication
 * added Entity conflict handling (via 'onConflict' method)
 * added IntelliJ IDEA modules and project file
 * optimized internally used 'execute' method by avoiding any allocations
