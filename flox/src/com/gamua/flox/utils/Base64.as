@@ -36,7 +36,7 @@ package com.gamua.flox.utils
         /** helper objects */
         private static var sOutputBuilder:ByteArray    = new ByteArray();
         private static var sDataBuffer:Vector.<uint>   = new <uint>[];
-        private static var sOutputBuffer:Vector.<uint> = new <uint>[]
+        private static var sOutputBuffer:Vector.<uint> = new <uint>[];
         
         /** Encodes a given String in Base64 format. */
         public static function encode(data:String):String 
