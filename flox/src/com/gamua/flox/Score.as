@@ -20,14 +20,14 @@ package com.gamua.flox
         private var mCountry:String;
         
         /** Create a new score instance with the given values. */
-        public function Score(playerId:String, playerName:String, 
-                              value:int, date:Date, country:String)
+        public function Score(playerId:String=null, playerName:String=null,
+                              value:int=0, date:Date=null, country:String=null)
         {
-            mPlayerId = playerId;
-            mPlayerName = playerName;
-            mCountry = country;
+            mPlayerId = playerId ? playerId : "unknown";
+            mPlayerName = playerName ? playerName : "unknown";
+            mCountry = country ? country : "us";
             mValue = value;
-            mDate = new Date(date.time);
+            mDate = date ? date : new Date();
         }
         
         /** The ID of the player who posted the score. Note that this could be a guest player

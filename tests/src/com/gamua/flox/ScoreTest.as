@@ -17,6 +17,26 @@ package com.gamua.flox
         {
             Flox.shutdown();
         }
+
+        public function testConstruction():void
+        {
+            var now:Date = new Date();
+            var score:Score = new Score();
+
+            assertNotNull(score.playerId);
+            assertNotNull(score.playerName);
+            assertNotNull(score.country);
+            assertEqual(0, score.value);
+            assertEquivalent(now.time, score.date.time, "wrong default date", 100);
+
+            score = new Score("id", "name", 123, now, "at");
+
+            assertEqual("id", score.playerId);
+            assertEqual("name", score.playerName);
+            assertEqual("at", score.country);
+            assertEqual(123, score.value);
+            assertEqual(now, score.date);
+        }
         
         public function testSubmitScores():void
         {

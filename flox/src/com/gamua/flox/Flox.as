@@ -123,6 +123,7 @@ package com.gamua.flox
             registerClassAlias(GameSession);
             registerClassAlias(Authentication);
             registerClassAlias(Player);
+            registerClassAlias(Score);
 
             monitorNativeApplicationEvents(true);
             SharedObjectPool.startAutoCleanup();
