@@ -17,7 +17,7 @@ package com.gamua.flox
      *  All accessed shared objects will stay in memory for a custom time after being accessed.
      *  This (a) makes accessing them much faster, which is especially important for the
      *  'PersistentQueue', and (b) avoids a bug in the Flash Player that happens when two 
-     *  flush operations are happening simultaneously (one initiated throught the GC, the other 
+     *  flush operations are happening simultaneously (one initiated through the GC, the other
      *  manually). */ 
     internal class SharedObjectPool
     {
