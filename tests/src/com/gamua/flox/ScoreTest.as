@@ -37,6 +37,27 @@ package com.gamua.flox
             assertEqual(123, score.value);
             assertEqual(now, score.date);
         }
+
+        public function testProperties():void
+        {
+            var now:Date = new Date();
+            var score:Score = new Score();
+
+            score.playerId = "123";
+            assertEqual("123", score.playerId);
+
+            score.playerName = "playerName";
+            assertEqual("playerName", score.playerName);
+
+            score.country = "at";
+            assertEqual("at", score.country);
+
+            score.value = 123;
+            assertEqual(123, score.value);
+
+            score.date = now;
+            assertEqual(now, score.date);
+        }
         
         public function testSubmitScores():void
         {

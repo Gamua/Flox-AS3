@@ -33,19 +33,24 @@ package com.gamua.flox
         /** The ID of the player who posted the score. Note that this could be a guest player
          *  unknown to the server. */
         public function get playerId():String { return mPlayerId; }
+        public function set playerId(value:String) { mPlayerId = value; }
 
         /** The name of the player who posted the score. */
         public function get playerName():String { return mPlayerName; }
+        public function set playerName(value:String):void { mPlayerName = value; }
 
         /** The actual value/score. */
         public function get value():int { return mValue; }
+        public function set value(value:int):void { mValue = value; }
         
         /** The date at which the score was posted. */
         public function get date():Date { return mDate; }
+        public function set date(value:Date):void { mDate = value; }
         
         /** The country from which the score originated, in a two-letter country code. */
         public function get country():String { return mCountry; }
-                
+        public function set country(value:String):void { mCountry = value; }
+
         /** Returns a description of the score. */
         public function toString():String
         {
