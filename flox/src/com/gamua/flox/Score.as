@@ -33,7 +33,7 @@ package com.gamua.flox
         /** The ID of the player who posted the score. Note that this could be a guest player
          *  unknown to the server. */
         public function get playerId():String { return mPlayerId; }
-        public function set playerId(value:String) { mPlayerId = value; }
+        public function set playerId(value:String):void { mPlayerId = value; }
 
         /** The name of the player who posted the score. */
         public function get playerName():String { return mPlayerName; }
