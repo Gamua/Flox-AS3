@@ -1,6 +1,7 @@
 package com.gamua.flox
 {
     import com.gamua.flox.events.QueueEvent;
+    import com.gamua.flox.utils.CustomEntity;
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.cloneObject;
     import com.gamua.flox.utils.createUID;
@@ -551,6 +552,58 @@ package com.gamua.flox
             {
                 assert(count == 1, "Wrong number of entities returned: " + count);
                 assertEqualEntities(entities[0], products[0]);
+            }
+        }
+
+        public function testUpdatedAtIndex(onComplete:Function):void
+        {
+            // This test showcases a problem described by Kelson Kugler.
+            // It requires that there's an index on 'updatedAt', but no index on 'age'.
+
+            var age:int = 0;
+            var numTries:int = 1;
+            var entity:CustomEntity = new CustomEntity();
+            var entityID:String = entity.id;
+            entity.age = age;
+            entity.save(onSaveComplete, onError);
+
+            function onSaveComplete(entity:CustomEntity):void
+            {
+                var updateTime:Date = entity.updatedAt;
+                var before:Date = new Date(updateTime.time - 200);
+                var after:Date = new Date(updateTime.time + 200);
+                var query:Query = new Query(CustomEntity, "updatedAt > ? AND updatedAt < ?",
+                    before, after);
+
+                query.find(onQueryComplete, onError);
+            }
+
+            function onQueryComplete(entities:Array):void
+            {
+                if (entities.length == 0)
+                {
+                    fail("did not find Entity at try #" + numTries);
+                    onComplete();
+                }
+                else
+                {
+                    var entity:CustomEntity = entities[0] as CustomEntity;
+                    assertEqual(entityID, entity.id);
+                    numTries++;
+
+                    if (numTries <= 10)
+                    {
+                        entity.age = ++age;
+                        entity.save(onSaveComplete, onError);
+                    }
+                    else onComplete();
+                }
+            }
+
+            function onError(error:String):void
+            {
+                fail("error on query or save: " + error);
+                onComplete();
             }
         }
         
