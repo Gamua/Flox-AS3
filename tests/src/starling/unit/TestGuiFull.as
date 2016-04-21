@@ -1,10 +1,11 @@
 package starling.unit
 {
+    import com.gamua.flox.utils.formatString;
+
     import starling.display.Sprite;
     import starling.text.TextField;
+    import starling.utils.Align;
     import starling.utils.Color;
-    import starling.utils.HAlign;
-    import starling.utils.formatString;
 
     public class TestGuiFull extends TestGui
     {
@@ -25,8 +26,9 @@ package starling.unit
             mWidth = width;
             mHeight = height;
             
-            mStatusInfo = new TextField(width, LINE_HEIGHT, "", FONT_NAME, FONT_SIZE, Color.WHITE);
-            mStatusInfo.hAlign = HAlign.RIGHT;
+            mStatusInfo = new TextField(width, LINE_HEIGHT, "");
+            mStatusInfo.format.setTo(FONT_NAME, FONT_SIZE, Color.WHITE);
+            mStatusInfo.format.horizontalAlign = Align.RIGHT;
             addChild(mStatusInfo);
             
             mLogLines = new Sprite();
@@ -37,9 +39,9 @@ package starling.unit
         {
             super.log(message, color);
 
-            var logLine:TextField = new TextField(mWidth, LINE_HEIGHT, message, 
-                                                  FONT_NAME, FONT_SIZE, color);
-            logLine.hAlign = HAlign.LEFT;
+            var logLine:TextField = new TextField(mWidth, LINE_HEIGHT, message);
+            logLine.format.setTo(FONT_NAME, FONT_SIZE, color);
+            logLine.format.horizontalAlign = Align.LEFT;
             logLine.y = mNumLogLines * LINE_HEIGHT;
             mLogLines.addChild(logLine);
             mNumLogLines++;
@@ -56,7 +58,7 @@ package starling.unit
             super.assert(success, message);
             
             mStatusInfo.text = formatString("Passed {0} of {1} tests", successCount, testCount);
-            mStatusInfo.color = (successCount == testCount) ? Color.GREEN : Color.RED;
+            mStatusInfo.format.color = (successCount == testCount) ? Color.GREEN : Color.RED;
         }
     }
 }

@@ -2,9 +2,9 @@ package starling.unit
 {
     import flash.utils.describeType;
     import flash.utils.getQualifiedClassName;
-    
-    import starling.utils.formatString;
-    
+
+    import starling.utils.StringUtil;
+
     public class TestRunner
     {
         public static const STATUS_FINISHED:String = "finished";
@@ -70,7 +70,7 @@ package starling.unit
         private function runTest(testClass:Class, methodName:String, onComplete:Function):void
         {
             var className:String = getQualifiedClassName(testClass).split("::").pop();
-            logFunction(formatString("{0}.{1} ...", className, methodName));
+            logFunction(StringUtil.format("{0}.{1} ...", className, methodName));
             
             var test:UnitTest = new testClass() as UnitTest;
             test.assertFunction = mAssertFunction;

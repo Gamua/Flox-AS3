@@ -1,5 +1,7 @@
 package starling.unit
 {
+    import com.gamua.flox.utils.formatString;
+
     import flash.external.ExternalInterface;
 
     import starling.core.Starling;
@@ -8,7 +10,6 @@ package starling.unit
     import starling.events.TouchPhase;
     import starling.text.TextField;
     import starling.utils.Color;
-    import starling.utils.formatString;
 
     public class TestGuiEx extends TestGui
     {
@@ -24,14 +25,17 @@ package starling.unit
         {
             super(testRunner);
 
-            mHeader = new TextField(width, LINE_HEIGHT, header, FONT_NAME, FONT_SIZE, Color.WHITE);
+            mHeader = new TextField(width, LINE_HEIGHT, header);
+            mHeader.format.setTo(FONT_NAME, FONT_SIZE, Color.WHITE);
             addChild(mHeader);
             
-            mStatus = new TextField(width, LINE_HEIGHT, "0 / 0", FONT_NAME, FONT_SIZE, Color.WHITE);
+            mStatus = new TextField(width, LINE_HEIGHT, "0 / 0");
+            mStatus.format.setTo(FONT_NAME, FONT_SIZE, Color.WHITE);
             mStatus.y = LINE_HEIGHT;
             addChild(mStatus);
             
-            mFooter = new TextField(width, LINE_HEIGHT, "", FONT_NAME, FONT_SIZE, Color.WHITE);
+            mFooter = new TextField(width, LINE_HEIGHT, "");
+            mFooter.format.setTo(FONT_NAME, FONT_SIZE, Color.WHITE);
             mFooter.y = 2 * LINE_HEIGHT;
             addChild(mFooter);
             
@@ -65,7 +69,7 @@ package starling.unit
             super.assert(success, message);
 
             mStatus.text = formatString("{0} / {1}", successCount, testCount);
-            mStatus.color = (successCount == testCount) ? Color.GREEN : Color.RED;
+            mStatus.format.color = (successCount == testCount) ? Color.GREEN : Color.RED;
         }
         
         private function callExternalInterface(method, ...args):void
