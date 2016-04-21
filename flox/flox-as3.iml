@@ -3,8 +3,8 @@
   <component name="FlexBuildConfigurationManager" active="flox-as3">
     <configurations>
       <configuration name="flox-as3" pure-as="true" output-type="Library" output-file="flox-as3.swc" output-folder="$MODULE_DIR$/bin-debug">
-        <dependencies target-player="17.0">
-          <sdk name="air-17" />
+        <dependencies target-player="21.0">
+          <sdk name="air-21" />
         </dependencies>
         <compiler-options>
           <map>
@@ -25,7 +25,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/bin-debug" />
     </content>
-    <orderEntry type="jdk" jdkName="air-17" jdkType="Flex SDK Type (new)" />
+    <orderEntry type="jdk" jdkName="air-21" jdkType="Flex SDK Type (new)" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
