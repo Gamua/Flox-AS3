@@ -117,8 +117,7 @@ package com.gamua.flox
             var numResults:int = -1;
             var numLoaded:int = 0;
             var abort:Boolean = false;
-            var service:RestService = Flox.service;
-            
+
             var path:String = createURL("entities", type);
             var data:Object = { where: mConstraints, offset: mOffset, limit: mLimit };
             
@@ -170,11 +169,42 @@ package com.gamua.flox
                 if (!abort) execute(onComplete, entities);
             }
         }
+
+        /** Executes the query and passes the list of entity IDs that make up the result to the
+         *  "onComplete" callback. Don't forget to create appropriate indices for your queries!
+         *
+         *  @param onComplete  a callback with the form:
+         *                     <pre>onComplete(entityIDs:Array):void;</pre>
+         *  @param onError     a callback with the form:
+         *                     <pre>onError(error:String, httpStatus:int):void;</pre>
+         */
+        public function findIDs(onComplete:Function, onError:Function):void
+        {
+            var numResults:int = -1;
+            var path:String = createURL("entities", type);
+            var data:Object = { where: mConstraints, offset: mOffset, limit: mLimit };
+
+            if (mOrderBy) data.orderBy = mOrderBy;
+
+            Flox.service.request(HttpMethod.POST, path, data, onRequestComplete, onError);
+
+            function onRequestComplete(body:Object):void
+            {
+                var entityIDs:Array = [];
+                var results:Array = body as Array;
+                numResults = results ? results.length : 0;
+
+                for (var i:int=0; i<numResults; ++i)
+                    entityIDs[i] = results[i].id;
+
+                onComplete(entityIDs);
+            }
+        }
         
         /** Indicates the entity type that is searched. */
         public function get type():String { return Entity.getType(mClass); }
         
-        /** The current contraints that will be used as WHERE-clause by the 'find' method. */
+        /** The current constraints that will be used as WHERE-clause by the 'find' method. */
         public function get constraints():String { return mConstraints; }
         
         /** Order the results by a certain property of your Entities. Set it to 'null' if you

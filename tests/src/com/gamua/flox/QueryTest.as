@@ -555,6 +555,36 @@ package com.gamua.flox
             }
         }
 
+        public function testFindIDs(onComplete:Function):void
+        {
+            var products:Array = [
+                new Product("alpha",   9.99),
+                new Product("beta",   99.99),
+                new Product("gamma", 999.99)
+            ];
+
+            for each (var product:Product in products)
+                product.saveQueued();
+
+            var query:Query = new Query(Product, "price > 10");
+            query.orderBy = "price ASC";
+            query.findIDs(onQueryComplete, onQueryError);
+
+            function onQueryComplete(entityIDs:Array):void
+            {
+                assertEqual(entityIDs.length, 2, "Wrong number of entity IDs returned");
+                assertEqual(products[1].id, entityIDs[0], "Wrong entity ID at result #0");
+                assertEqual(products[2].id, entityIDs[1], "Wrong entity ID at result #1");
+                onComplete();
+            }
+
+            function onQueryError(error:String):void
+            {
+                fail("could not execute query. Error: " + error);
+                onComplete();
+            }
+        }
+
         public function testUpdatedAtIndex(onComplete:Function):void
         {
             // This test showcases a problem described by Kelson Kugler.
