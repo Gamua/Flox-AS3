@@ -220,7 +220,7 @@ package com.gamua.flox
             
             function createScoreArray(rawScores:Array):Array
             {
-                if (rawScores == null) return null;
+                if (rawScores == null) return [];
                 else
                 {
                     var scores:Array = [];
@@ -297,6 +297,13 @@ package com.gamua.flox
             {
                 logWarning("Could not flush shared objects (" + e.message + ")");
             }
+        }
+
+        /** Resets (changes) the installation id. Useful mainly for unit testing. */
+        public static function resetInstallationID():void
+        {
+            checkInitialized();
+            sPersistentData.data.installationID = null;
         }
         
         // logging
@@ -489,14 +496,6 @@ package com.gamua.flox
         internal static function set authentication(value:Authentication):void
         {
             sPersistentData.data.authentication = value;
-        }
-        
-        /** @private 
-         *  Resets (changes) the installation id. Useful only for unit testing. */
-        internal static function resetInstallationID():void
-        {
-            checkInitialized();
-            sPersistentData.data.installationID = null;
         }
         
         // properties
