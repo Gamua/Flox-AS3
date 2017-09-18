@@ -220,7 +220,7 @@ package com.gamua.flox
             
             function createScoreArray(rawScores:Array):Array
             {
-                if (rawScores == null) return [];
+                if (rawScores == null) return null;
                 else
                 {
                     var scores:Array = [];
