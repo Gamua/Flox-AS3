@@ -12,13 +12,11 @@ then
 fi
 
 version=$1
-ASDOC="/Applications/Adobe Flash Builder 4.7/sdks/4.6.0/bin/asdoc"
+ASDOC="/Users/redge/Dropbox/Development/library/flash/air/air-28/bin/asdoc"
 
 "${ASDOC}" \
   -doc-sources ../src \
   -main-title "Flox AS3 Reference (v$version)" \
   -window-title "Flox AS3 Reference" \
-  -package com.gamua.flox "The main components of the Flox cloud service." \
-  -package com.gamua.flox.utils "Utility classes and helper methods." \
-  -package com.gamua.flox.events "Event classes used by Flox." \
+  -package-description-file=../build/ant/package-descriptions.xml
   -output html

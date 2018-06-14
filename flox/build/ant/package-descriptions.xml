@@ -1,0 +1,13 @@
+<overviews>
+	<packages>
+		<package name="com.gamua.flox">
+			<shortDescription><![CDATA[The main components of the Flox cloud service.]]></shortDescription>
+		</package>
+		<package name="com.gamua.flox.utils">
+			<shortDescription><![CDATA[Utility classes and helper methods.]]></shortDescription>
+		</package>
+		<package name="com.gamua.flox.events">
+			<shortDescription><![CDATA[Event classes used by Flox.]]></shortDescription>
+		</package>
+	</packages>
+</overviews>
