@@ -17,7 +17,7 @@ package com.gamua.flox
      *  methods for Player login and logout. 
      *
      *  <p>Do not create player instances yourself; instead, always use the player objects returned
-     *  by 'Player.current'. A guest player is created automatically for your on first start
+     *  by 'Player.current'. A guest player is created automatically for you on first start
      *  (as a guest player).</p>
      *
      *  <p>The current player is automatically persisted, i.e. when you close and restart your game,

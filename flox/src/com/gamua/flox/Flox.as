@@ -556,7 +556,7 @@ package com.gamua.flox
             }
         }
         
-        /** Indicates if the connection should be encryped using SSL/TLS. @default true */
+        /** Indicates if the connection should be encrypted using SSL/TLS. @default true */
         public static function get useSecureConnection():Boolean
         {
             return service.useSecureConnection;

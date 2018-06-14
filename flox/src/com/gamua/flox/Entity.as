@@ -423,7 +423,7 @@ package com.gamua.flox
             mId = value; 
         }
         
-        /** The player ID of the owner of the entity. (Referencing a Player entitity.) */
+        /** The player ID of the owner of the entity. (Referencing a Player entity.) */
         public function get ownerId():String { return mOwnerId; }
         public function set ownerId(value:String):void { mOwnerId = value; }
         

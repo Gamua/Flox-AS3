@@ -35,7 +35,7 @@ package com.gamua.flox.utils
          *  has been sent to the player. */
         public static const UNAUTHORIZED:int = 401;
 
-        /** An authentication error occured. */
+        /** An authentication error occurred. */
         public static const FORBIDDEN:int = 403;
         
         /** The requested resource is not available. */
