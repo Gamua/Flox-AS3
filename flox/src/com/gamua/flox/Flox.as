@@ -88,7 +88,7 @@ package com.gamua.flox
         private static var sRestService:RestService;
         private static var sPersistentData:SharedObject;
         private static var sInitialized:Boolean = false;
-        private static var sDeactivatedAt:Number = 0.0;
+        private static var sDeactivatedAt:Number = -1;
         
         private static var sTraceLogs:Boolean = true;
         private static var sReportAnalytics:Boolean = true;
@@ -428,6 +428,7 @@ package com.gamua.flox
         
         private static function onActivate(event:Event):void
         {
+            if (sDeactivatedAt < 0) return; // no prior deactivation!
             var interruptionLength:Number = (getTimer() - sDeactivatedAt) / 1000;
             
             if (interruptionLength > MAX_SESSION_INTERRUPTION_TIME)
