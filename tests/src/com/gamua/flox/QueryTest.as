@@ -64,7 +64,25 @@ package com.gamua.flox
                 query.where("dunno == ? AND x == ?", "?", "hugo"), 
                 "question mark not replaced with question mark");
         }
-        
+
+        public function testEmptyResultSet(onComplete:Function):void
+        {
+            var query:Query = new Query(NonExistingEntity);
+            query.find(onQueryComplete, onQueryError);
+
+            function onQueryComplete(results:Array):void
+            {
+                assertEqual(0, results.length);
+                onComplete();
+            }
+
+            function onQueryError(error:String):void
+            {
+                fail("could not execute query. Error: " + error);
+                onComplete();
+            }
+        }
+
         public function testEmptyQuery(onComplete:Function):void
         {
             var product:Product = new Product("tamagotchi", 42);
@@ -730,4 +748,12 @@ class Product extends Entity
     
     public function get group():String { return mGroup; }
     public function set group(value:String):void { mGroup = value; }
+}
+
+class NonExistingEntity extends Entity
+{
+    public function NonExistingEntity()
+    {
+        super();
+    }
 }
