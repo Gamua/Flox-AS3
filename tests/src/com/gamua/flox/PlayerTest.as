@@ -241,7 +241,7 @@ package com.gamua.flox
                 Player.loginWithEmail(email, onFinalLoginComplete, onFinalLoginError);
             }
             
-            function onMailError(error:String, httpStatus:int):void
+            function onMailError(error:String):void
             {
                 fail("Could not access mail server: " + error);
                 onComplete();
@@ -602,7 +602,7 @@ package com.gamua.flox
                 fetchNewEmailPassword(email, onFetchPasswordComplete, onFetchPasswordError);
             }
             
-            function onResetError(error:String, httpStatus:int):void
+            function onResetError(error:String):void
             {
                 fail("Could not reset email password: " + error);
                 onComplete();
