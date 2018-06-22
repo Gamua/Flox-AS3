@@ -188,7 +188,9 @@ package com.gamua.flox
                     }
                     else // error =(
                     {
-                        var error:String = (body && body.message) ? body.message : "unknown";
+                        var error:String = (body && body.message) ?
+                            body.message : HttpStatus.toString(status);
+
                         execute(onError, error, status, cachedResult);
                     }
                 }

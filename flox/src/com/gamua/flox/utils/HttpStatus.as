@@ -71,5 +71,28 @@ package com.gamua.flox.utils
         {
             return status == UNKNOWN || status == SERVICE_UNAVAILABLE || status == REQUEST_TIMEOUT;
         }
+
+        /** Returns a string representation of the given status code. */
+        public static function toString(status:int):String
+        {
+            switch (status)
+            {
+                case OK: return "ok";
+                case ACCEPTED: return "accepted";
+                case NO_CONTENT: return "noContent";
+                case NOT_MODIFIED: return "notModified";
+                case BAD_REQUEST: return "badRequest";
+                case UNAUTHORIZED: return "unAuthorized";
+                case FORBIDDEN: return "forbidden";
+                case NOT_FOUND: return "notFound";
+                case REQUEST_TIMEOUT: return "requestTimeout";
+                case PRECONDITION_FAILED: return "preconditionFailed";
+                case TOO_MANY_REQUESTS: return "tooManyRequest";
+                case INTERNAL_SERVER_ERROR: return "internalServerError";
+                case NOT_IMPLEMENTED: return "notImplemented";
+                case SERVICE_UNAVAILABLE: return "serviceUnavailable";
+                default: return "unknown";
+            }
+        }
     }
 }
