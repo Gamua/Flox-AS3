@@ -9,6 +9,7 @@ package com.gamua.flox
 {
     import com.gamua.flox.utils.DateUtil;
     import com.gamua.flox.utils.HttpMethod;
+    import com.gamua.flox.utils.HttpStatus;
     import com.gamua.flox.utils.createURL;
     import com.gamua.flox.utils.execute;
 
@@ -144,8 +145,18 @@ package com.gamua.flox
                 var entity:Entity = Entity.fromCache(type, id, eTag); 
                 
                 if (entity) addEntity(position, entity);
-                else Entity.load(mClass, id, function(e:Entity):void { addEntity(position, e); }, 
-                                             onLoadError);
+                else Entity.load(mClass, id,
+                    function(e:Entity):void { addEntity(position, e); },
+                    function(error:String, httpStatus:int):void
+                    {
+                        // The entity might have been deleted / changed ownership since
+                        // we received the IDs, so we ignore those cases.
+
+                        if (httpStatus == HttpStatus.NOT_FOUND || httpStatus == HttpStatus.FORBIDDEN)
+                            addEntity(position, null);
+                        else
+                            onLoadError(error, httpStatus);
+                    });
             }
             
             function onLoadError(error:String, httpStatus:int):void
@@ -166,8 +177,25 @@ package com.gamua.flox
             
             function finish():void
             {
-                if (!abort) execute(onComplete, entities);
+                if (!abort) execute(onComplete, condenseArray(entities));
             }
+        }
+
+        /** Removes all 'null' entries from the given array (in place). */
+        private static function condenseArray(array:Array):Array
+        {
+            var numItems:int = array.length;
+
+            for (var i:int=0; i<numItems; ++i)
+            {
+                if (array[i] == null)
+                {
+                    array.removeAt(i);
+                    --numItems; --i;
+                }
+            }
+
+            return array;
         }
 
         /** Executes the query and passes the list of entity IDs that make up the result to the
