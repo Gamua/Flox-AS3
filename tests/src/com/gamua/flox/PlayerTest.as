@@ -367,7 +367,6 @@ package com.gamua.flox
 
             function onNewPasswordPosted(rawContents:String):void
             {
-                trace(rawContents);
                 onComplete(newPassword);
             }
         }
