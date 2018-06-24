@@ -1,6 +1,19 @@
 Flox: Changelog
 ===============
 
+version 1.4 - 2018-06-24
+------------------------
+
+* added support for storing Score instances as shared objects
+* added workaround for rare problem with inconsistent query index
+* added some new unit tests
+* now using name of HTTP status as error message as fallback (instead of 'unknown')
+* now ignoring 'ACTIVATE' event if there hasn't been a DEACTIVATE before
+* updated IDEA modules to use AIR 30
+* updated unit tests for Starling 2.x
+* updated Ant build-file
+* fixed documentation typos
+
 version 1.3 - 2014-11-28
 ------------------------
 

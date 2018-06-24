@@ -198,7 +198,9 @@ package com.gamua.flox
             return array;
         }
 
-        /** Executes the query and passes the list of entity IDs that make up the result to the
+        /** @private
+         *
+         *  Executes the query and passes the list of entity IDs that make up the result to the
          *  "onComplete" callback. Don't forget to create appropriate indices for your queries!
          *
          *  @param onComplete  a callback with the form:
