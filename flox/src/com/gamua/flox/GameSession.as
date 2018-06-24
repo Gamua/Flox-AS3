@@ -27,9 +27,10 @@ package com.gamua.flox
         
         /** Do not call this constructor directly, but create sessions via the static 
          *  'start' method instead. */
-        public function GameSession(lastSession:GameSession=null)
+        public function GameSession(lastSession:GameSession=null, gameVersion:String=null)
         {
             mFirstStartTime = lastSession ? lastSession.firstStartTime : new Date();
+            mGameVersion = gameVersion;
             mStartTime = new Date();
             mDuration = 0;
             mLog = [];
@@ -43,7 +44,7 @@ package com.gamua.flox
         public static function start(gameID:String, gameVersion:String, installationID:String,
                                      reportAnalytics:Boolean, lastSession:GameSession=null):GameSession
         {
-            var newSession:GameSession = new GameSession(lastSession);
+            var newSession:GameSession = new GameSession(lastSession, gameVersion);
             var resolution:String = Capabilities.screenResolutionX + "x" + 
                                     Capabilities.screenResolutionY;
             
@@ -146,8 +147,12 @@ package com.gamua.flox
         public function get log():Array { return mLog; }
         public function set log(value:Array):void { mLog = value; }
         
-        /** The number of reported erros (via the 'logError' method). */
+        /** The number of reported errors (via the 'logError' method). */
         public function get numErrors():int { return mNumErrors; }
         public function set numErrors(value:int):void { mNumErrors = value; }
+
+        /** The game version of this session. */
+        public function get gameVersion():String { return mGameVersion; }
+        public function set gameVersion(value:String):void { mGameVersion = value; }
     }
 }
